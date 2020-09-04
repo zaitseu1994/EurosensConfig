@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include <QModbusDataUnit>
 
+#define LAST_MODBUS_ADRESS 50
+
 class QModbusClient;
 class QModbusReply;
 
@@ -34,6 +36,13 @@ private:
                   uint16_t             Adr[sizeof(struct_tableRegsRead)/2];
     }union_tableRegsRead;
 
+    typedef struct struct_ComModbus
+    {
+        QModbusClient *modbusDev;
+        QString        nameCom;
+        int            currentAdr;
+    } struct_ComModbus;
+
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
@@ -42,13 +51,15 @@ public:
     void DevicesSearch();
     void DevicesSaved();
 
+    void searchModbusDevice(QStringList list);
     void getNewDevice(union_tableRegsRead table,int adress);
-    void sendModbusRequest(QModbusDataUnit request,int adress);
-    void readyModbusRequest();
 
+    void pollReplyModbus();
+    void pollModbus();
+    void pollAdrModbus();
 private:
     Ui::MainWindow *ui;
-    QModbusClient *modbusDevice = nullptr;
     QModbusReply *lastRequest = nullptr;
+    QVector<struct_ComModbus> vectorModbusDevice;
 };
 #endif // MAINWINDOW_H
