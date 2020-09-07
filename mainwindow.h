@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QModbusDataUnit>
+#include <QSerialPortInfo>
 
 #define LAST_MODBUS_ADRESS 50
 
@@ -41,6 +42,10 @@ private:
         QModbusClient *modbusDev;
         QString        nameCom;
         int            currentAdr;
+        QString        description;
+        QString        manufacturer;
+        quint16        productIdentifier;
+        quint16        vendorIdentifier;
     } struct_ComModbus;
 
 public:
@@ -51,8 +56,10 @@ public:
     void DevicesSearch();
     void DevicesSaved();
 
-    void searchModbusDevice(QStringList list);
-    void getNewDevice(union_tableRegsRead table,int adress);
+    void searchModbusDevice(QList<QSerialPortInfo> listport);
+    void getNewDeviceModbus(union_tableRegsRead table,struct_ComModbus com);
+    QString findNameDevice(union_tableRegsRead table);
+    void setNameDevice(union_tableRegsRead table,QString name);
 
     void pollReplyModbus();
     void pollModbus();

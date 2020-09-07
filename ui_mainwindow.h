@@ -13,6 +13,7 @@
 #include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QGridLayout>
+#include <QtWidgets/QHeaderView>
 #include <QtWidgets/QListWidget>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QMdiArea>
@@ -22,6 +23,7 @@
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QTextBrowser>
 #include <QtWidgets/QToolBar>
+#include <QtWidgets/QTreeWidget>
 #include <QtWidgets/QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -37,7 +39,7 @@ public:
     QGridLayout *gridLayout;
     QSplitter *splitter_2;
     QSplitter *splitter;
-    QListWidget *listMain;
+    QTreeWidget *treeWidget;
     QMdiArea *mdiArea;
     QListWidget *listInfo;
     QTextBrowser *textBrowser;
@@ -52,7 +54,7 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
-        MainWindow->resize(886, 580);
+        MainWindow->resize(887, 489);
         add = new QAction(MainWindow);
         add->setObjectName(QString::fromUtf8("add"));
         view = new QAction(MainWindow);
@@ -67,31 +69,15 @@ public:
         gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
         splitter_2 = new QSplitter(centralwidget);
         splitter_2->setObjectName(QString::fromUtf8("splitter_2"));
-        splitter_2->setAutoFillBackground(true);
-        splitter_2->setStyleSheet(QString::fromUtf8(""));
-        splitter_2->setFrameShape(QFrame::StyledPanel);
         splitter_2->setOrientation(Qt::Vertical);
-        splitter_2->setChildrenCollapsible(false);
         splitter = new QSplitter(splitter_2);
         splitter->setObjectName(QString::fromUtf8("splitter"));
-        splitter->setFrameShape(QFrame::NoFrame);
         splitter->setOrientation(Qt::Horizontal);
-        splitter->setChildrenCollapsible(false);
-        listMain = new QListWidget(splitter);
-        new QListWidgetItem(listMain);
-        new QListWidgetItem(listMain);
-        listMain->setObjectName(QString::fromUtf8("listMain"));
-        listMain->setMinimumSize(QSize(100, 0));
-        listMain->setBaseSize(QSize(0, 0));
-        listMain->viewport()->setProperty("cursor", QVariant(QCursor(Qt::PointingHandCursor)));
-        listMain->setAutoFillBackground(false);
-        listMain->setStyleSheet(QString::fromUtf8(""));
-        listMain->setFrameShape(QFrame::NoFrame);
-        listMain->setFrameShadow(QFrame::Raised);
-        listMain->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-        listMain->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
-        listMain->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
-        splitter->addWidget(listMain);
+        treeWidget = new QTreeWidget(splitter);
+        treeWidget->setObjectName(QString::fromUtf8("treeWidget"));
+        treeWidget->setFrameShape(QFrame::NoFrame);
+        treeWidget->setLineWidth(0);
+        splitter->addWidget(treeWidget);
         mdiArea = new QMdiArea(splitter);
         mdiArea->setObjectName(QString::fromUtf8("mdiArea"));
         mdiArea->setAutoFillBackground(false);
@@ -124,7 +110,7 @@ public:
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QString::fromUtf8("menubar"));
-        menubar->setGeometry(QRect(0, 0, 886, 20));
+        menubar->setGeometry(QRect(0, 0, 887, 20));
         libs = new QMenu(menubar);
         libs->setObjectName(QString::fromUtf8("libs"));
         libs->setMouseTracking(true);
@@ -161,15 +147,6 @@ public:
         view->setText(QCoreApplication::translate("MainWindow", "\320\237\320\276\321\201\320\274\320\276\321\202\321\200\320\265\321\202\321\214", nullptr));
         searh->setText(QCoreApplication::translate("MainWindow", "\320\237\320\276\320\270\321\201\320\272 \321\203\321\201\321\202\321\200\320\276\320\271\321\201\321\202\320\262", nullptr));
         saved->setText(QCoreApplication::translate("MainWindow", "\320\241\320\276\321\205\321\200\320\260\320\275\320\265\320\275\320\275\321\213\320\265", nullptr));
-
-        const bool __sortingEnabled = listMain->isSortingEnabled();
-        listMain->setSortingEnabled(false);
-        QListWidgetItem *___qlistwidgetitem = listMain->item(0);
-        ___qlistwidgetitem->setText(QCoreApplication::translate("MainWindow", "ID - 21341234", nullptr));
-        QListWidgetItem *___qlistwidgetitem1 = listMain->item(1);
-        ___qlistwidgetitem1->setText(QCoreApplication::translate("MainWindow", "ID - 456785467", nullptr));
-        listMain->setSortingEnabled(__sortingEnabled);
-
         libs->setTitle(QCoreApplication::translate("MainWindow", "\320\221\320\270\320\261\320\273\320\270\320\276\321\202\320\265\320\272\320\270", nullptr));
         about->setTitle(QCoreApplication::translate("MainWindow", "\320\236 \320\277\321\200\320\276\320\263\321\200\320\260\320\274\320\274\320\265", nullptr));
         devices->setTitle(QCoreApplication::translate("MainWindow", "\320\243\321\201\321\202\321\200\320\276\320\271\321\201\321\202\320\262\320\260", nullptr));

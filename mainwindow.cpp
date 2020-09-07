@@ -4,7 +4,10 @@
 #include <QModbusRtuSerialMaster>
 #include <QSerialPort>
 #include <QSerialPortInfo>
+#include <QPushButton>
 
+#include <QLineEdit>
+#include <QLabel>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -16,7 +19,6 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->searh,&QAction::triggered,this,&MainWindow::DevicesSearch);
     connect(ui->saved,&QAction::triggered,this,&MainWindow::DevicesSaved);
 
-//    modbusDevice = new QModbusRtuSerialMaster(this);
 //    connect(modbusDevice, &QModbusClient::errorOccurred, [this](QModbusDevice::Error)
 //    {
 //        ui->textBrowser->append(modbusDevice->errorString());
@@ -31,7 +33,7 @@ MainWindow::MainWindow(QWidget *parent)
 //        if(modbusDevice->state() == QModbusDevice::ConnectedState)
 //         ui->textBrowser->append("Modbus Connect");
 //    });
-
+    ui->treeWidget->setHeaderLabel(" ");
 }
 
 MainWindow::~MainWindow()
@@ -51,19 +53,16 @@ void MainWindow::LibsView()
 
 void MainWindow::DevicesSearch()
 {
- ui->listMain->clear();
  ui->textBrowser->clear();
+ ui->treeWidget->clear();
+ ui->treeWidget->setHeaderLabel("Найденные устройства...");
 
  const auto infos = QSerialPortInfo::availablePorts();
- QStringList list;
- for (const QSerialPortInfo &info : infos) {
-     list << info.portName();
- }
- searchModbusDevice(list);
+ searchModbusDevice(infos);
  pollModbus();
 }
 
-void MainWindow::searchModbusDevice(QStringList list)
+void MainWindow::searchModbusDevice(QList<QSerialPortInfo> listport)
 {
     for( int i=0;i<vectorModbusDevice.count();i++)
     {
@@ -72,12 +71,15 @@ void MainWindow::searchModbusDevice(QStringList list)
     }
     vectorModbusDevice.clear();
 
-    for ( int i=0;i<list.count();i++ )
-    {
+    for (const QSerialPortInfo &info : listport) {
            struct_ComModbus newCh;
            newCh.modbusDev = new QModbusRtuSerialMaster();
-           newCh.nameCom =   list[i];
-           newCh.currentAdr = 1;
+           newCh.nameCom =   info.portName();
+           newCh.currentAdr = 0;
+           newCh.description = info.description();
+           newCh.manufacturer = info.manufacturer();
+           newCh.productIdentifier = info.productIdentifier();
+           newCh.vendorIdentifier = info.vendorIdentifier();
            vectorModbusDevice << newCh;
     }
 }
@@ -124,11 +126,11 @@ void MainWindow::pollAdrModbus()
         request.setRegisterType(QModbusDataUnit::InputRegisters);
         request.setStartAddress(0);
         request.setValueCount(8);
+        vectorModbusDevice.first().currentAdr++;
 
         if (auto *reply =  vectorModbusDevice.first().modbusDev->sendReadRequest(request,  vectorModbusDevice.first().currentAdr)) {
             if (!reply->isFinished())
-            {
-                vectorModbusDevice.first().currentAdr++;
+            {                
                 connect(reply, &QModbusReply::finished, this, &MainWindow::pollReplyModbus);
             }
             else
@@ -161,13 +163,13 @@ void MainWindow::pollReplyModbus()
             const QModbusDataUnit unit = replyModbus->result();
             if ( int(unit.valueCount()) == sizeof(struct_tableRegsRead)/2 )
             {
-                ui->textBrowser->append("Найдено устройство; Протокол: MODBUS-rtu; Адрес: "+QString::number(replyModbus->serverAddress()));
+                ui->textBrowser->append("Найдено устройство; Протокол: MODBUS-rtu; Адрес: "+ QString::number(replyModbus->serverAddress()));
                 union_tableRegsRead LoclTable;
                 for(int i = 0, total  = int(unit.valueCount()); i < total ;i++) // переписываем ответ в локальную таблицу регистров
                 {
                    LoclTable.Adr[i] = unit.value(i);
                 }
-                getNewDevice(LoclTable,replyModbus->serverAddress());
+                getNewDeviceModbus(LoclTable,vectorModbusDevice.first());
             }
         } else if (replyModbus->error() == QModbusDevice::ProtocolError) {
             statusBar()->showMessage(tr("Read response error: %1 (Mobus exception: 0x%2)").
@@ -176,7 +178,7 @@ void MainWindow::pollReplyModbus()
         } else {
             if ( replyModbus->serverAddress() == LAST_MODBUS_ADRESS-1 )
             {
-                 ui->textBrowser->append("Закончен опрос порта: "+vectorModbusDevice.first().nameCom);
+                 ui->textBrowser->append("Закончен опрос порта: "+ vectorModbusDevice.first().nameCom);
             }
     //        statusBar()->showMessage(tr("Read response error: %1 (code: 0x%2)").
     //                                    arg(reply->errorString()).
@@ -187,10 +189,71 @@ void MainWindow::pollReplyModbus()
 }
 
 
-void MainWindow::getNewDevice(union_tableRegsRead table,int adress)
+QString MainWindow::findNameDevice(union_tableRegsRead table)
 {
-   QString str ="Type: " + QString::number(table.Regs.TypeDevice) + " SerialNumber: "+ QString::number(table.Regs.SerialNum);
-   ui->listMain->addItem(str);
+ return NULL;
+}
+void MainWindow::setNameDevice(union_tableRegsRead table,QString name)
+{
+
+}
+
+void MainWindow::getNewDeviceModbus(union_tableRegsRead table, struct_ComModbus com)
+{
+   QString str =" Серийный номер: "+ QString::number(table.Regs.SerialNum) + " Имя: \" \" ";
+   QTreeWidgetItem *toplevel = new QTreeWidgetItem(ui->treeWidget);
+   toplevel->setText(0,str);
+   QTreeWidgetItem *item=new QTreeWidgetItem(toplevel);
+   QTreeWidgetItem *item1=new QTreeWidgetItem(toplevel);
+   QTreeWidgetItem *item2=new QTreeWidgetItem(toplevel);
+   QTreeWidgetItem *item3=new QTreeWidgetItem(toplevel);
+   QTreeWidgetItem *item4=new QTreeWidgetItem(toplevel);
+   QTreeWidgetItem *item5=new QTreeWidgetItem(toplevel);
+   QTreeWidgetItem *Protocol=new QTreeWidgetItem(toplevel);
+   QTreeWidgetItem *FisicalPort=new QTreeWidgetItem(toplevel);
+
+   QLineEdit *name = new QLineEdit();
+   name->setFrame(false);
+   name->setText("Введите имя уст...");
+   name->setStyleSheet("color: blue;"
+                       "background-color: yellow;"
+                       "selection-color: yellow;"
+                       "selection-background-color: blue;"
+                       "font: italic;");
+
+   ui->treeWidget->setItemWidget(item,0,name);
+   QLabel *typedevice = new QLabel();
+   typedevice->setText("Тип: "+QString::number(table.Regs.TypeDevice));
+   QLabel *SerialNum = new QLabel();
+   SerialNum->setText("Серийный №: "+QString::number(table.Regs.SerialNum));
+   QLabel *VerApp = new QLabel();
+   VerApp->setText("Аппаратная версия: "+QString::number(table.Regs.VerApp));
+   QLabel *LastDate = new QLabel();
+   LastDate->setText("Дата связи: "+QString::number(table.Regs.LastDate));
+   QLabel *LogError = new QLabel();
+   LogError->setText("Лог ошибок: "+QString::number(table.Regs.LogError));
+
+   ui->treeWidget->setItemWidget(item1,0,typedevice);
+   ui->treeWidget->setItemWidget(item2,0,SerialNum);
+   ui->treeWidget->setItemWidget(item3,0,VerApp);
+   ui->treeWidget->setItemWidget(item4,0,LastDate);
+   ui->treeWidget->setItemWidget(item5,0,LogError);
+
+   Protocol->setText(0,"Протокол");
+   QTreeWidgetItem *protc1=new QTreeWidgetItem(Protocol);
+   QTreeWidgetItem *protc2=new QTreeWidgetItem(Protocol);
+   protc1->setText(0,"Тип: MODBUS");
+   protc2->setText(0,"Адрес: "+QString::number(com.currentAdr));
+
+   FisicalPort->setText(0,"Порт/канал связи: "+com.nameCom);
+   QTreeWidgetItem *comp1=new QTreeWidgetItem(FisicalPort);
+   QTreeWidgetItem *comp2=new QTreeWidgetItem(FisicalPort);
+   QTreeWidgetItem *comp3=new QTreeWidgetItem(FisicalPort);
+   QTreeWidgetItem *comp4=new QTreeWidgetItem(FisicalPort);
+   comp1->setText(0,"Описание: " + com.description);
+   comp2->setText(0,"Производитель: " + com.manufacturer);
+   comp3->setText(0,"ProdID: " + QString::number(com.productIdentifier));
+   comp4->setText(0,"VendID: " + QString::number(com.vendorIdentifier));
 }
 
 
