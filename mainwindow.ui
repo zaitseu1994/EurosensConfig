@@ -31,6 +31,11 @@
         <property name="lineWidth">
          <number>0</number>
         </property>
+        <column>
+         <property name="text">
+          <string notr="true">1</string>
+         </property>
+        </column>
        </widget>
        <widget class="QMdiArea" name="mdiArea">
         <property name="autoFillBackground">
@@ -161,7 +166,7 @@
   </action>
   <action name="saved">
    <property name="text">
-    <string>Сохраненные</string>
+    <string>Сохранить</string>
    </property>
   </action>
  </widget>

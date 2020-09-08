@@ -5,6 +5,8 @@
 #include <QModbusDataUnit>
 #include <QSerialPortInfo>
 
+#include <qtreewidget.h>
+
 #define LAST_MODBUS_ADRESS 50
 
 class QModbusClient;
@@ -48,6 +50,12 @@ private:
         quint16        vendorIdentifier;
     } struct_ComModbus;
 
+    typedef struct struct_listSavedDevices
+    {
+        struct_tableRegsRead device;
+        QString              name;
+    }struct_listSavedDevices;
+
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
@@ -55,18 +63,31 @@ public:
     void LibsView();
     void DevicesSearch();
     void DevicesSaved();
+    void DevicesRead();
 
     void searchModbusDevice(QList<QSerialPortInfo> listport);
-    void getNewDeviceModbus(union_tableRegsRead table,struct_ComModbus com);
+    void getDeviceModbus(union_tableRegsRead table,struct_ComModbus com,QString nameconnect);
     QString findNameDevice(union_tableRegsRead table);
-    void setNameDevice(union_tableRegsRead table,QString name);
+    void setNameDevice(struct_tableRegsRead table,QString name);
+
+    QString tableToString(struct_listSavedDevices table_point);
+    struct_listSavedDevices stringToTable(QString str);
+    void strListTotableList();
+    void tableListTostrList();
 
     void pollReplyModbus();
     void pollModbus();
     void pollAdrModbus();
+
+    void treeDoubleClick(QTreeWidgetItem * item, int column);
 private:
     Ui::MainWindow *ui;
     QModbusReply *lastRequest = nullptr;
     QVector<struct_ComModbus> vectorModbusDevice;
+    QVector<struct_listSavedDevices> tablListSavedDevices;
+    QList<QString> strListSavedDevices;
+
+
+
 };
 #endif // MAINWINDOW_H
