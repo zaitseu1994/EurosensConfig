@@ -35,6 +35,7 @@ public:
     QAction *view;
     QAction *searh;
     QAction *saved;
+    QAction *action;
     QWidget *centralwidget;
     QGridLayout *gridLayout;
     QSplitter *splitter_2;
@@ -54,7 +55,7 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
-        MainWindow->resize(887, 489);
+        MainWindow->resize(1002, 483);
         add = new QAction(MainWindow);
         add->setObjectName(QString::fromUtf8("add"));
         view = new QAction(MainWindow);
@@ -63,6 +64,8 @@ public:
         searh->setObjectName(QString::fromUtf8("searh"));
         saved = new QAction(MainWindow);
         saved->setObjectName(QString::fromUtf8("saved"));
+        action = new QAction(MainWindow);
+        action->setObjectName(QString::fromUtf8("action"));
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
         gridLayout = new QGridLayout(centralwidget);
@@ -73,23 +76,32 @@ public:
         splitter = new QSplitter(splitter_2);
         splitter->setObjectName(QString::fromUtf8("splitter"));
         splitter->setOrientation(Qt::Horizontal);
+        splitter->setOpaqueResize(false);
+        splitter->setChildrenCollapsible(false);
         treeWidget = new QTreeWidget(splitter);
         QTreeWidgetItem *__qtreewidgetitem = new QTreeWidgetItem();
         __qtreewidgetitem->setText(0, QString::fromUtf8("1"));
         treeWidget->setHeaderItem(__qtreewidgetitem);
         treeWidget->setObjectName(QString::fromUtf8("treeWidget"));
+        treeWidget->setMinimumSize(QSize(100, 100));
         treeWidget->setFrameShape(QFrame::NoFrame);
         treeWidget->setLineWidth(0);
+        treeWidget->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
+        treeWidget->setTextElideMode(Qt::ElideRight);
         splitter->addWidget(treeWidget);
+        treeWidget->header()->setCascadingSectionResizes(true);
         mdiArea = new QMdiArea(splitter);
         mdiArea->setObjectName(QString::fromUtf8("mdiArea"));
         mdiArea->setAutoFillBackground(false);
         mdiArea->setStyleSheet(QString::fromUtf8(""));
         mdiArea->setFrameShape(QFrame::NoFrame);
+        mdiArea->setFrameShadow(QFrame::Plain);
+        mdiArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+        mdiArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
         QBrush brush(QColor(170, 255, 255, 255));
         brush.setStyle(Qt::SolidPattern);
         mdiArea->setBackground(brush);
-        mdiArea->setViewMode(QMdiArea::TabbedView);
+        mdiArea->setViewMode(QMdiArea::SubWindowView);
         mdiArea->setDocumentMode(true);
         mdiArea->setTabShape(QTabWidget::Rounded);
         splitter->addWidget(mdiArea);
@@ -97,6 +109,7 @@ public:
         listInfo->setObjectName(QString::fromUtf8("listInfo"));
         listInfo->setFrameShape(QFrame::NoFrame);
         listInfo->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+        listInfo->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
         splitter->addWidget(listInfo);
         splitter_2->addWidget(splitter);
         textBrowser = new QTextBrowser(splitter_2);
@@ -108,12 +121,12 @@ public:
         textBrowser->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
         splitter_2->addWidget(textBrowser);
 
-        gridLayout->addWidget(splitter_2, 0, 0, 1, 1);
+        gridLayout->addWidget(splitter_2, 1, 0, 1, 1);
 
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QString::fromUtf8("menubar"));
-        menubar->setGeometry(QRect(0, 0, 887, 20));
+        menubar->setGeometry(QRect(0, 0, 1002, 20));
         libs = new QMenu(menubar);
         libs->setObjectName(QString::fromUtf8("libs"));
         libs->setMouseTracking(true);
@@ -150,6 +163,7 @@ public:
         view->setText(QCoreApplication::translate("MainWindow", "\320\237\320\276\321\201\320\274\320\276\321\202\321\200\320\265\321\202\321\214", nullptr));
         searh->setText(QCoreApplication::translate("MainWindow", "\320\237\320\276\320\270\321\201\320\272 \321\203\321\201\321\202\321\200\320\276\320\271\321\201\321\202\320\262", nullptr));
         saved->setText(QCoreApplication::translate("MainWindow", "\320\241\320\276\321\205\321\200\320\260\320\275\320\270\321\202\321\214", nullptr));
+        action->setText(QCoreApplication::translate("MainWindow", "\320\236\321\201\321\202\320\260\320\275\320\276\320\262\320\270\321\202\321\214 \320\277\320\276\320\270\321\201\320\272", nullptr));
         libs->setTitle(QCoreApplication::translate("MainWindow", "\320\221\320\270\320\261\320\273\320\270\320\276\321\202\320\265\320\272\320\270", nullptr));
         about->setTitle(QCoreApplication::translate("MainWindow", "\320\236 \320\277\321\200\320\276\320\263\321\200\320\260\320\274\320\274\320\265", nullptr));
         devices->setTitle(QCoreApplication::translate("MainWindow", "\320\243\321\201\321\202\321\200\320\276\320\271\321\201\321\202\320\262\320\260", nullptr));

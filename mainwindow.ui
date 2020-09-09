@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>887</width>
-    <height>489</height>
+    <width>1002</width>
+    <height>483</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,7 +15,7 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="0">
+    <item row="1" column="0">
      <widget class="QSplitter" name="splitter_2">
       <property name="orientation">
        <enum>Qt::Vertical</enum>
@@ -24,13 +24,34 @@
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
+       <property name="opaqueResize">
+        <bool>false</bool>
+       </property>
+       <property name="childrenCollapsible">
+        <bool>false</bool>
+       </property>
        <widget class="QTreeWidget" name="treeWidget">
+        <property name="minimumSize">
+         <size>
+          <width>100</width>
+          <height>100</height>
+         </size>
+        </property>
         <property name="frameShape">
          <enum>QFrame::NoFrame</enum>
         </property>
         <property name="lineWidth">
          <number>0</number>
         </property>
+        <property name="sizeAdjustPolicy">
+         <enum>QAbstractScrollArea::AdjustToContents</enum>
+        </property>
+        <property name="textElideMode">
+         <enum>Qt::ElideRight</enum>
+        </property>
+        <attribute name="headerCascadingSectionResizes">
+         <bool>true</bool>
+        </attribute>
         <column>
          <property name="text">
           <string notr="true">1</string>
@@ -47,6 +68,15 @@
         <property name="frameShape">
          <enum>QFrame::NoFrame</enum>
         </property>
+        <property name="frameShadow">
+         <enum>QFrame::Plain</enum>
+        </property>
+        <property name="verticalScrollBarPolicy">
+         <enum>Qt::ScrollBarAsNeeded</enum>
+        </property>
+        <property name="horizontalScrollBarPolicy">
+         <enum>Qt::ScrollBarAsNeeded</enum>
+        </property>
         <property name="background">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
@@ -57,7 +87,7 @@
          </brush>
         </property>
         <property name="viewMode">
-         <enum>QMdiArea::TabbedView</enum>
+         <enum>QMdiArea::SubWindowView</enum>
         </property>
         <property name="documentMode">
          <bool>true</bool>
@@ -71,6 +101,9 @@
          <enum>QFrame::NoFrame</enum>
         </property>
         <property name="verticalScrollBarPolicy">
+         <enum>Qt::ScrollBarAlwaysOn</enum>
+        </property>
+        <property name="horizontalScrollBarPolicy">
          <enum>Qt::ScrollBarAlwaysOn</enum>
         </property>
        </widget>
@@ -101,7 +134,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>887</width>
+     <width>1002</width>
      <height>20</height>
     </rect>
    </property>
@@ -167,6 +200,11 @@
   <action name="saved">
    <property name="text">
     <string>Сохранить</string>
+   </property>
+  </action>
+  <action name="action">
+   <property name="text">
+    <string>Остановить поиск</string>
    </property>
   </action>
  </widget>

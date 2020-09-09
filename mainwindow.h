@@ -7,7 +7,12 @@
 
 #include <qtreewidget.h>
 
+#include <QTimer>
+#include <QTime>
+
 #define LAST_MODBUS_ADRESS 50
+#define MODBUS_TIMEOUT_REPLY 10
+#define MODBUS_COUNT_REPEAT  3
 
 class QModbusClient;
 class QModbusReply;
@@ -53,7 +58,8 @@ private:
     typedef struct struct_listSavedDevices
     {
         struct_tableRegsRead device;
-        QString              name;
+        QString              devicename;
+        QString              portname;
     }struct_listSavedDevices;
 
 public:
@@ -79,15 +85,18 @@ public:
     void pollModbus();
     void pollAdrModbus();
 
-    void treeDoubleClick(QTreeWidgetItem * item, int column);
+    void treeItemChange(QTreeWidgetItem * item, int column);
+
+    void prepareMenu( const QPoint & pos );
+
+    void LoadLibDevice();
 private:
     Ui::MainWindow *ui;
     QModbusReply *lastRequest = nullptr;
     QVector<struct_ComModbus> vectorModbusDevice;
     QVector<struct_listSavedDevices> tablListSavedDevices;
     QList<QString> strListSavedDevices;
-
-
+    QTimer *ModbusTimer = nullptr;
 
 };
 #endif // MAINWINDOW_H

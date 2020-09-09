@@ -11,11 +11,23 @@
 
 #include <QFile>
 
+#include <QTimer>
+#include <QTime>
+
+#include <QMessageBox>
+#include <QGridLayout>
+
+#include <QLibrary>
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    ModbusTimer = new QTimer;
+
+
     connect(ui->add,&QAction::triggered,this,&MainWindow::libsAdd);
     connect(ui->view,&QAction::triggered,this,&MainWindow::LibsView);
     connect(ui->searh,&QAction::triggered,this,&MainWindow::DevicesSearch);
@@ -35,7 +47,13 @@ MainWindow::MainWindow(QWidget *parent)
 //        if(modbusDevice->state() == QModbusDevice::ConnectedState)
 //         ui->textBrowser->append("Modbus Connect");
 //    });
+
     ui->treeWidget->setHeaderLabel(" ");
+   // ui->treeWidget->headerItem()->setHidden(true);
+    ui->treeWidget->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ui->treeWidget,&QTreeWidget::customContextMenuRequested,this,&MainWindow::prepareMenu);
+    ui->saved->setDisabled(true);
+
 }
 
 MainWindow::~MainWindow()
@@ -45,7 +63,19 @@ MainWindow::~MainWindow()
 
 void MainWindow::libsAdd()
 {
+    static const QString LIB_NAME = "libType4";
 
+    QLibrary lib( LIB_NAME );
+    if( !lib.load() ) {
+        ui->textBrowser->append("не загрузилась");
+    }
+
+    typedef int ( *OutputInt )();
+    OutputInt outputInt = ( OutputInt ) lib.resolve( "getInt" );
+    if( outputInt ) {
+        QString field = QString::number(outputInt());
+        ui->textBrowser->append(field);
+    }
 }
 
 void MainWindow::LibsView()
@@ -59,11 +89,35 @@ void MainWindow::DevicesSearch()
  ui->treeWidget->clear();
  ui->treeWidget->setHeaderLabel("Найденные устройства...");
 
+ ui->searh->setText("Идет поиск...");
+ ui->searh->setDisabled(true);
+
  tablListSavedDevices.clear();
  strListSavedDevices.clear();
  DevicesRead();
 
  const auto infos = QSerialPortInfo::availablePorts();
+ QString avlPorts;
+ for (const QSerialPortInfo &info : infos) {
+      avlPorts +=info.portName();
+      avlPorts +=";";
+ };
+ ui->textBrowser->append("Найденые порты: "+avlPorts);
+
+ ModbusTimer->stop();
+ ModbusTimer->setSingleShot(true);
+ ModbusTimer->setInterval(infos.count()*(LAST_MODBUS_ADRESS*MODBUS_TIMEOUT_REPLY*MODBUS_COUNT_REPEAT)*2);
+ connect(ModbusTimer,&QTimer::timeout,this,[this]()
+         {
+              QString comname = vectorModbusDevice.first().nameCom;
+              vectorModbusDevice.first().modbusDev->disconnectDevice();
+              vectorModbusDevice.first().modbusDev->deleteLater();
+              QMessageBox::warning(this, comname,"Проверьте соединение с портом");
+              vectorModbusDevice.clear();
+              ui->searh->setEnabled(true);
+         });
+ ModbusTimer->start();
+
  searchModbusDevice(infos);
  pollModbus();
 }
@@ -100,8 +154,8 @@ void MainWindow::pollModbus()
          vectorModbusDevice.first().modbusDev->setConnectionParameter(QModbusDevice::SerialDataBitsParameter,QSerialPort::Data8);
          vectorModbusDevice.first().modbusDev->setConnectionParameter(QModbusDevice::SerialStopBitsParameter,QSerialPort::OneStop);
 
-         vectorModbusDevice.first().modbusDev->setTimeout(10);
-         vectorModbusDevice.first().modbusDev->setNumberOfRetries(2);
+         vectorModbusDevice.first().modbusDev->setTimeout(MODBUS_TIMEOUT_REPLY);
+         vectorModbusDevice.first().modbusDev->setNumberOfRetries(MODBUS_COUNT_REPEAT);
 
          if ( !vectorModbusDevice.first().modbusDev->connectDevice() )
          {
@@ -121,6 +175,11 @@ void MainWindow::pollModbus()
               ui->textBrowser->append(tr("Соединение с портом ") + vectorModbusDevice.first().nameCom +" установленно...");
               pollAdrModbus();
          }
+    }else
+    {
+      ui->searh->setText("Поиск устройств");
+      ui->searh->setEnabled(true);
+      ModbusTimer->stop();
     }
 }
 
@@ -178,12 +237,7 @@ void MainWindow::pollReplyModbus()
 
                 QString findname = findNameDevice(LoclTable);
                 getDeviceModbus(LoclTable,vectorModbusDevice.first(),findname);
-                //setNameDevice(LoclTable,"new");
             }
-        } else if (replyModbus->error() == QModbusDevice::ProtocolError) {
-            statusBar()->showMessage(tr("Read response error: %1 (Mobus exception: 0x%2)").
-                                        arg(replyModbus->errorString()).
-                                        arg(replyModbus->rawResult().exceptionCode(), -1, 16), 5000);
         } else {
             if ( replyModbus->serverAddress() == LAST_MODBUS_ADRESS-1 )
             {
@@ -206,7 +260,7 @@ QString MainWindow::findNameDevice(union_tableRegsRead table)
 
                (tablListSavedDevices[i].device.VerApp == table.Regs.VerApp)  )
           {
-                name = tablListSavedDevices[i].name;
+                name = tablListSavedDevices[i].devicename;
                 break;
           }
     }
@@ -224,7 +278,7 @@ void MainWindow::setNameDevice(struct_tableRegsRead table,QString name)
 
                (tablListSavedDevices[i].device.VerApp == table.VerApp)  )
           {
-                tablListSavedDevices[i].name = name;
+                tablListSavedDevices[i].devicename = name;
                 nameBool  = true;
                 break;
           }
@@ -233,18 +287,27 @@ void MainWindow::setNameDevice(struct_tableRegsRead table,QString name)
     {
         struct_listSavedDevices newDev;
         memcpy(&newDev.device,&table,sizeof(newDev.device));
-        newDev.name = name;
+        newDev.devicename = name;
         tablListSavedDevices << newDev;
     }
 }
 
 void MainWindow::getDeviceModbus(union_tableRegsRead table, struct_ComModbus com,QString nameconnect)
 {
-   disconnect(ui->treeWidget,&QTreeWidget::itemChanged,this,&MainWindow::treeDoubleClick);
+   disconnect(ui->treeWidget,&QTreeWidget::itemChanged,this,&MainWindow::treeItemChange);
+
+   struct_listSavedDevices locl;
+   memcpy(&locl.device,&table.Regs,sizeof(locl.device));
+   locl.devicename = nameconnect;
+   locl.portname = com.nameCom;
+   QString strRole = tableToString(locl);
 
    QString str =" Серийный номер: "+ QString::number(table.Regs.SerialNum);
    QTreeWidgetItem *toplevel = new QTreeWidgetItem(ui->treeWidget);
+
    toplevel->setText(0,str);
+   toplevel->setData(0,Qt::UserRole,strRole);
+
    QTreeWidgetItem *itemName=new QTreeWidgetItem(toplevel);
    QTreeWidgetItem *itemType=new QTreeWidgetItem(toplevel);
    QTreeWidgetItem *itemSerial=new QTreeWidgetItem(toplevel);
@@ -256,11 +319,7 @@ void MainWindow::getDeviceModbus(union_tableRegsRead table, struct_ComModbus com
 
    itemName->setText(0,"Имя: "+nameconnect);
    itemName->setFlags(Qt::ItemIsEditable|Qt::ItemIsEnabled);
-   struct_listSavedDevices locl;
-   memcpy(&locl.device,&table.Regs,sizeof(locl.device));
-   locl.name = nameconnect;
-   QString strRole = tableToString(locl);
-   itemName->setData(0, Qt::UserRole, strRole);
+   //itemName->setData(0, Qt::UserRole, strRole);
 
    itemType->setText(0,"Тип: "+QString::number(table.Regs.TypeDevice));
    itemSerial->setText(0,"Серийный №: "+QString::number(table.Regs.SerialNum));
@@ -284,37 +343,43 @@ void MainWindow::getDeviceModbus(union_tableRegsRead table, struct_ComModbus com
    comp3->setText(0,"ProdID: " + QString::number(com.productIdentifier));
    comp4->setText(0,"VendID: " + QString::number(com.vendorIdentifier));
 
-   connect(ui->treeWidget,&QTreeWidget::itemChanged,this,&MainWindow::treeDoubleClick);
+   connect(ui->treeWidget,&QTreeWidget::itemChanged,this,&MainWindow::treeItemChange);
 }
 
-void MainWindow::treeDoubleClick(QTreeWidgetItem * item, int column)
+void MainWindow::treeItemChange(QTreeWidgetItem * item, int column)
 {
- auto strloc = item->data(column,Qt::UserRole);
- if (strloc.isValid())
+ if( item->parent()!=NULL)
  {
+    auto strloc = item->parent()->data(column,Qt::UserRole);
+    if (strloc.isValid())
+    {
      if ( strloc.type() == QVariant::String)
      {
           QString str = QString("%1").arg(strloc.toString());
           struct_listSavedDevices table = stringToTable(str);
-          QStringList newName = item->text(column).split(":",Qt::SkipEmptyParts);
-          if (newName.count()==1)
+         // QString itemStr  = item->text(column).replace(" ","");
+          QStringList newName = item->text(column).replace(" ","").split(":",Qt::SkipEmptyParts);
+          if ( newName.count()==1 )
           {
-             table.name = newName[0];
+               table.devicename = newName[0];
           }
           else
           {
-             table.name = newName[1];
+               table.devicename = newName[1];
           }
-          setNameDevice(table.device,table.name);
+          setNameDevice(table.device,table.devicename);
           ui->treeWidget->setHeaderLabel("Найденные устройства ( не сохранены )");
+          ui->saved->setEnabled(true);
      }
- }
+    }
+  }
 }
 
 
 QString MainWindow::tableToString(struct_listSavedDevices table_point)
 {
-  QString str = table_point.name +";"+QString::number(table_point.device.LastDate) +","
+  QString str = table_point.devicename +";"+table_point.portname +";"
+                         +QString::number(table_point.device.LastDate) +","
                          +QString::number(table_point.device.LogError) +","
                          +QString::number(table_point.device.SerialNum) +","
                          +QString::number(table_point.device.TypeDevice) +","
@@ -325,14 +390,21 @@ QString MainWindow::tableToString(struct_listSavedDevices table_point)
 MainWindow::struct_listSavedDevices MainWindow::stringToTable(QString str)
 {
      QStringList name = str.split(";");
-     QStringList tablstr  = name[1].split(",");
      struct_listSavedDevices table;
-     table.name = name[0];
-     table.device.LastDate = tablstr[0].toUInt();
-     table.device.LogError = tablstr[1].toUShort();
-     table.device.SerialNum = tablstr[2].toUInt();
-     table.device.TypeDevice = tablstr[3].toUShort();
-     table.device.VerApp = tablstr[4].toUInt();
+     if( name.count()==3)
+     {
+         QStringList tablstr  = name[2].split(",");
+         table.devicename = name[0];
+         table.portname = name[1];
+         if( tablstr.count()==5)
+         {
+             table.device.LastDate = tablstr[0].toUInt();
+             table.device.LogError = tablstr[1].toUShort();
+             table.device.SerialNum = tablstr[2].toUInt();
+             table.device.TypeDevice = tablstr[3].toUShort();
+             table.device.VerApp = tablstr[4].toUInt();
+         }
+     }
      return table;
 }
 
@@ -367,7 +439,8 @@ void MainWindow::DevicesSaved()
     {
         stream << QList<QString> (strListSavedDevices);
         file.close();
-        ui->treeWidget->setHeaderLabel("Найденные устройства");
+        ui->treeWidget->setHeaderLabel("Найденные устройства...");
+        ui->saved->setDisabled(true);
     }
 }
 
@@ -385,3 +458,61 @@ void MainWindow::DevicesRead()
         strListTotableList();
     }
 }
+
+void MainWindow::prepareMenu( const QPoint & pos )
+{
+QTreeWidget *tree = ui->treeWidget;
+QTreeWidgetItem *item = tree->itemAt( pos );
+    if ( item!=NULL )
+    {
+       auto strloc = item->data(0,Qt::UserRole);
+       if (strloc.isValid())
+       {
+        if ( strloc.type() == QVariant::String )
+        {
+            QAction *newconnect = new QAction("Открыть");
+            QAction *newsave = new QAction("Сохранить");
+            QAction *newSetting = new QAction("Свойства");
+            QMenu menu(this);
+            newconnect->setData(strloc);
+            connect(newconnect,&QAction::triggered,this,&MainWindow::LoadLibDevice);
+
+            menu.addAction(newconnect);
+            menu.addAction(newsave);
+            menu.addSection("new");
+            menu.addAction(newSetting);
+            menu.exec( tree->mapToGlobal(pos) );        
+        }
+       }
+    }
+}
+
+void MainWindow::LoadLibDevice()
+{
+     QAction* open = qobject_cast< QAction* >( sender() );
+     auto data = open->data();
+     if(data.isValid())
+     {
+         if(data.type()==QVariant::String)
+         {
+             QString str = QString("%1").arg(data.toString());
+             struct_listSavedDevices table = stringToTable(str);
+
+             QWidget *widget = new QWidget(ui->mdiArea);
+
+             QGridLayout *gridLayout = new QGridLayout(widget);
+             widget->setLayout(gridLayout);
+             QLabel *label = new QLabel("Первый", widget);
+             gridLayout->addWidget(label);
+             ui->mdiArea->addSubWindow(widget);
+             widget->setWindowTitle("Sub Window");
+             widget->show();
+
+             // передать QMdiArea *mdiArea  он же ui->mdiArea;
+             // передать
+
+         }
+     }
+
+}
+
