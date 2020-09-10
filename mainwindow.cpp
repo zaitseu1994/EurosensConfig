@@ -27,7 +27,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     ModbusTimer = new QTimer;
 
-
     connect(ui->add,&QAction::triggered,this,&MainWindow::libsAdd);
     connect(ui->view,&QAction::triggered,this,&MainWindow::LibsView);
     connect(ui->searh,&QAction::triggered,this,&MainWindow::DevicesSearch);
@@ -68,13 +67,16 @@ void MainWindow::libsAdd()
     QLibrary lib( LIB_NAME );
     if( !lib.load() ) {
         ui->textBrowser->append("не загрузилась");
-    }
-
-    typedef int ( *OutputInt )();
-    OutputInt outputInt = ( OutputInt ) lib.resolve( "getInt" );
-    if( outputInt ) {
-        QString field = QString::number(outputInt());
-        ui->textBrowser->append(field);
+    }else{
+        typedef void (*libdialog)(QMdiArea *mdiArea);
+        libdialog dialog = (libdialog) lib.resolve("dialogNEW");
+        if ( dialog )
+        {
+             dialog(ui->mdiArea);
+        } else
+        {
+            ui->textBrowser->append("не вышло");
+        }
     }
 }
 
@@ -87,7 +89,7 @@ void MainWindow::DevicesSearch()
 {
  ui->textBrowser->clear();
  ui->treeWidget->clear();
- ui->treeWidget->setHeaderLabel("Найденные устройства...");
+
 
  ui->searh->setText("Идет поиск...");
  ui->searh->setDisabled(true);
@@ -102,7 +104,15 @@ void MainWindow::DevicesSearch()
       avlPorts +=info.portName();
       avlPorts +=";";
  };
- ui->textBrowser->append("Найденые порты: "+avlPorts);
+ if (infos.count()>0  )
+ {
+     ui->treeWidget->setHeaderLabel("Найденные устройства...");
+     ui->textBrowser->append("Найденые порты: "+avlPorts);
+ } else
+ {
+     ui->treeWidget->setHeaderLabel(" ");
+     ui->textBrowser->append("Портов не найдено..."+avlPorts);
+ }
 
  ModbusTimer->stop();
  ModbusTimer->setSingleShot(true);
@@ -300,6 +310,7 @@ void MainWindow::getDeviceModbus(union_tableRegsRead table, struct_ComModbus com
    memcpy(&locl.device,&table.Regs,sizeof(locl.device));
    locl.devicename = nameconnect;
    locl.portname = com.nameCom;
+   locl.modbusadr = QString::number(com.currentAdr);
    QString strRole = tableToString(locl);
 
    QString str =" Серийный номер: "+ QString::number(table.Regs.SerialNum);
@@ -378,7 +389,7 @@ void MainWindow::treeItemChange(QTreeWidgetItem * item, int column)
 
 QString MainWindow::tableToString(struct_listSavedDevices table_point)
 {
-  QString str = table_point.devicename +";"+table_point.portname +";"
+  QString str = table_point.devicename +";"+table_point.portname +";"+table_point.modbusadr +";"
                          +QString::number(table_point.device.LastDate) +","
                          +QString::number(table_point.device.LogError) +","
                          +QString::number(table_point.device.SerialNum) +","
@@ -391,11 +402,12 @@ MainWindow::struct_listSavedDevices MainWindow::stringToTable(QString str)
 {
      QStringList name = str.split(";");
      struct_listSavedDevices table;
-     if( name.count()==3)
+     if( name.count()==4)
      {
-         QStringList tablstr  = name[2].split(",");
+         QStringList tablstr  = name[3].split(",");
          table.devicename = name[0];
          table.portname = name[1];
+         table.modbusadr = name[2];
          if( tablstr.count()==5)
          {
              table.device.LastDate = tablstr[0].toUInt();
@@ -507,10 +519,6 @@ void MainWindow::LoadLibDevice()
              ui->mdiArea->addSubWindow(widget);
              widget->setWindowTitle("Sub Window");
              widget->show();
-
-             // передать QMdiArea *mdiArea  он же ui->mdiArea;
-             // передать
-
          }
      }
 

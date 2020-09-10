@@ -60,6 +60,7 @@ private:
         struct_tableRegsRead device;
         QString              devicename;
         QString              portname;
+        QString              modbusadr;
     }struct_listSavedDevices;
 
 public:
