@@ -46,12 +46,24 @@ MainWindow::MainWindow(QWidget *parent)
 //        if(modbusDevice->state() == QModbusDevice::ConnectedState)
 //         ui->textBrowser->append("Modbus Connect");
 //    });
-
     ui->treeWidget->setHeaderLabel(" ");
    // ui->treeWidget->headerItem()->setHidden(true);
     ui->treeWidget->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->treeWidget,&QTreeWidget::customContextMenuRequested,this,&MainWindow::prepareMenu);
     ui->saved->setDisabled(true);
+
+//    setStyleSheet("QTreeWidget{"
+//    //"background-color: red;"
+//    "border-style: solid;"
+//    "border-width: 1px;"
+//    "border-radius: 20px;"
+//    //"border-color: beige;"
+//    //"font: bold 14px;"
+//    "min-width: 10em;"
+//    "padding: 5px;"
+//    "}"
+//    );
+//    ui->treeWidget->setWindowOpacity(1);
 
 }
 
@@ -503,24 +515,14 @@ void MainWindow::LoadLibDevice()
 {
      QAction* open = qobject_cast< QAction* >( sender() );
      auto data = open->data();
-     if(data.isValid())
+     if ( data.isValid() )
      {
-         if(data.type()==QVariant::String)
+         if ( data.type()==QVariant::String )
          {
-             QString str = QString("%1").arg(data.toString());
-             struct_listSavedDevices table = stringToTable(str);
+              QString str = QString("%1").arg(data.toString());
+              struct_listSavedDevices table = stringToTable(str);
 
-             QWidget *widget = new QWidget(ui->mdiArea);
-
-             QGridLayout *gridLayout = new QGridLayout(widget);
-             widget->setLayout(gridLayout);
-             QLabel *label = new QLabel("Первый", widget);
-             gridLayout->addWidget(label);
-             ui->mdiArea->addSubWindow(widget);
-             widget->setWindowTitle("Sub Window");
-             widget->show();
          }
      }
-
 }
 
