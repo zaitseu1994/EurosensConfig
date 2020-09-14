@@ -15,10 +15,12 @@ requires(qtConfig(combobox))
 qtConfig(modbus-serialport): QT += serialport
 
 SOURCES += \
+    devicelibs.cpp \
     main.cpp \
     mainwindow.cpp
 
 HEADERS += \
+    devicelibs.h \
     mainwindow.h
 
 FORMS += \

@@ -89,6 +89,10 @@ void MainWindow::libsAdd()
         {
             ui->textBrowser->append("не вышло");
         }
+
+        typedef TestDLL_lib* (*create_TestDLL_lib_fun)();
+        create_TestDLL_lib_fun create_TestDLL_lib = (create_TestDLL_lib_fun)lib.resolve("create_TestDLL_lib");
+
     }
 }
 
