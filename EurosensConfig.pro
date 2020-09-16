@@ -14,17 +14,28 @@ requires(qtConfig(combobox))
 
 qtConfig(modbus-serialport): QT += serialport
 
+QT += widgets printsupport
+
 SOURCES += \
     devicelibs.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    mws.cpp \
+    qcustomplot.cpp
 
 HEADERS += \
     devicelibs.h \
-    mainwindow.h
+    mainwindow.h \
+    mws.h \
+    qcustomplot.h \
+    structs_lib.h \
+    structs_main.h \
+    structs_ui.h \
+    ui_mws.h
 
 FORMS += \
-    mainwindow.ui
+    mainwindow.ui \
+    mws.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

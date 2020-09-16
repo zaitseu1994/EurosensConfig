@@ -74,12 +74,13 @@ public:
         splitter_3 = new QSplitter(centralwidget);
         splitter_3->setObjectName(QString::fromUtf8("splitter_3"));
         splitter_3->setOrientation(Qt::Horizontal);
+        splitter_3->setHandleWidth(1);
         treeWidget = new QTreeWidget(splitter_3);
         QTreeWidgetItem *__qtreewidgetitem = new QTreeWidgetItem();
         __qtreewidgetitem->setText(0, QString::fromUtf8("1"));
         treeWidget->setHeaderItem(__qtreewidgetitem);
         treeWidget->setObjectName(QString::fromUtf8("treeWidget"));
-        treeWidget->setMinimumSize(QSize(100, 100));
+        treeWidget->setMinimumSize(QSize(150, 100));
         treeWidget->setFrameShape(QFrame::NoFrame);
         treeWidget->setLineWidth(0);
         treeWidget->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);

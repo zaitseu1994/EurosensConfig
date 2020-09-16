@@ -2,13 +2,17 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QModbusDataUnit>
-#include <QSerialPortInfo>
+
 
 #include <qtreewidget.h>
 
 #include <QTimer>
 #include <QTime>
+
+#include "devicelibs.h"
+#include "structs_ui.h"
+
+#include "mws.h"
 
 #define LAST_MODBUS_ADRESS 50
 #define MODBUS_TIMEOUT_REPLY 10
@@ -16,7 +20,7 @@
 
 class QModbusClient;
 class QModbusReply;
-
+class DeviceLibs;
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -25,44 +29,6 @@ QT_END_NAMESPACE
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
-
-private:
-
-    #pragma pack(push, 1)
-    typedef struct struct_tableRegsRead
-    {
-                   uint16_t TypeDevice; // тип устройства 		        // 2b
-                   uint32_t SerialNum;  // серийный номер устройства    // 4b
-                   uint32_t VerApp;     // аппаратная версия устройства // 4b
-                   uint32_t LastDate;   // дата/время последней связи   // 4b
-                   uint16_t LogError;   // код логов ошибок             // 2b
-    }struct_tableRegsRead;
-    #pragma pack(pop)
-
-    typedef union union_tableRegsRead {
-                  struct_tableRegsRead Regs;
-                  uint16_t             Adr[sizeof(struct_tableRegsRead)/2];
-    }union_tableRegsRead;
-
-    typedef struct struct_ComModbus
-    {
-        QModbusClient *modbusDev;
-        QString        nameCom;
-        int            currentAdr;
-        QString        description;
-        QString        manufacturer;
-        quint16        productIdentifier;
-        quint16        vendorIdentifier;
-    } struct_ComModbus;
-
-    typedef struct struct_listSavedDevices
-    {
-        struct_tableRegsRead device;
-        QString              devicename;
-        QString              portname;
-        QString              modbusadr;
-    }struct_listSavedDevices;
-
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
@@ -93,11 +59,15 @@ public:
     void LoadLibDevice();
 private:
     Ui::MainWindow *ui;
-    QModbusReply *lastRequest = nullptr;
+    DeviceLibs *libs = nullptr;
+    QTimer *ModbusTimer = nullptr;
     QVector<struct_ComModbus> vectorModbusDevice;
+    int intcomModBusDevice;
+    int endcomModBusDevice;
     QVector<struct_listSavedDevices> tablListSavedDevices;
     QList<QString> strListSavedDevices;
-    QTimer *ModbusTimer = nullptr;
+
+    QVector<int> testvec;
 
 };
 #endif // MAINWINDOW_H

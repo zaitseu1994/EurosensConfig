@@ -2,9 +2,10 @@
 #include "ui_mainwindow.h"
 
 #include <QModbusRtuSerialMaster>
-#include <QSerialPort>
-#include <QSerialPortInfo>
 #include <QPushButton>
+
+#include "structs_ui.h"
+#include "structs_main.h"
 
 #include <QLineEdit>
 #include <QLabel>
@@ -19,6 +20,9 @@
 
 #include <QLibrary>
 
+#include "libtype4.h"
+#include "mws.h"
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -26,7 +30,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 
     ModbusTimer = new QTimer;
-
+    libs = new DeviceLibs;
     connect(ui->add,&QAction::triggered,this,&MainWindow::libsAdd);
     connect(ui->view,&QAction::triggered,this,&MainWindow::LibsView);
     connect(ui->searh,&QAction::triggered,this,&MainWindow::DevicesSearch);
@@ -69,31 +73,14 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+   // delete libs;
+    delete ModbusTimer;
     delete ui;
 }
 
 void MainWindow::libsAdd()
 {
-    static const QString LIB_NAME = "libType4";
 
-    QLibrary lib( LIB_NAME );
-    if( !lib.load() ) {
-        ui->textBrowser->append("не загрузилась");
-    }else{
-        typedef void (*libdialog)(QMdiArea *mdiArea);
-        libdialog dialog = (libdialog) lib.resolve("dialogNEW");
-        if ( dialog )
-        {
-             dialog(ui->mdiArea);
-        } else
-        {
-            ui->textBrowser->append("не вышло");
-        }
-
-        typedef TestDLL_lib* (*create_TestDLL_lib_fun)();
-        create_TestDLL_lib_fun create_TestDLL_lib = (create_TestDLL_lib_fun)lib.resolve("create_TestDLL_lib");
-
-    }
 }
 
 void MainWindow::LibsView()
@@ -106,9 +93,10 @@ void MainWindow::DevicesSearch()
  ui->textBrowser->clear();
  ui->treeWidget->clear();
 
-
  ui->searh->setText("Идет поиск...");
  ui->searh->setDisabled(true);
+
+ libs->CloseAll();
 
  tablListSavedDevices.clear();
  strListSavedDevices.clear();
@@ -120,7 +108,7 @@ void MainWindow::DevicesSearch()
       avlPorts +=info.portName();
       avlPorts +=";";
  };
- if (infos.count()>0  )
+ if ( infos.count()>0  )
  {
      ui->treeWidget->setHeaderLabel("Найденные устройства...");
      ui->textBrowser->append("Найденые порты: "+avlPorts);
@@ -129,17 +117,19 @@ void MainWindow::DevicesSearch()
      ui->treeWidget->setHeaderLabel(" ");
      ui->textBrowser->append("Портов не найдено..."+avlPorts);
  }
+ endcomModBusDevice = infos.count();
+ intcomModBusDevice = 0;
 
  ModbusTimer->stop();
  ModbusTimer->setSingleShot(true);
- ModbusTimer->setInterval(infos.count()*(LAST_MODBUS_ADRESS*MODBUS_TIMEOUT_REPLY*MODBUS_COUNT_REPEAT)*2);
+ ModbusTimer->setInterval(infos.count()*(LAST_MODBUS_ADRESS*MODBUS_TIMEOUT_REPLY*MODBUS_COUNT_REPEAT)*2.5);
  connect(ModbusTimer,&QTimer::timeout,this,[this]()
          {
-              QString comname = vectorModbusDevice.first().nameCom;
-              vectorModbusDevice.first().modbusDev->disconnectDevice();
-              vectorModbusDevice.first().modbusDev->deleteLater();
+              QString comname = vectorModbusDevice[intcomModBusDevice].nameCom;
+//              vectorModbusDevice.first().modbusDev->disconnectDevice();
+//              vectorModbusDevice.first().modbusDev->deleteLater();
               QMessageBox::warning(this, comname,"Проверьте соединение с портом");
-              vectorModbusDevice.clear();
+//              vectorModbusDevice.clear();
               ui->searh->setEnabled(true);
          });
  ModbusTimer->start();
@@ -166,39 +156,40 @@ void MainWindow::searchModbusDevice(QList<QSerialPortInfo> listport)
            newCh.manufacturer = info.manufacturer();
            newCh.productIdentifier = info.productIdentifier();
            newCh.vendorIdentifier = info.vendorIdentifier();
+           newCh.isFind =false;
            vectorModbusDevice << newCh;
     }
 }
 
 void MainWindow::pollModbus()
 {
-    if ( vectorModbusDevice.count()!=0 )
+
+    if(intcomModBusDevice<vectorModbusDevice.count())
     {
-         vectorModbusDevice.first().modbusDev->setConnectionParameter(QModbusDevice::SerialPortNameParameter,vectorModbusDevice.first().nameCom);
-         vectorModbusDevice.first().modbusDev->setConnectionParameter(QModbusDevice::SerialParityParameter,QSerialPort::NoParity);
-         vectorModbusDevice.first().modbusDev->setConnectionParameter(QModbusDevice::SerialBaudRateParameter,QSerialPort::Baud115200);
-         vectorModbusDevice.first().modbusDev->setConnectionParameter(QModbusDevice::SerialDataBitsParameter,QSerialPort::Data8);
-         vectorModbusDevice.first().modbusDev->setConnectionParameter(QModbusDevice::SerialStopBitsParameter,QSerialPort::OneStop);
+         vectorModbusDevice[intcomModBusDevice].modbusDev->setConnectionParameter(QModbusDevice::SerialPortNameParameter,vectorModbusDevice[intcomModBusDevice].nameCom);
+         vectorModbusDevice[intcomModBusDevice].modbusDev->setConnectionParameter(QModbusDevice::SerialParityParameter,QSerialPort::NoParity);
+         vectorModbusDevice[intcomModBusDevice].modbusDev->setConnectionParameter(QModbusDevice::SerialBaudRateParameter,QSerialPort::Baud115200);
+         vectorModbusDevice[intcomModBusDevice].modbusDev->setConnectionParameter(QModbusDevice::SerialDataBitsParameter,QSerialPort::Data8);
+         vectorModbusDevice[intcomModBusDevice].modbusDev->setConnectionParameter(QModbusDevice::SerialStopBitsParameter,QSerialPort::OneStop);
 
-         vectorModbusDevice.first().modbusDev->setTimeout(MODBUS_TIMEOUT_REPLY);
-         vectorModbusDevice.first().modbusDev->setNumberOfRetries(MODBUS_COUNT_REPEAT);
+         vectorModbusDevice[intcomModBusDevice].modbusDev->setTimeout(MODBUS_TIMEOUT_REPLY);
+         vectorModbusDevice[intcomModBusDevice].modbusDev->setNumberOfRetries(MODBUS_COUNT_REPEAT);
 
-         if ( !vectorModbusDevice.first().modbusDev->connectDevice() )
+
+         if ( !vectorModbusDevice[intcomModBusDevice].modbusDev->connectDevice() )
          {
-              ui->textBrowser->append(tr("Соединение с портом ") + vectorModbusDevice.first().nameCom +" не установленно:" + vectorModbusDevice.first().modbusDev->errorString());
+              ui->textBrowser->append(tr("Соединение с портом ") + vectorModbusDevice[intcomModBusDevice].nameCom +" не установленно:" + vectorModbusDevice[intcomModBusDevice].modbusDev->errorString());
 
-              vectorModbusDevice.first().modbusDev->disconnectDevice();
-              vectorModbusDevice.first().modbusDev->deleteLater();
-              QMutableVectorIterator<struct_ComModbus> i(vectorModbusDevice);
-              if ( i.hasNext())
-              {
-                   i.next();
-                   i.remove();
-              }
+
+              vectorModbusDevice[intcomModBusDevice].modbusDev->disconnectDevice();
+              vectorModbusDevice[intcomModBusDevice].modbusDev->deleteLater();
+
+              vectorModbusDevice.remove(intcomModBusDevice);
+
               pollModbus();
          } else
          {
-              ui->textBrowser->append(tr("Соединение с портом ") + vectorModbusDevice.first().nameCom +" установленно...");
+              ui->textBrowser->append(tr("Соединение с портом ") + vectorModbusDevice[intcomModBusDevice].nameCom +" установленно...");
               pollAdrModbus();
          }
     }else
@@ -211,15 +202,17 @@ void MainWindow::pollModbus()
 
 void MainWindow::pollAdrModbus()
 {
-    if ( vectorModbusDevice.first().currentAdr != LAST_MODBUS_ADRESS )
+
+    if ( vectorModbusDevice[intcomModBusDevice].currentAdr !=LAST_MODBUS_ADRESS+1)
     {
         QModbusDataUnit request;
         request.setRegisterType(QModbusDataUnit::InputRegisters);
         request.setStartAddress(0);
         request.setValueCount(8);
-        vectorModbusDevice.first().currentAdr++;
+        //vectorModbusDevice.first().currentAdr++;
+        vectorModbusDevice[intcomModBusDevice].currentAdr++;
 
-        if (auto *reply =  vectorModbusDevice.first().modbusDev->sendReadRequest(request,  vectorModbusDevice.first().currentAdr)) {
+        if (auto *reply =  vectorModbusDevice[intcomModBusDevice].modbusDev->sendReadRequest(request,  vectorModbusDevice[intcomModBusDevice].currentAdr)) {
             if (!reply->isFinished())
             {                
                 connect(reply, &QModbusReply::finished, this, &MainWindow::pollReplyModbus);
@@ -227,19 +220,20 @@ void MainWindow::pollAdrModbus()
             else
                 delete reply; // broadcast replies return immediately
         } else {
-            ui->textBrowser->append("Read error: " + vectorModbusDevice.first().modbusDev->errorString());
+            ui->textBrowser->append("Read error: " + vectorModbusDevice[intcomModBusDevice].modbusDev->errorString());
         }
     }
     else
     {
-        vectorModbusDevice.first().modbusDev->disconnectDevice();
-        vectorModbusDevice.first().modbusDev->deleteLater();
-        QMutableVectorIterator<struct_ComModbus> i(vectorModbusDevice);
-        if ( i.hasNext())
-        {
-             i.next();
-             i.remove();
-        }
+          if ( !vectorModbusDevice[intcomModBusDevice].isFind)
+          {
+                vectorModbusDevice[intcomModBusDevice].modbusDev->disconnectDevice();
+                vectorModbusDevice[intcomModBusDevice].modbusDev->deleteLater();
+                vectorModbusDevice.remove(intcomModBusDevice);
+          } else
+          {
+              intcomModBusDevice++;
+          }
         pollModbus();
     }
 }
@@ -260,14 +254,14 @@ void MainWindow::pollReplyModbus()
                 {
                    LoclTable.Adr[i] = unit.value(i);
                 }
-
                 QString findname = findNameDevice(LoclTable);
-                getDeviceModbus(LoclTable,vectorModbusDevice.first(),findname);
+                getDeviceModbus(LoclTable,vectorModbusDevice[intcomModBusDevice],findname);
+                vectorModbusDevice[intcomModBusDevice].isFind = true;
             }
         } else {
-            if ( replyModbus->serverAddress() == LAST_MODBUS_ADRESS-1 )
+            if ( replyModbus->serverAddress() == LAST_MODBUS_ADRESS )
             {
-                 ui->textBrowser->append("Закончен опрос порта: "+ vectorModbusDevice.first().nameCom);
+                 ui->textBrowser->append("Закончен опрос порта: "+ vectorModbusDevice[intcomModBusDevice].nameCom);
             }
         }
         replyModbus->deleteLater();
@@ -280,11 +274,11 @@ QString MainWindow::findNameDevice(union_tableRegsRead table)
     QString name = NULL;
     for ( int i=0;i<tablListSavedDevices.count();i++ )
     {
-          if ( (tablListSavedDevices[i].device.SerialNum == table.Regs.SerialNum) &&
+          if ( (tablListSavedDevices[i].device.Regs.SerialNum == table.Regs.SerialNum) &&
 
-               (tablListSavedDevices[i].device.TypeDevice == table.Regs.TypeDevice) &&
+               (tablListSavedDevices[i].device.Regs.TypeDevice == table.Regs.TypeDevice) &&
 
-               (tablListSavedDevices[i].device.VerApp == table.Regs.VerApp)  )
+               (tablListSavedDevices[i].device.Regs.VerApp == table.Regs.VerApp)  )
           {
                 name = tablListSavedDevices[i].devicename;
                 break;
@@ -298,11 +292,11 @@ void MainWindow::setNameDevice(struct_tableRegsRead table,QString name)
     bool nameBool = false;
     for ( int i=0;i<tablListSavedDevices.count();i++ )
     {
-          if ( (tablListSavedDevices[i].device.SerialNum == table.SerialNum) &&
+          if ( (tablListSavedDevices[i].device.Regs.SerialNum == table.SerialNum) &&
 
-               (tablListSavedDevices[i].device.TypeDevice == table.TypeDevice) &&
+               (tablListSavedDevices[i].device.Regs.TypeDevice == table.TypeDevice) &&
 
-               (tablListSavedDevices[i].device.VerApp == table.VerApp)  )
+               (tablListSavedDevices[i].device.Regs.VerApp == table.VerApp)  )
           {
                 tablListSavedDevices[i].devicename = name;
                 nameBool  = true;
@@ -329,7 +323,7 @@ void MainWindow::getDeviceModbus(union_tableRegsRead table, struct_ComModbus com
    locl.modbusadr = QString::number(com.currentAdr);
    QString strRole = tableToString(locl);
 
-   QString str =" Серийный номер: "+ QString::number(table.Regs.SerialNum);
+   QString str ="№ номер: "+ QString::number(table.Regs.SerialNum);
    QTreeWidgetItem *toplevel = new QTreeWidgetItem(ui->treeWidget);
 
    toplevel->setText(0,str);
@@ -394,7 +388,7 @@ void MainWindow::treeItemChange(QTreeWidgetItem * item, int column)
           {
                table.devicename = newName[1];
           }
-          setNameDevice(table.device,table.devicename);
+          setNameDevice(table.device.Regs,table.devicename);
           ui->treeWidget->setHeaderLabel("Найденные устройства ( не сохранены )");
           ui->saved->setEnabled(true);
      }
@@ -406,15 +400,15 @@ void MainWindow::treeItemChange(QTreeWidgetItem * item, int column)
 QString MainWindow::tableToString(struct_listSavedDevices table_point)
 {
   QString str = table_point.devicename +";"+table_point.portname +";"+table_point.modbusadr +";"
-                         +QString::number(table_point.device.LastDate) +","
-                         +QString::number(table_point.device.LogError) +","
-                         +QString::number(table_point.device.SerialNum) +","
-                         +QString::number(table_point.device.TypeDevice) +","
-                         +QString::number(table_point.device.VerApp);
+                         +QString::number(table_point.device.Regs.LastDate) +","
+                         +QString::number(table_point.device.Regs.LogError) +","
+                         +QString::number(table_point.device.Regs.SerialNum) +","
+                         +QString::number(table_point.device.Regs.TypeDevice) +","
+                         +QString::number(table_point.device.Regs.VerApp);
   return str;
 }
 
-MainWindow::struct_listSavedDevices MainWindow::stringToTable(QString str)
+struct_listSavedDevices MainWindow::stringToTable(QString str)
 {
      QStringList name = str.split(";");
      struct_listSavedDevices table;
@@ -426,11 +420,11 @@ MainWindow::struct_listSavedDevices MainWindow::stringToTable(QString str)
          table.modbusadr = name[2];
          if( tablstr.count()==5)
          {
-             table.device.LastDate = tablstr[0].toUInt();
-             table.device.LogError = tablstr[1].toUShort();
-             table.device.SerialNum = tablstr[2].toUInt();
-             table.device.TypeDevice = tablstr[3].toUShort();
-             table.device.VerApp = tablstr[4].toUInt();
+             table.device.Regs.LastDate = tablstr[0].toUInt();
+             table.device.Regs.LogError = tablstr[1].toUShort();
+             table.device.Regs.SerialNum = tablstr[2].toUInt();
+             table.device.Regs.TypeDevice = tablstr[3].toUShort();
+             table.device.Regs.VerApp = tablstr[4].toUInt();
          }
      }
      return table;
@@ -525,7 +519,22 @@ void MainWindow::LoadLibDevice()
          {
               QString str = QString("%1").arg(data.toString());
               struct_listSavedDevices table = stringToTable(str);
+              QModbusClient *modbus =nullptr;
+              for(int i =0; i < vectorModbusDevice.count();i++)
+              {
+                  if( vectorModbusDevice[i].nameCom == table.portname)
+                  {
+                      modbus  = vectorModbusDevice[i].modbusDev;
+                  }
+              }
+              if(modbus!=nullptr)
+              {
 
+                if ( libs->LibOpen(str,ui->mdiArea,modbus) )
+                {
+
+                }
+              }
          }
      }
 }

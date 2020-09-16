@@ -20,10 +20,13 @@
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
+      <property name="handleWidth">
+       <number>1</number>
+      </property>
       <widget class="QTreeWidget" name="treeWidget">
        <property name="minimumSize">
         <size>
-         <width>100</width>
+         <width>150</width>
          <height>100</height>
         </size>
        </property>
