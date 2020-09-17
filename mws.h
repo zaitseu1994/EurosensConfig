@@ -23,13 +23,20 @@ public:
 private:
     struct_listSavedDevices stringToTable(QString str);
     void updateRegs();
-    void replyReceived();
+    void replyReceivedRead();
+    void sendRegs();
+    void replyReceivedWrite();
     void updateAllSettingsView(union_tableRegsWrite Table);
+    void updateMainSettingsView(union_tableRegsWrite Table);
+    void updateAllSettingsTable(union_tableRegsWrite *Table);
+    void startView();
 private:
     Ui::MWS *ui;
     QTimer *ModbusRegsTimer = nullptr;
     struct_listSavedDevices device;
+    union_tableRegsWrite LoclTableRecieve;
     QModbusClient *modbusDevice = nullptr;
+    bool firstRequest;
 };
 
 #endif // MWS_H

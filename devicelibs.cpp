@@ -39,7 +39,8 @@ bool DeviceLibs:: CloseAll()
     {
          if( vectorDialogs[i].dialog)
          {
-             vectorDialogs[i].dialog->hide();
+             vectorDialogs[i].dialog->deleteLater();
+             vectorDialogs[i].dialog->hide();       
          }
     }
     if(vectorDialogs.count()!=0)

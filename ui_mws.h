@@ -26,7 +26,6 @@
 #include <QtWidgets/QSpinBox>
 #include <QtWidgets/QTabWidget>
 #include <QtWidgets/QTableWidget>
-#include <QtWidgets/QTextBrowser>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
 #include "qcustomplot.h"
@@ -38,7 +37,6 @@ class Ui_MWS
 public:
     QGridLayout *gridLayout;
     QCustomPlot *widget_2;
-    QTextBrowser *textBrowser;
     QHBoxLayout *horizontalLayout_2;
     QVBoxLayout *verticalLayout;
     QTabWidget *tabWidget;
@@ -77,10 +75,10 @@ public:
     QSpinBox *spin_IdSensor;
     QSlider *slid_IdSensor;
     QHBoxLayout *horizontalLayout_6;
-    QDoubleSpinBox *spin_StartMeasure;
+    QSpinBox *spin_StartMeasure;
     QSlider *slid_StartMeasure;
     QHBoxLayout *horizontalLayout_10;
-    QDoubleSpinBox *spin_EndMeasure;
+    QSpinBox *spin_EndMeasure;
     QSlider *slid_EndMeasure;
     QHBoxLayout *horizontalLayout_7;
     QDoubleSpinBox *spin_ReceiverGain;
@@ -141,9 +139,6 @@ public:
         gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
         widget_2 = new QCustomPlot(MWS);
         widget_2->setObjectName(QString::fromUtf8("widget_2"));
-        textBrowser = new QTextBrowser(widget_2);
-        textBrowser->setObjectName(QString::fromUtf8("textBrowser"));
-        textBrowser->setGeometry(QRect(10, 10, 256, 192));
 
         gridLayout->addWidget(widget_2, 1, 0, 1, 1);
 
@@ -326,13 +321,19 @@ public:
 
         horizontalLayout_6 = new QHBoxLayout();
         horizontalLayout_6->setObjectName(QString::fromUtf8("horizontalLayout_6"));
-        spin_StartMeasure = new QDoubleSpinBox(tab_2);
+        spin_StartMeasure = new QSpinBox(tab_2);
         spin_StartMeasure->setObjectName(QString::fromUtf8("spin_StartMeasure"));
+        spin_StartMeasure->setMinimum(-70);
+        spin_StartMeasure->setMaximum(700);
 
         horizontalLayout_6->addWidget(spin_StartMeasure);
 
         slid_StartMeasure = new QSlider(tab_2);
         slid_StartMeasure->setObjectName(QString::fromUtf8("slid_StartMeasure"));
+        slid_StartMeasure->setMinimum(-70);
+        slid_StartMeasure->setMaximum(700);
+        slid_StartMeasure->setSingleStep(1);
+        slid_StartMeasure->setValue(-70);
         slid_StartMeasure->setOrientation(Qt::Horizontal);
 
         horizontalLayout_6->addWidget(slid_StartMeasure);
@@ -344,13 +345,15 @@ public:
 
         horizontalLayout_10 = new QHBoxLayout();
         horizontalLayout_10->setObjectName(QString::fromUtf8("horizontalLayout_10"));
-        spin_EndMeasure = new QDoubleSpinBox(tab_2);
+        spin_EndMeasure = new QSpinBox(tab_2);
         spin_EndMeasure->setObjectName(QString::fromUtf8("spin_EndMeasure"));
+        spin_EndMeasure->setMaximum(770);
 
         horizontalLayout_10->addWidget(spin_EndMeasure);
 
         slid_EndMeasure = new QSlider(tab_2);
         slid_EndMeasure->setObjectName(QString::fromUtf8("slid_EndMeasure"));
+        slid_EndMeasure->setMaximum(770);
         slid_EndMeasure->setOrientation(Qt::Horizontal);
 
         horizontalLayout_10->addWidget(slid_EndMeasure);
@@ -364,11 +367,14 @@ public:
         horizontalLayout_7->setObjectName(QString::fromUtf8("horizontalLayout_7"));
         spin_ReceiverGain = new QDoubleSpinBox(tab_2);
         spin_ReceiverGain->setObjectName(QString::fromUtf8("spin_ReceiverGain"));
+        spin_ReceiverGain->setMaximum(1.000000000000000);
+        spin_ReceiverGain->setSingleStep(0.010000000000000);
 
         horizontalLayout_7->addWidget(spin_ReceiverGain);
 
         slid_ReceiverGain = new QSlider(tab_2);
         slid_ReceiverGain->setObjectName(QString::fromUtf8("slid_ReceiverGain"));
+        slid_ReceiverGain->setMaximum(100);
         slid_ReceiverGain->setOrientation(Qt::Horizontal);
 
         horizontalLayout_7->addWidget(slid_ReceiverGain);
@@ -400,11 +406,14 @@ public:
         horizontalLayout_8->setObjectName(QString::fromUtf8("horizontalLayout_8"));
         spin_RunningAverage = new QDoubleSpinBox(tab_2);
         spin_RunningAverage->setObjectName(QString::fromUtf8("spin_RunningAverage"));
+        spin_RunningAverage->setMaximum(1.000000000000000);
+        spin_RunningAverage->setSingleStep(0.010000000000000);
 
         horizontalLayout_8->addWidget(spin_RunningAverage);
 
         slid_RunningAverage = new QSlider(tab_2);
         slid_RunningAverage->setObjectName(QString::fromUtf8("slid_RunningAverage"));
+        slid_RunningAverage->setMaximum(100);
         slid_RunningAverage->setOrientation(Qt::Horizontal);
 
         horizontalLayout_8->addWidget(slid_RunningAverage);
@@ -643,7 +652,7 @@ public:
 
         retranslateUi(MWS);
 
-        tabWidget->setCurrentIndex(0);
+        tabWidget->setCurrentIndex(1);
 
 
         QMetaObject::connectSlotsByName(MWS);
@@ -670,7 +679,7 @@ public:
         lab_PowerSaveMode->setText(QCoreApplication::translate("MWS", "\320\240\320\265\320\266\320\270\320\274 \321\215\320\275\320\265\321\200\320\263\320\276\321\201\320\261\320\265\321\200\320\265\320\266\320\265\320\275\320\270\321\217:", nullptr));
         lab_AsynchMeasure->setText(QCoreApplication::translate("MWS", "\320\220\321\201\320\270\320\275\321\205\321\200. \320\270\320\267\320\274\320\265\321\200\320\265\320\275\320\270\320\265:", nullptr));
         lab_RepetitionMode->setText(QCoreApplication::translate("MWS", "\320\240\320\265\320\266\320\270\320\274 \320\277\320\276\320\262\321\202\320\276\321\200\320\265\320\275\320\270\321\217:", nullptr));
-        lab_TXDisable->setText(QCoreApplication::translate("MWS", "TXD:", nullptr));
+        lab_TXDisable->setText(QCoreApplication::translate("MWS", "\320\222\321\213\320\272\320\273\321\216\321\207\320\270\321\202\321\214 TXD:", nullptr));
         lab_Profile->setText(QCoreApplication::translate("MWS", "\320\237\321\200\320\276\321\204\320\270\320\273\321\214:", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(tab_2), QCoreApplication::translate("MWS", "\320\235\320\260\321\201\321\202\321\200\320\276\320\271\320\272\320\270 \321\201\320\265\320\275\321\201\320\276\321\200\320\260", nullptr));
         lab_CountPoint->setText(QCoreApplication::translate("MWS", "\320\232\320\276\320\273\320\270\321\207\320\265\321\201\321\202\320\262\320\276 \321\202\320\276\321\207\320\265\320\272", nullptr));
