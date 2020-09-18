@@ -78,13 +78,35 @@ MWS::MWS(QWidget *parent) :
     {
        ui->slid_RunningAverage->setValue(static_cast<int>(ui->spin_RunningAverage->value()*100));
     });
+
     firstRequest = true;
 
-//    connect(ui->button_Update,&QPushButton::clicked,this,[=]
-//    {
-//        sendRegs();
-//        updateRegs();
-//    });
+    connect(ui->spin_CountPoint,QOverload<int>::of(&QSpinBox::valueChanged),this,&MWS::updateTableWidget);
+
+    connect(ui->button_SendTable,&QPushButton::clicked,this,[=]
+    {
+        readTableWidget();
+        setupAction(WRITE_TABLE);
+        currentPointTableCalibration = 0;
+        ModbusRegsTimer->stop();
+        ModbusRegsTimer->setInterval(MODBUS_INTERVAL_ALL/10);
+        ModbusRegsTimer->start();
+        ui->button_SendTable->setEnabled(false);
+        ui->button_ReseiveTable->setEnabled(false);
+    });
+
+   connect(ui->button_ReseiveTable,&QPushButton::clicked,this,[=]
+   {
+       TableCalibration.clear();
+       setupAction(READ_TABLE);
+       ModbusRegsTimer->stop();
+       ModbusRegsTimer->setInterval(MODBUS_INTERVAL_ALL/10);
+       ModbusRegsTimer->start();
+       ui->button_SendTable->setEnabled(false);
+       ui->button_ReseiveTable->setEnabled(false);
+   });
+
+ //  connect(ui->tableWidget,&QTableWidget::cellChanged,this,&MWS::updatePlotWidget);
 }
 
 MWS::~MWS()
@@ -190,6 +212,7 @@ void MWS::replyReceivedRead()
                    LoclTableRecieve.Adr[i] = unit.value(i);
                 }
                 updateAllSettingsView(LoclTableRecieve);
+                upperModbusCheck();
                 firstRequest=false;
             }else
             {
@@ -210,6 +233,7 @@ void MWS::sendRegs()
         if(!firstRequest)
         {
             updateAllSettingsTable(&LoclTableRecieve);
+            upperModbusCheck();
             for (int i = 0, total = int(writeUnit.valueCount()); i < total; i++) {
                  writeUnit.setValue(i,LoclTableRecieve.Adr[i]);
             }
@@ -250,6 +274,261 @@ void MWS::replyReceivedWrite()
         replyModbus->deleteLater();
 }
 
+void MWS::upperModbusCheck()
+{
+       switch ( CurrentAction )
+       {
+       case NO_ACTION:
+       {
+
+       }break;
+       case SEND_TO_SAVE_CONFIG:
+       {
+
+       }break;
+       case SEND_TO_UPDATE_CONFIG:
+       {
+
+       }break;
+       case SEND_TO_CHECK_PASSWORD:
+       {
+
+       }break;
+       case WRITE_TABLE:
+       {
+            ActionWriteTable();
+       }break;
+       case READ_TABLE:
+       {
+            ActionReadTable();
+       }break;
+       default:
+       break;
+       };
+}
+
+void MWS::setupAction(Action Action)
+{
+    CurrentAction = Action;
+    CounterStepAction = 0;
+}
+
+
+void MWS::ActionReadTable()
+{
+    switch( CounterStepAction )
+    {
+    case 0:
+    {
+      LoclTableRecieve.Regs.RegCommand = MODBUS_CMD_TABLE_POZITION;
+      CounterStepAction = 1;
+    }break;
+    case 1:
+    {
+      if( LoclTableRecieve.Regs.RegStatus == STAT_CMD_TABLE_POZITION )
+      {
+          LoclTableRecieve.Regs.RegStatus =0;
+          CounterStepAction = 2;
+      }
+    }break;
+    case 2:
+    {
+        LoclTableRecieve.Regs.RegCommand = MODBUS_CMD_TABLE_TRANSMIT;
+        CounterStepAction = 3;
+    }break;
+    case 3:
+    {
+        if( LoclTableRecieve.Regs.RegStatus == STAT_CMD_TABLE_TRANSMIT )
+        {
+            LoclTableRecieve.Regs.RegStatus = 0;
+            struct_pointTableCalibration point;
+            point.pointDistanse = LoclTableRecieve.Regs.RegTransfer1;
+            point.pointVolume = LoclTableRecieve.Regs.RegTransfer2;
+            TableCalibration << point;
+            CounterStepAction = 2;
+        }else
+        {
+            if ( LoclTableRecieve.Regs.RegStatus == STAT_CMD_TABLE_END )
+            {
+                LoclTableRecieve.Regs.RegStatus = 0;
+                currentPointTableCalibration = 0;
+                CurrentAction = NO_ACTION;
+                CounterStepAction = 0;
+                ModbusRegsTimer->stop();
+                ModbusRegsTimer->setInterval(MODBUS_INTERVAL_ALL);
+                ModbusRegsTimer->start();
+                writeTableWidget();
+                ui->button_SendTable->setEnabled(true);
+                ui->button_ReseiveTable->setEnabled(true);
+            }
+        }
+    }break;
+    }
+}
+
+void MWS::ActionWriteTable()
+{
+    switch( CounterStepAction )
+    {
+    case 0:
+    {
+      LoclTableRecieve.Regs.RegCommand = MODBUS_CMD_TABLE_CLEAR;
+      CounterStepAction = 1;
+    }break;
+    case 1:
+    {
+      if( LoclTableRecieve.Regs.RegStatus == STAT_CMD_TABLE_CLEAR )
+      {
+          LoclTableRecieve.Regs.RegStatus =0;
+          CounterStepAction = 2;
+      }
+    }break;
+    case 2:
+    {
+          if( currentPointTableCalibration < TableCalibration.count())
+          {
+              LoclTableRecieve.Regs.RegTransfer1 = TableCalibration[currentPointTableCalibration].pointDistanse;
+              LoclTableRecieve.Regs.RegTransfer2 = TableCalibration[currentPointTableCalibration].pointVolume;
+              LoclTableRecieve.Regs.RegCommand = MODBUS_CMD_TABLE_RECEIVE;
+              currentPointTableCalibration++;
+              CounterStepAction = 3;
+          }else
+          {
+              LoclTableRecieve.Regs.RegCommand = MODBUS_CMD_TABLE_WRITE_END;
+              CounterStepAction = 4;
+          }
+    }break;
+    case 3:
+    {
+          if ( LoclTableRecieve.Regs.RegStatus == STAT_CMD_TABLE_RECEIVE )
+          {
+               LoclTableRecieve.Regs.RegStatus = 0;
+               CounterStepAction = 2;
+          }else
+          {
+              if( LoclTableRecieve.Regs.RegStatus == STAT_CMD_TABLE_END )
+              {
+                  LoclTableRecieve.Regs.RegCommand = MODBUS_CMD_TABLE_WRITE_END;
+                  CounterStepAction = 4;
+              }
+          }
+    }break;
+    case 4:
+    {
+      if( LoclTableRecieve.Regs.RegStatus == STAT_CMD_TABLE_END )
+      {
+          LoclTableRecieve.Regs.RegStatus =0;
+          currentPointTableCalibration = 0;
+          CurrentAction = NO_ACTION;
+          CounterStepAction = 0;
+          ModbusRegsTimer->stop();
+          ModbusRegsTimer->setInterval(MODBUS_INTERVAL_ALL);
+          ModbusRegsTimer->start();
+          ui->button_SendTable->setEnabled(true);
+          ui->button_ReseiveTable->setEnabled(true);
+      }
+    }break;
+    }
+}
+
+void MWS::updateTableWidget(int countPoints)
+{
+    QTableWidget *tableWidget = ui->tableWidget;
+    tableWidget->setColumnCount(2);
+    QTableWidgetItem *itemHead1 = new QTableWidgetItem("Расстояние, мм");
+    QTableWidgetItem *itemHead2 = new QTableWidgetItem("Обьем, л");
+    tableWidget->setHorizontalHeaderItem(0,itemHead1);
+    tableWidget->setHorizontalHeaderItem(1,itemHead2);
+    int rowCount = tableWidget->rowCount();
+    tableWidget->setRowCount(countPoints);
+
+    if ( rowCount < countPoints )
+    {
+        for(int row=rowCount; row!=tableWidget->rowCount(); ++row){
+            for(int column = 0; column!=tableWidget->columnCount(); ++column) {
+                QTableWidgetItem *newItem = new QTableWidgetItem("Введите число..");
+                tableWidget->setItem(row, column, newItem);
+            }
+        }
+    }
+}
+
+void MWS::readTableWidget()
+{
+    QTableWidget *tableWidget = ui->tableWidget;
+    int rowCount = tableWidget->rowCount();
+    TableCalibration.clear();
+    for( int row = 0; row!=rowCount; ++row  )
+    {
+        struct_pointTableCalibration point;
+        point.pointDistanse = tableWidget->item(row,0)->text().toShort();
+        point.pointVolume = tableWidget->item(row,1)->text().toShort();
+        TableCalibration << point;
+    }
+}
+
+void MWS::writeTableWidget()
+{
+    QTableWidget *tableWidget = ui->tableWidget;
+    tableWidget->setColumnCount(2);
+    QTableWidgetItem *itemHead1 = new QTableWidgetItem("Расстояние, мм");
+    QTableWidgetItem *itemHead2 = new QTableWidgetItem("Обьем, л");
+    tableWidget->setHorizontalHeaderItem(0,itemHead1);
+    tableWidget->setHorizontalHeaderItem(1,itemHead2);
+    tableWidget->setRowCount(TableCalibration.count());
+
+    for(int row = 0; row!=tableWidget->rowCount(); ++row){
+        QTableWidgetItem *ItemDistanse = new QTableWidgetItem(QString::number(TableCalibration[row].pointDistanse));
+        QTableWidgetItem *ItemVolume = new QTableWidgetItem(QString::number(TableCalibration[row].pointVolume));
+        tableWidget->setItem(row, 0, ItemDistanse);
+        tableWidget->setItem(row, 1, ItemVolume);
+    }
+    ui->spin_CountPoint->setValue(TableCalibration.count());
+}
+
+
+void MWS::updatePlotWidget(int s,int k)
+{
+    QVector<double> distanceX,volumeY;
+    QTableWidget *tableWidget = ui->tableWidget;
+    double testX,testY;
+    for(int row = 0; row!=tableWidget->rowCount(); ++row){
+            testX = tableWidget->item(row,0)->text().toDouble();
+            if(testX)
+            distanceX << testX;
+            testY = tableWidget->item(row,1)->text().toDouble();
+            if(testY)
+            volumeY <<  testY;
+    }
+
+    //Вычисляем наши данные
+
+    ui->widget_2->clearGraphs();//Если нужно, но очищаем все графики
+    //Добавляем один график в widget
+    ui->widget_2->addGraph();
+    //Говорим, что отрисовать нужно график по нашим двум массивам x и y
+    ui->widget_2->graph(0)->setData(distanceX, volumeY);
+
+    //Подписываем оси Ox и Oy
+    ui->widget_2->xAxis->setLabel("Расстояние");
+    ui->widget_2->yAxis->setLabel("Обьем");
+
+   //Установим область, которая будет показываться на графике
+
+   // ui->widget_2->xAxis->setRange(a, b);//Для оси Ox
+
+    //Для показа границ по оси Oy сложнее, так как надо по правильному
+    //вычислить минимальное и максимальное значение в векторах
+    double minY = volumeY[0], maxY = volumeY[0];
+    for (int i=1; i<volumeY.count(); i++)
+    {
+        if (volumeY[i]<minY) minY = volumeY[i];
+        if (volumeY[i]>maxY) maxY = volumeY[i];
+    }
+    ui->widget_2->yAxis->setRange(minY, maxY);
+
+    ui->widget_2->replot();
+}
 
 void MWS::updateAllSettingsView(union_tableRegsWrite Table)
 {
@@ -276,12 +555,6 @@ void MWS::updateAllSettingsView(union_tableRegsWrite Table)
      ui->comb_TXDisable->setCurrentIndex(Table.Regs.TXDisable);
      ui->comb_TypeApproximation->setCurrentIndex(Table.Regs.TypeApproxim);
      ui->comb_TypeAverage->setCurrentIndex(Table.Regs.TypeAverag);
-}
-
-void MWS::updateMainSettingsView(union_tableRegsWrite Table)
-{
-     ui->lcd_Distance->display(Table.Regs.CurrentDistanse);
-     ui->lcd_Volume1->display(Table.Regs.CurrentVolume);
 }
 
 void MWS::updateAllSettingsTable(union_tableRegsWrite *Table)
