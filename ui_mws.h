@@ -24,6 +24,7 @@
 #include <QtWidgets/QSlider>
 #include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QSpinBox>
+#include <QtWidgets/QSplitter>
 #include <QtWidgets/QTabWidget>
 #include <QtWidgets/QTableWidget>
 #include <QtWidgets/QVBoxLayout>
@@ -36,8 +37,9 @@ class Ui_MWS
 {
 public:
     QGridLayout *gridLayout;
-    QCustomPlot *widget_2;
-    QHBoxLayout *horizontalLayout_2;
+    QSplitter *splitter_2;
+    QSplitter *splitter;
+    QWidget *widget;
     QVBoxLayout *verticalLayout;
     QTabWidget *tabWidget;
     QWidget *tab;
@@ -128,7 +130,8 @@ public:
     QLCDNumber *lcd_Distance;
     QLabel *lab_Volume;
     QLCDNumber *lcd_Volume1;
-    QCustomPlot *widget_4;
+    QCustomPlot *graph_distanse;
+    QCustomPlot *graph_table;
 
     void setupUi(QWidget *MWS)
     {
@@ -137,16 +140,18 @@ public:
         MWS->resize(731, 549);
         gridLayout = new QGridLayout(MWS);
         gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
-        widget_2 = new QCustomPlot(MWS);
-        widget_2->setObjectName(QString::fromUtf8("widget_2"));
-
-        gridLayout->addWidget(widget_2, 1, 0, 1, 1);
-
-        horizontalLayout_2 = new QHBoxLayout();
-        horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
-        verticalLayout = new QVBoxLayout();
+        splitter_2 = new QSplitter(MWS);
+        splitter_2->setObjectName(QString::fromUtf8("splitter_2"));
+        splitter_2->setOrientation(Qt::Vertical);
+        splitter = new QSplitter(splitter_2);
+        splitter->setObjectName(QString::fromUtf8("splitter"));
+        splitter->setOrientation(Qt::Horizontal);
+        widget = new QWidget(splitter);
+        widget->setObjectName(QString::fromUtf8("widget"));
+        verticalLayout = new QVBoxLayout(widget);
         verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
-        tabWidget = new QTabWidget(MWS);
+        verticalLayout->setContentsMargins(0, 0, 0, 0);
+        tabWidget = new QTabWidget(widget);
         tabWidget->setObjectName(QString::fromUtf8("tabWidget"));
         tab = new QWidget();
         tab->setObjectName(QString::fromUtf8("tab"));
@@ -591,12 +596,12 @@ public:
 
         horizontalLayout->addItem(horizontalSpacer);
 
-        button_Update = new QPushButton(MWS);
+        button_Update = new QPushButton(widget);
         button_Update->setObjectName(QString::fromUtf8("button_Update"));
 
         horizontalLayout->addWidget(button_Update);
 
-        button_Accept = new QPushButton(MWS);
+        button_Accept = new QPushButton(widget);
         button_Accept->setObjectName(QString::fromUtf8("button_Accept"));
 
         horizontalLayout->addWidget(button_Accept);
@@ -604,10 +609,8 @@ public:
 
         verticalLayout->addLayout(horizontalLayout);
 
-
-        horizontalLayout_2->addLayout(verticalLayout);
-
-        groupBox = new QGroupBox(MWS);
+        splitter->addWidget(widget);
+        groupBox = new QGroupBox(splitter);
         groupBox->setObjectName(QString::fromUtf8("groupBox"));
         gridLayout_5 = new QGridLayout(groupBox);
         gridLayout_5->setObjectName(QString::fromUtf8("gridLayout_5"));
@@ -631,24 +634,24 @@ public:
 
         gridLayout_5->addWidget(lcd_Volume1, 3, 0, 1, 1);
 
-        widget_4 = new QCustomPlot(groupBox);
-        widget_4->setObjectName(QString::fromUtf8("widget_4"));
+        graph_distanse = new QCustomPlot(groupBox);
+        graph_distanse->setObjectName(QString::fromUtf8("graph_distanse"));
 
-        gridLayout_5->addWidget(widget_4, 4, 0, 1, 1);
+        gridLayout_5->addWidget(graph_distanse, 4, 0, 1, 1);
 
         gridLayout_5->setRowStretch(0, 1);
         gridLayout_5->setRowStretch(1, 1);
         gridLayout_5->setRowStretch(2, 1);
         gridLayout_5->setRowStretch(3, 1);
         gridLayout_5->setRowStretch(4, 7);
+        splitter->addWidget(groupBox);
+        splitter_2->addWidget(splitter);
+        graph_table = new QCustomPlot(splitter_2);
+        graph_table->setObjectName(QString::fromUtf8("graph_table"));
+        splitter_2->addWidget(graph_table);
 
-        horizontalLayout_2->addWidget(groupBox);
+        gridLayout->addWidget(splitter_2, 0, 0, 1, 1);
 
-
-        gridLayout->addLayout(horizontalLayout_2, 0, 0, 1, 1);
-
-        gridLayout->setRowStretch(0, 1);
-        gridLayout->setRowStretch(1, 3);
 
         retranslateUi(MWS);
 

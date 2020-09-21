@@ -9,6 +9,8 @@
 #include <QSerialPort>
 #include <QSpinBox>
 
+#include <QPointF>
+
 #include "structs_lib.h"
 
 #define MODBUS_TIMEOUT_PACKET 200
@@ -106,7 +108,7 @@ MWS::MWS(QWidget *parent) :
        ui->button_ReseiveTable->setEnabled(false);
    });
 
- //  connect(ui->tableWidget,&QTableWidget::cellChanged,this,&MWS::updatePlotWidget);
+   connect(ui->tableWidget,&QTableWidget::cellChanged,this,&MWS::updatePlotWidget);
 }
 
 MWS::~MWS()
@@ -492,42 +494,76 @@ void MWS::updatePlotWidget(int s,int k)
     QVector<double> distanceX,volumeY;
     QTableWidget *tableWidget = ui->tableWidget;
     double testX,testY;
+    graphTable.clear();
     for(int row = 0; row!=tableWidget->rowCount(); ++row){
+        QTableWidgetItem *ItemDistanse = tableWidget->item(row,0);
+        QTableWidgetItem *ItemVolume   = tableWidget->item(row,1);
+        if(ItemDistanse!=NULL && ItemVolume!=NULL)
+        {
             testX = tableWidget->item(row,0)->text().toDouble();
-            if(testX)
-            distanceX << testX;
             testY = tableWidget->item(row,1)->text().toDouble();
-            if(testY)
-            volumeY <<  testY;
+            if ( testX && testY)
+            {
+               distanceX << testX;
+               volumeY <<  testY;
+               QPointF p(testX,testY);
+               graphTable << p;
+            }
+        }
     }
-
     //Вычисляем наши данные
-
-    ui->widget_2->clearGraphs();//Если нужно, но очищаем все графики
+    ui->graph_table->clearGraphs();//Если нужно, но очищаем все графики
     //Добавляем один график в widget
-    ui->widget_2->addGraph();
-    //Говорим, что отрисовать нужно график по нашим двум массивам x и y
-    ui->widget_2->graph(0)->setData(distanceX, volumeY);
+
+    ui->graph_table->addGraph();// наши точки
+    ui->graph_table->addGraph();
+
+
+    ui->graph_table->graph(0)->setData(distanceX, volumeY);
+    QPen pen;
+    pen.setWidth(1);
+    pen.setColor(QColor(0xE8,0xE8,0x40));
+    ui->graph_table->graph(0)->setPen(pen);
+    ui->graph_table->graph(0)->setLineStyle(QCPGraph::lsNone);
+    ui->graph_table->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, 4));
 
     //Подписываем оси Ox и Oy
-    ui->widget_2->xAxis->setLabel("Расстояние");
-    ui->widget_2->yAxis->setLabel("Обьем");
+    ui->graph_table->xAxis->setLabel("Расстояние");
+    ui->graph_table->yAxis->setLabel("Обьем");
 
-   //Установим область, которая будет показываться на графике
-
-   // ui->widget_2->xAxis->setRange(a, b);//Для оси Ox
-
-    //Для показа границ по оси Oy сложнее, так как надо по правильному
-    //вычислить минимальное и максимальное значение в векторах
-    double minY = volumeY[0], maxY = volumeY[0];
-    for (int i=1; i<volumeY.count(); i++)
+    if ( volumeY.count()> 0 && distanceX.count() > 0 )
     {
-        if (volumeY[i]<minY) minY = volumeY[i];
-        if (volumeY[i]>maxY) maxY = volumeY[i];
-    }
-    ui->widget_2->yAxis->setRange(minY, maxY);
+         double maxX = distanceX[0], maxY = volumeY[0];
+         double minX = distanceX[0];
+         for (int i=1; i<volumeY.count(); i++)
+         {
+            if (volumeY[i]>maxY) maxY = volumeY[i];
+         }
+         ui->graph_table->yAxis->setRange(0, maxY+maxY/10);
 
-    ui->widget_2->replot();
+         for (int i=1; i<distanceX.count(); i++)
+         {
+            if (distanceX[i]>maxX) maxX = distanceX[i];
+            if (distanceX[i]<minX) minX = distanceX[i];
+         }
+         ui->graph_table->xAxis->setRange(minX-1, maxX+maxX/10);
+
+         QVector<double> AproximationX,AproximationY;
+         int rezolution  = (graphTable.count())*100;
+         double h = ( (maxX - minX ) / rezolution);
+         for(int i=0;i<rezolution;++i)
+         {
+             AproximationX << minX + h*i;
+             AproximationY << Lagranj( minX+h*i);
+         }
+
+         ui->graph_table->graph(1)->setData(AproximationX, AproximationY);
+         QPen pen;
+         pen.setWidth(1);
+         pen.setColor(QColor(0x2D,0x05,0x71));
+         ui->graph_table->graph(1)->setPen(pen);
+  }
+    ui->graph_table->replot();
 }
 
 void MWS::updateAllSettingsView(union_tableRegsWrite Table)
@@ -568,4 +604,26 @@ void MWS::updateAllSettingsTable(union_tableRegsWrite *Table)
      Table->Regs.ReceiverGain = ui->spin_ReceiverGain->value();
      Table->Regs.RunningAverage = ui->spin_RunningAverage->value();
      Table->Regs.StartOfMeasure = ui->spin_StartMeasure->value();
+}
+
+
+
+qreal MWS::Lagranj (double X)
+{
+    int n = graphTable.count();
+    qreal L, l;
+    int i, j;
+
+    L = 0;
+
+    for (i = 0; i < n; ++i)
+    {
+        l = 1;
+
+        for (j = 0; j < n; ++j)
+            if (i != j)
+                l *= (X - graphTable[j].rx()) / (graphTable[i].rx() - graphTable[j].rx());
+        L += graphTable[i].ry() * l;
+    }
+    return L;
 }

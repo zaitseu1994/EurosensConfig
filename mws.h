@@ -7,6 +7,8 @@
 #include <QModbusClient>
 #include <QDialog>
 
+#include <QPointF>
+
 namespace Ui {
 class MWS;
 }
@@ -82,11 +84,18 @@ private:
     void updateAllSettingsView(union_tableRegsWrite Table);
     void updateAllSettingsTable(union_tableRegsWrite *Table);
     void startView();
+
+    double Lagranj (double X);
 private:
     union_tableRegsWrite LoclTableRecieve;
     QVector<struct_pointTableCalibration> TableCalibration;
 
-    int currentPointTableCalibration =0;
+    int currentPointTableCalibration = 0;
+private:
+    QVector<double> GraphsMainDistanse;
+    QVector<double> GraphsMainVolume;
+
+    QVector<QPointF> graphTable;
 private:
     Ui::MWS *ui;
     QTimer *ModbusRegsTimer = nullptr;
