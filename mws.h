@@ -61,7 +61,7 @@ private:
     typedef struct struct_pointTableCalibration
     {
                    uint16_t pointDistanse;
-                   uint16_t pointVolume;
+                   float pointVolume;
     }struct_pointTableCalibration;
 
 private:
@@ -77,15 +77,24 @@ private:
     void setupAction(Action Action);
     void ActionWriteTable();
     void ActionReadTable();
+    void ActionSaveConfig();
+    void ActionReadConfig();
     void readTableWidget();
     void writeTableWidget();
+
+    void readPlotGraph();
+    void addLagranj(double maxX,double minX);
+    void addLinear(double maxX,double minX);
+    void addMeasure(double distatanse,double volume);
+    void addPointMeasure(double distatanse,double volume);
     void updatePlotWidget(int s,int k);
     void updateTableWidget(int countPoints);
     void updateAllSettingsView(union_tableRegsWrite Table);
     void updateAllSettingsTable(union_tableRegsWrite *Table);
     void startView();
 
-    double Lagranj (double X);
+    qreal Lagranj (double X);
+    qreal Linear (double X);
 private:
     union_tableRegsWrite LoclTableRecieve;
     QVector<struct_pointTableCalibration> TableCalibration;

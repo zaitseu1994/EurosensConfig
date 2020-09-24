@@ -12,13 +12,17 @@
 #include <QPointF>
 
 #include "structs_lib.h"
+#include "math.h"
 
 #define MODBUS_TIMEOUT_PACKET 200
 #define MODBUS_COUNT_REPAET   1
 
-#define MODBUS_INTERVAL_ALL 500
+#define MODBUS_COUNT_READ_ADR sizeof(struct_tableRegsWrite)/2
 
-QStringList STypeApproximation = {"кусочно линейный","квадратичный"};
+#define MODBUS_INTERVAL_ALL 400
+#define MODBUS_INTERVAL_FAST 40
+
+QStringList STypeApproximation = {"кусочно линейный","полином Лангранжа"};
 QStringList STypeAverage = {"экспоненциальный","бегущее среднее"};
 QStringList SNoize = {"да","нет"};
 QStringList SDownSampFactor = {"1","2","4"};
@@ -91,7 +95,7 @@ MWS::MWS(QWidget *parent) :
         setupAction(WRITE_TABLE);
         currentPointTableCalibration = 0;
         ModbusRegsTimer->stop();
-        ModbusRegsTimer->setInterval(MODBUS_INTERVAL_ALL/10);
+        ModbusRegsTimer->setInterval(MODBUS_INTERVAL_FAST);
         ModbusRegsTimer->start();
         ui->button_SendTable->setEnabled(false);
         ui->button_ReseiveTable->setEnabled(false);
@@ -102,13 +106,46 @@ MWS::MWS(QWidget *parent) :
        TableCalibration.clear();
        setupAction(READ_TABLE);
        ModbusRegsTimer->stop();
-       ModbusRegsTimer->setInterval(MODBUS_INTERVAL_ALL/10);
+       ModbusRegsTimer->setInterval(MODBUS_INTERVAL_FAST);
        ModbusRegsTimer->start();
        ui->button_SendTable->setEnabled(false);
        ui->button_ReseiveTable->setEnabled(false);
    });
+   connect(ui->button_Accept,&QPushButton::clicked,this,[=]
+   {
+      setupAction(SEND_TO_SAVE_CONFIG);
+      ModbusRegsTimer->stop();
+      ModbusRegsTimer->setInterval(MODBUS_INTERVAL_FAST);
+      ModbusRegsTimer->start();
+      ui->button_Accept->setEnabled(false);
+      ui->button_Update->setEnabled(false);
+   });
+   connect(ui->button_Update,&QPushButton::clicked,this,[=]
+   {
+       setupAction(SEND_TO_UPDATE_CONFIG);
+       ModbusRegsTimer->stop();
+       ModbusRegsTimer->setInterval(MODBUS_INTERVAL_ALL);
+       ModbusRegsTimer->start();
+       ui->button_Accept->setEnabled(false);
+       ui->button_Update->setEnabled(false);
+   });
 
    connect(ui->tableWidget,&QTableWidget::cellChanged,this,&MWS::updatePlotWidget);
+   connect(ui->check_Lagranj,&QCheckBox::clicked,this,[=]
+   {
+       updatePlotWidget(0,0);
+   });
+   connect(ui->check_Linear,&QCheckBox::clicked,this,[=]
+   {
+       updatePlotWidget(0,0);
+   });
+
+   ui->graph_table->clearGraphs();
+   ui->graph_table->addGraph(); // наши точки
+   ui->graph_table->addGraph(); // аппроксимация лагранжа
+   ui->graph_table->addGraph(); // аппроксимация кусочно линейная
+   ui->graph_table->addGraph(); // текущий обьем по Y
+   ui->graph_table->addGraph(); // текущее расстояние по X
 }
 
 MWS::~MWS()
@@ -171,9 +208,18 @@ void MWS::start(QModbusClient *modbusDev)
     startView();
     if(modbusDevice->state() == QModbusDevice::ConnectedState)
     {
+
         modbusDevice->setTimeout(MODBUS_TIMEOUT_PACKET);
         modbusDevice->setNumberOfRetries(MODBUS_COUNT_REPAET);
         ModbusRegsTimer->start();
+
+        TableCalibration.clear();
+        setupAction(READ_TABLE);
+        ModbusRegsTimer->stop();
+        ModbusRegsTimer->setInterval(MODBUS_INTERVAL_FAST);
+        ModbusRegsTimer->start();
+        ui->button_SendTable->setEnabled(false);
+        ui->button_ReseiveTable->setEnabled(false);
     }
 }
 
@@ -181,7 +227,7 @@ void MWS::updateRegs()
 {
     if ( modbusDevice->state() == QModbusDevice::ConnectedState)
     {
-        QModbusDataUnit readUnit = QModbusDataUnit(QModbusDataUnit::HoldingRegisters,0,41);
+        QModbusDataUnit readUnit = QModbusDataUnit(QModbusDataUnit::HoldingRegisters,0,MODBUS_COUNT_READ_ADR);
         QModbusReply *reply = nullptr;
         reply =  modbusDevice->sendReadRequest(readUnit, device.modbusadr.toInt());
         if (reply) {
@@ -213,15 +259,17 @@ void MWS::replyReceivedRead()
                 {
                    LoclTableRecieve.Adr[i] = unit.value(i);
                 }
-                updateAllSettingsView(LoclTableRecieve);
-                upperModbusCheck();
-                firstRequest=false;
+                   updateAllSettingsView(LoclTableRecieve);
+                   addPointMeasure(LoclTableRecieve.Regs.CurrentDistanse,LoclTableRecieve.Regs.CurrentVolume);
+                   upperModbusCheck();
+                   firstRequest=false;
             }else
             {
 
             }
         } else {
             ui->edit_Password->setText("sdf");
+            ModbusRegsTimer->stop();
         }
         replyModbus->deleteLater();
 }
@@ -230,7 +278,7 @@ void MWS::sendRegs()
 {
     if ( modbusDevice->state() == QModbusDevice::ConnectedState)
     {
-        QModbusDataUnit writeUnit = QModbusDataUnit(QModbusDataUnit::HoldingRegisters, 0, 41);
+        QModbusDataUnit writeUnit = QModbusDataUnit(QModbusDataUnit::HoldingRegisters, 0, MODBUS_COUNT_READ_ADR);
         QModbusReply *reply = nullptr;
         if(!firstRequest)
         {
@@ -240,6 +288,7 @@ void MWS::sendRegs()
                  writeUnit.setValue(i,LoclTableRecieve.Adr[i]);
             }
             reply =  modbusDevice->sendWriteRequest(writeUnit,device.modbusadr.toInt());
+            LoclTableRecieve.Regs.RegCommand = 0;
             if (reply) {
                 if (!reply->isFinished())
                 {
@@ -270,8 +319,8 @@ void MWS::replyReceivedWrite()
             const QModbusDataUnit unit = replyModbus->result();
 
         } else {
-              // ui->textBrowser->append(replyModbus->errorString());
             ui->edit_Password->setText("sdf");
+            ModbusRegsTimer->stop();
         }
         replyModbus->deleteLater();
 }
@@ -286,11 +335,11 @@ void MWS::upperModbusCheck()
        }break;
        case SEND_TO_SAVE_CONFIG:
        {
-
+             ActionSaveConfig();
        }break;
        case SEND_TO_UPDATE_CONFIG:
        {
-
+             ActionReadConfig();
        }break;
        case SEND_TO_CHECK_PASSWORD:
        {
@@ -315,6 +364,56 @@ void MWS::setupAction(Action Action)
     CounterStepAction = 0;
 }
 
+void MWS::ActionSaveConfig()
+{
+    switch( CounterStepAction )
+    {
+    case 0:
+    {
+        LoclTableRecieve.Regs.RegCommand = MODBUS_SAVE_CONFIG;
+        CounterStepAction = 1;
+    }break;
+    case 1:
+    {
+        if( LoclTableRecieve.Regs.RegStatus == STAT_CONFIG_SAVE )
+        {
+            LoclTableRecieve.Regs.RegStatus = 0;
+            CurrentAction = NO_ACTION;
+            CounterStepAction = 0;
+            ModbusRegsTimer->stop();
+            ModbusRegsTimer->setInterval(MODBUS_INTERVAL_ALL);
+            ModbusRegsTimer->start();
+            ui->button_Accept->setEnabled(true);
+            ui->button_Update->setEnabled(true);
+        }
+    }break;
+    }
+}
+void MWS::ActionReadConfig()
+{
+    switch( CounterStepAction )
+    {
+    case 0:
+    {
+        LoclTableRecieve.Regs.RegCommand = MODBUS_UPDATE_CONFIG;
+        CounterStepAction = 1;
+    }break;
+    case 1:
+    {
+        if( LoclTableRecieve.Regs.RegStatus == STAT_CONFIG_UPDATE )
+        {
+            LoclTableRecieve.Regs.RegStatus = 0;
+            CurrentAction = NO_ACTION;
+            CounterStepAction = 0;
+            ModbusRegsTimer->stop();
+            ModbusRegsTimer->setInterval(MODBUS_INTERVAL_ALL);
+            ModbusRegsTimer->start();
+            ui->button_Accept->setEnabled(true);
+            ui->button_Update->setEnabled(true);
+        }
+    }break;
+    }
+}
 
 void MWS::ActionReadTable()
 {
@@ -464,8 +563,21 @@ void MWS::readTableWidget()
     {
         struct_pointTableCalibration point;
         point.pointDistanse = tableWidget->item(row,0)->text().toShort();
-        point.pointVolume = tableWidget->item(row,1)->text().toShort();
+        point.pointVolume = tableWidget->item(row,1)->text().toFloat();
         TableCalibration << point;
+    }
+
+    const int length = TableCalibration.count();
+    for (int startIndex = 0; startIndex < length - 1; ++startIndex)
+    {
+        int smallestIndex = startIndex;
+        for (int currentIndex = startIndex + 1; currentIndex < length; ++currentIndex)
+        {
+            if (TableCalibration[currentIndex].pointDistanse < TableCalibration[smallestIndex].pointDistanse)
+
+                smallestIndex = currentIndex;
+        }
+        std::swap(TableCalibration[startIndex], TableCalibration[smallestIndex]);
     }
 }
 
@@ -489,9 +601,8 @@ void MWS::writeTableWidget()
 }
 
 
-void MWS::updatePlotWidget(int s,int k)
+void MWS::readPlotGraph()
 {
-    QVector<double> distanceX,volumeY;
     QTableWidget *tableWidget = ui->tableWidget;
     double testX,testY;
     graphTable.clear();
@@ -504,26 +615,129 @@ void MWS::updatePlotWidget(int s,int k)
             testY = tableWidget->item(row,1)->text().toDouble();
             if ( testX && testY)
             {
-               distanceX << testX;
-               volumeY <<  testY;
                QPointF p(testX,testY);
                graphTable << p;
             }
         }
     }
-    //Вычисляем наши данные
-    ui->graph_table->clearGraphs();//Если нужно, но очищаем все графики
-    //Добавляем один график в widget
 
-    ui->graph_table->addGraph();// наши точки
-    ui->graph_table->addGraph();
+    const int length = graphTable.count();
+    for (int startIndex = 0; startIndex < length - 1; ++startIndex)
+    {
+        int smallestIndex = startIndex;
+        for (int currentIndex = startIndex + 1; currentIndex < length; ++currentIndex)
+        {
+            if (graphTable[currentIndex].rx() < graphTable[smallestIndex].rx())
 
+                smallestIndex = currentIndex;
+        }
+        std::swap(graphTable[startIndex], graphTable[smallestIndex]);
+    }
 
-    ui->graph_table->graph(0)->setData(distanceX, volumeY);
+}
+
+void MWS::addLagranj(double maxX,double minX)
+{
+        QVector<double> AproximationX,AproximationY;
+        int rezolution  = (graphTable.count())*100;
+        double h = ( (maxX - minX ) / rezolution);
+        for(int i=0;i<rezolution;++i)
+        {
+            AproximationX << minX + h*i;
+            AproximationY << Lagranj( minX+h*i);
+        }
+        ui->graph_table->graph(1)->setData(AproximationX, AproximationY);
+        QPen pen;
+        pen.setWidth(1);
+        pen.setColor(QColor(0x2D,0x05,0x71));
+        ui->graph_table->graph(1)->setPen(pen);
+}
+
+void MWS::addLinear(double maxX,double minX)
+{
+    QVector<double> AproximationX,AproximationY;
+    int rezolution  = (graphTable.count())*10;
+    double h = ( (maxX - minX ) / rezolution);
+    for(int i=0;i<rezolution+1;++i)
+    {
+        AproximationX << minX + h*i;
+        AproximationY << Linear( minX+h*i);
+    }
+    ui->graph_table->graph(2)->setData(AproximationX, AproximationY);
     QPen pen;
     pen.setWidth(1);
-    pen.setColor(QColor(0xE8,0xE8,0x40));
-    ui->graph_table->graph(0)->setPen(pen);
+    pen.setColor(QColor(0x2D,0x71,0x05));
+    ui->graph_table->graph(2)->setPen(pen);
+}
+
+void MWS::addMeasure(double distatanse,double volume)
+{
+    QVector<double> distanseX,distaseY;
+    QVector<double> volumeX,volumeY;
+
+    double maxX = ui->graph_table->xAxis->range().upper;
+    double maxY = ui->graph_table->yAxis->range().upper;
+
+    distanseX << distatanse;
+    distaseY << 0;
+    distanseX << distatanse;
+    distaseY << maxY;
+
+    volumeX << 0;
+    volumeY << volume;
+    volumeX << maxX;
+    volumeY << volume;
+
+    ui->graph_table->graph(3)->setData(volumeX, volumeY);
+    QPen pen;
+    pen.setWidth(1);
+    pen.setColor(QColor(0x55,0x05,0x05));
+    ui->graph_table->graph(3)->setPen(pen);
+
+    ui->graph_table->graph(4)->setData(distanseX, distaseY);
+    QPen pens;
+    pens.setWidth(1);
+    pens.setColor(QColor(0x55,0x05,0x05));
+    ui->graph_table->graph(4)->setPen(pens);
+
+    ui->graph_table->replot();
+}
+
+void MWS::addPointMeasure(double distatanse,double volume)
+{
+//     double volum = 0;
+//    if(LoclTableRecieve.Regs.TypeApproxim == 0)
+//       volum = Linear(distatanse);
+//    else
+//       volum = Lagranj(distatanse);
+    addMeasure(distatanse,volume);
+
+}
+
+void MWS::updatePlotWidget(int s,int k)
+{
+
+    readPlotGraph();
+
+    ui->graph_table->clearGraphs();//Если нужно, но очищаем все графики
+    ui->graph_table->addGraph(); // наши точки
+    ui->graph_table->addGraph(); // аппроксимация лагранжа
+    ui->graph_table->addGraph(); // аппроксимация кусочно линейная
+    ui->graph_table->addGraph(); // текущий обьем по Y
+    ui->graph_table->addGraph(); // текущее расстояние по X
+
+    QVector<double> distanceX,volumeY;
+    for(int i=0;i<graphTable.count();i++)
+    {
+       distanceX << graphTable[i].rx();
+       volumeY << graphTable[i].ry();
+    }
+
+    ui->graph_table->graph(0)->setData(distanceX, volumeY);
+    QPen penM;
+    penM.setWidth(1);
+    penM.setColor(QColor(0xE8,0x10,0x40));
+    ui->graph_table->graph(0)->setPen(penM);
     ui->graph_table->graph(0)->setLineStyle(QCPGraph::lsNone);
     ui->graph_table->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, 4));
 
@@ -546,23 +760,13 @@ void MWS::updatePlotWidget(int s,int k)
             if (distanceX[i]>maxX) maxX = distanceX[i];
             if (distanceX[i]<minX) minX = distanceX[i];
          }
-         ui->graph_table->xAxis->setRange(minX-1, maxX+maxX/10);
+         ui->graph_table->xAxis->setRange(minX-maxX/10, maxX+maxX/10);
 
-         QVector<double> AproximationX,AproximationY;
-         int rezolution  = (graphTable.count())*100;
-         double h = ( (maxX - minX ) / rezolution);
-         for(int i=0;i<rezolution;++i)
-         {
-             AproximationX << minX + h*i;
-             AproximationY << Lagranj( minX+h*i);
-         }
-
-         ui->graph_table->graph(1)->setData(AproximationX, AproximationY);
-         QPen pen;
-         pen.setWidth(1);
-         pen.setColor(QColor(0x2D,0x05,0x71));
-         ui->graph_table->graph(1)->setPen(pen);
-  }
+         if(ui->check_Lagranj->isChecked())
+         addLagranj(maxX,minX);
+         if(ui->check_Linear->isChecked())
+         addLinear(maxX,minX);
+    }
     ui->graph_table->replot();
 }
 
@@ -604,9 +808,36 @@ void MWS::updateAllSettingsTable(union_tableRegsWrite *Table)
      Table->Regs.ReceiverGain = ui->spin_ReceiverGain->value();
      Table->Regs.RunningAverage = ui->spin_RunningAverage->value();
      Table->Regs.StartOfMeasure = ui->spin_StartMeasure->value();
+
+     Table->Regs.TypeApproxim = ui->comb_TypeApproximation->currentIndex();
+     Table->Regs.TypeAverag = ui->comb_TypeAverage->currentIndex();
 }
 
-
+qreal MWS::Linear (double X)
+{
+   double x0 = 0,x1 = 0,y0  =0,y1 = 0;
+   qreal Fx = 0;
+   if(graphTable.count() >=2)
+   {
+      for(int i=graphTable.count()-1;i>=1;i--)
+      {
+          if( abs(X - graphTable[i].rx()) + abs(X - graphTable[i-1].rx())
+                      == abs(graphTable[i-1].rx() - graphTable[i].rx()))
+          {
+                 x0 =  graphTable[i-1].rx();
+                 y0 =  graphTable[i-1].ry();
+                 x1 =  graphTable[i].rx();
+                 y1 =  graphTable[i].ry();
+              break;
+          }
+      }
+      if(x0 && y0 && x1 && y1)
+      {
+         Fx = y0+(y1-y0)/(x1-x0)*(X-x0);
+      }
+   }
+   return Fx;
+}
 
 qreal MWS::Lagranj (double X)
 {

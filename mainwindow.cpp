@@ -122,7 +122,7 @@ void MainWindow::DevicesSearch()
 
  ModbusTimer->stop();
  ModbusTimer->setSingleShot(true);
- ModbusTimer->setInterval(infos.count()*(LAST_MODBUS_ADRESS*MODBUS_TIMEOUT_REPLY*MODBUS_COUNT_REPEAT)*2.5);
+ ModbusTimer->setInterval(infos.count()*(LAST_MODBUS_ADRESS*MODBUS_TIMEOUT_REPLY*(MODBUS_COUNT_REPEAT+1))*2.5);
  connect(ModbusTimer,&QTimer::timeout,this,[this]()
          {
               QString comname = vectorModbusDevice[intcomModBusDevice].nameCom;

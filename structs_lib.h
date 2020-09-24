@@ -9,11 +9,10 @@ typedef struct struct_tableRegsWrite
 {
     uint16_t  AdrModbus;         // Адрес модбас                   // 2b
     uint16_t  CurrentDistanse;   // Текущее измеряемое расстояние  // 2b
-    uint16_t  CurrentVolume;     // Текущий измеряемый обьем       // 2b
+    float     CurrentVolume;     // Текущий измеряемый обьем       // 4b
     int       Boudrate;          // Скорость по uart               // 4b
     uint16_t  RegTransfer1;      // Регистр приема передачи 1      // 2b
-    uint16_t  RegTransfer2;      // Регистр приема передачи 2      // 2b
-    int       res2;                                                // 4b
+    float     RegTransfer2;      // Регистр приема передачи 2      // 4b
     uint16_t  RegCommand;        // Регистр команд                 // 2b
     int       SensorId;          // Id сенсора                     // 4b
     float     StartOfMeasure;    // -0.7 - 7.0 метр                // 4b

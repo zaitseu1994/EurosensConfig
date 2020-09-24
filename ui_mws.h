@@ -11,6 +11,7 @@
 
 #include <QtCore/QVariant>
 #include <QtWidgets/QApplication>
+#include <QtWidgets/QCheckBox>
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QDoubleSpinBox>
 #include <QtWidgets/QGridLayout>
@@ -36,10 +37,10 @@ QT_BEGIN_NAMESPACE
 class Ui_MWS
 {
 public:
-    QGridLayout *gridLayout;
-    QSplitter *splitter_2;
+    QGridLayout *gridLayout_6;
+    QSplitter *splitter_3;
     QSplitter *splitter;
-    QWidget *widget;
+    QWidget *layoutWidget;
     QVBoxLayout *verticalLayout;
     QTabWidget *tabWidget;
     QWidget *tab;
@@ -131,27 +132,34 @@ public:
     QLabel *lab_Volume;
     QLCDNumber *lcd_Volume1;
     QCustomPlot *graph_distanse;
+    QSplitter *splitter_2;
     QCustomPlot *graph_table;
+    QGroupBox *group_Approximation;
+    QGridLayout *gridLayout;
+    QCheckBox *check_Linear;
+    QCheckBox *check_Lagranj;
 
     void setupUi(QWidget *MWS)
     {
         if (MWS->objectName().isEmpty())
             MWS->setObjectName(QString::fromUtf8("MWS"));
-        MWS->resize(731, 549);
-        gridLayout = new QGridLayout(MWS);
-        gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
-        splitter_2 = new QSplitter(MWS);
-        splitter_2->setObjectName(QString::fromUtf8("splitter_2"));
-        splitter_2->setOrientation(Qt::Vertical);
-        splitter = new QSplitter(splitter_2);
+        MWS->resize(623, 467);
+        gridLayout_6 = new QGridLayout(MWS);
+        gridLayout_6->setObjectName(QString::fromUtf8("gridLayout_6"));
+        splitter_3 = new QSplitter(MWS);
+        splitter_3->setObjectName(QString::fromUtf8("splitter_3"));
+        splitter_3->setOrientation(Qt::Vertical);
+        splitter = new QSplitter(splitter_3);
         splitter->setObjectName(QString::fromUtf8("splitter"));
+        splitter->setFrameShape(QFrame::NoFrame);
+        splitter->setLineWidth(1);
         splitter->setOrientation(Qt::Horizontal);
-        widget = new QWidget(splitter);
-        widget->setObjectName(QString::fromUtf8("widget"));
-        verticalLayout = new QVBoxLayout(widget);
+        layoutWidget = new QWidget(splitter);
+        layoutWidget->setObjectName(QString::fromUtf8("layoutWidget"));
+        verticalLayout = new QVBoxLayout(layoutWidget);
         verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
         verticalLayout->setContentsMargins(0, 0, 0, 0);
-        tabWidget = new QTabWidget(widget);
+        tabWidget = new QTabWidget(layoutWidget);
         tabWidget->setObjectName(QString::fromUtf8("tabWidget"));
         tab = new QWidget();
         tab->setObjectName(QString::fromUtf8("tab"));
@@ -596,12 +604,12 @@ public:
 
         horizontalLayout->addItem(horizontalSpacer);
 
-        button_Update = new QPushButton(widget);
+        button_Update = new QPushButton(layoutWidget);
         button_Update->setObjectName(QString::fromUtf8("button_Update"));
 
         horizontalLayout->addWidget(button_Update);
 
-        button_Accept = new QPushButton(widget);
+        button_Accept = new QPushButton(layoutWidget);
         button_Accept->setObjectName(QString::fromUtf8("button_Accept"));
 
         horizontalLayout->addWidget(button_Accept);
@@ -609,7 +617,7 @@ public:
 
         verticalLayout->addLayout(horizontalLayout);
 
-        splitter->addWidget(widget);
+        splitter->addWidget(layoutWidget);
         groupBox = new QGroupBox(splitter);
         groupBox->setObjectName(QString::fromUtf8("groupBox"));
         gridLayout_5 = new QGridLayout(groupBox);
@@ -645,17 +653,40 @@ public:
         gridLayout_5->setRowStretch(3, 1);
         gridLayout_5->setRowStretch(4, 7);
         splitter->addWidget(groupBox);
-        splitter_2->addWidget(splitter);
+        splitter_3->addWidget(splitter);
+        splitter_2 = new QSplitter(splitter_3);
+        splitter_2->setObjectName(QString::fromUtf8("splitter_2"));
+        splitter_2->setFrameShape(QFrame::NoFrame);
+        splitter_2->setFrameShadow(QFrame::Plain);
+        splitter_2->setLineWidth(1);
+        splitter_2->setMidLineWidth(2);
+        splitter_2->setOrientation(Qt::Horizontal);
         graph_table = new QCustomPlot(splitter_2);
         graph_table->setObjectName(QString::fromUtf8("graph_table"));
         splitter_2->addWidget(graph_table);
+        group_Approximation = new QGroupBox(splitter_2);
+        group_Approximation->setObjectName(QString::fromUtf8("group_Approximation"));
+        gridLayout = new QGridLayout(group_Approximation);
+        gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
+        check_Linear = new QCheckBox(group_Approximation);
+        check_Linear->setObjectName(QString::fromUtf8("check_Linear"));
 
-        gridLayout->addWidget(splitter_2, 0, 0, 1, 1);
+        gridLayout->addWidget(check_Linear, 0, 0, 1, 1);
+
+        check_Lagranj = new QCheckBox(group_Approximation);
+        check_Lagranj->setObjectName(QString::fromUtf8("check_Lagranj"));
+
+        gridLayout->addWidget(check_Lagranj, 1, 0, 1, 1);
+
+        splitter_2->addWidget(group_Approximation);
+        splitter_3->addWidget(splitter_2);
+
+        gridLayout_6->addWidget(splitter_3, 0, 0, 1, 1);
 
 
         retranslateUi(MWS);
 
-        tabWidget->setCurrentIndex(2);
+        tabWidget->setCurrentIndex(0);
 
 
         QMetaObject::connectSlotsByName(MWS);
@@ -694,6 +725,9 @@ public:
         groupBox->setTitle(QCoreApplication::translate("MWS", "\320\242\320\265\320\272\321\203\321\211\320\270\320\265 \320\277\320\260\321\200\320\274\320\265\321\202\321\200\321\213", nullptr));
         lab_Distance->setText(QCoreApplication::translate("MWS", "\320\240\320\260\321\201\321\201\321\202\320\276\321\217\320\275\320\270\320\265 \320\274\320\274:", nullptr));
         lab_Volume->setText(QCoreApplication::translate("MWS", "\320\236\320\261\321\214\320\265\320\274 \320\273:", nullptr));
+        group_Approximation->setTitle(QCoreApplication::translate("MWS", "\320\220\320\277\320\277\321\200\320\276\320\272\321\201\320\270\320\274\320\260\321\206\320\270\321\217", nullptr));
+        check_Linear->setText(QCoreApplication::translate("MWS", "\320\272\321\203\321\201\320\276\321\207\320\275\320\276-\320\273\320\270\320\275\320\265\320\271\320\275\320\260\321\217", nullptr));
+        check_Lagranj->setText(QCoreApplication::translate("MWS", "\320\277\320\276\320\273\320\270\320\275.\320\233\320\260\320\263\321\200\320\260\320\275\320\266\320\260", nullptr));
     } // retranslateUi
 
 };

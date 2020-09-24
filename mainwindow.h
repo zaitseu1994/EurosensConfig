@@ -15,8 +15,8 @@
 #include "mws.h"
 
 #define LAST_MODBUS_ADRESS 50
-#define MODBUS_TIMEOUT_REPLY 10
-#define MODBUS_COUNT_REPEAT  3
+#define MODBUS_TIMEOUT_REPLY 20
+#define MODBUS_COUNT_REPEAT  1
 
 class QModbusClient;
 class QModbusReply;
