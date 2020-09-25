@@ -6,12 +6,16 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1039</width>
-    <height>540</height>
+    <width>853</width>
+    <height>482</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>EuroSense</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="res.qrc">
+    <normaloff>:/PNG/images/Logo3.PNG</normaloff>:/PNG/images/Logo3.PNG</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
@@ -139,7 +143,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1039</width>
+     <width>853</width>
      <height>20</height>
     </rect>
    </property>
@@ -162,19 +166,32 @@
     <property name="title">
      <string>Устройства</string>
     </property>
-    <addaction name="searh"/>
-    <addaction name="saved"/>
+    <addaction name="actionSearh"/>
+    <addaction name="actionSaved"/>
    </widget>
+   <widget class="QMenu" name="Settings">
+    <property name="title">
+     <string>Настройки</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menu">
+    <property name="title">
+     <string>Меню</string>
+    </property>
+    <addaction name="actionQuit"/>
+   </widget>
+   <addaction name="menu"/>
    <addaction name="devices"/>
    <addaction name="libs"/>
+   <addaction name="Settings"/>
    <addaction name="about"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="toolBar">
    <property name="minimumSize">
     <size>
-     <width>30</width>
-     <height>30</height>
+     <width>25</width>
+     <height>25</height>
     </size>
    </property>
    <property name="windowTitle">
@@ -186,6 +203,10 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="actionSearh"/>
+   <addaction name="actionSaved"/>
+   <addaction name="actionConfigure"/>
+   <addaction name="actionQuit"/>
   </widget>
   <action name="add">
    <property name="text">
@@ -197,22 +218,63 @@
     <string>Посмотреть</string>
    </property>
   </action>
-  <action name="searh">
+  <action name="actionSearh">
+   <property name="icon">
+    <iconset resource="res.qrc">
+     <normaloff>:/PNG/images/search.png</normaloff>:/PNG/images/search.png</iconset>
+   </property>
    <property name="text">
     <string>Поиск устройств</string>
    </property>
   </action>
-  <action name="saved">
+  <action name="actionSaved">
+   <property name="icon">
+    <iconset resource="res.qrc">
+     <normaloff>:/PNG/images/save.png</normaloff>:/PNG/images/save.png</iconset>
+   </property>
    <property name="text">
     <string>Сохранить</string>
    </property>
   </action>
-  <action name="action">
+  <action name="actionCancel">
+   <property name="icon">
+    <iconset resource="res.qrc">
+     <normaloff>:/PNG/images/cancel.png</normaloff>:/PNG/images/cancel.png</iconset>
+   </property>
    <property name="text">
     <string>Остановить поиск</string>
    </property>
   </action>
+  <action name="actionConfigure">
+   <property name="icon">
+    <iconset resource="res.qrc">
+     <normaloff>:/PNG/images/settings.png</normaloff>:/PNG/images/settings.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Configure</string>
+   </property>
+   <property name="toolTip">
+    <string>Configure serial port</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+C</string>
+   </property>
+  </action>
+  <action name="actionQuit">
+   <property name="icon">
+    <iconset resource="res.qrc">
+     <normaloff>:/PNG/images/application-exit.png</normaloff>:/PNG/images/application-exit.png</iconset>
+   </property>
+   <property name="text">
+    <string>Выход</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
+  </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="res.qrc"/>
+ </resources>
  <connections/>
 </ui>

@@ -33,8 +33,8 @@ MainWindow::MainWindow(QWidget *parent)
     libs = new DeviceLibs;
     connect(ui->add,&QAction::triggered,this,&MainWindow::libsAdd);
     connect(ui->view,&QAction::triggered,this,&MainWindow::LibsView);
-    connect(ui->searh,&QAction::triggered,this,&MainWindow::DevicesSearch);
-    connect(ui->saved,&QAction::triggered,this,&MainWindow::DevicesSaved);
+    connect(ui->actionSearh,&QAction::triggered,this,&MainWindow::DevicesSearch);
+    connect(ui->actionSaved,&QAction::triggered,this,&MainWindow::DevicesSaved);
 
 //    connect(modbusDevice, &QModbusClient::errorOccurred, [this](QModbusDevice::Error)
 //    {
@@ -54,7 +54,7 @@ MainWindow::MainWindow(QWidget *parent)
    // ui->treeWidget->headerItem()->setHidden(true);
     ui->treeWidget->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->treeWidget,&QTreeWidget::customContextMenuRequested,this,&MainWindow::prepareMenu);
-    ui->saved->setDisabled(true);
+    ui->actionSaved->setDisabled(true);
 
 //    setStyleSheet("QTreeWidget{"
 //    //"background-color: red;"
@@ -93,10 +93,13 @@ void MainWindow::DevicesSearch()
  ui->textBrowser->clear();
  ui->treeWidget->clear();
 
- ui->searh->setText("Идет поиск...");
- ui->searh->setDisabled(true);
+ ui->actionSearh->setText("Идет поиск...");
+ ui->actionSearh->setDisabled(true);
 
  libs->CloseAll();
+ QList<QMdiSubWindow *> list = ui->mdiArea->subWindowList(QMdiArea::CreationOrder);
+ if(list.count()!=0)
+ ui->mdiArea->closeAllSubWindows();
 
  tablListSavedDevices.clear();
  strListSavedDevices.clear();
@@ -130,7 +133,7 @@ void MainWindow::DevicesSearch()
 //              vectorModbusDevice.first().modbusDev->deleteLater();
               QMessageBox::warning(this, comname,"Проверьте соединение с портом");
 //              vectorModbusDevice.clear();
-              ui->searh->setEnabled(true);
+              ui->actionSearh->setEnabled(true);
          });
  ModbusTimer->start();
 
@@ -194,8 +197,8 @@ void MainWindow::pollModbus()
          }
     }else
     {
-      ui->searh->setText("Поиск устройств");
-      ui->searh->setEnabled(true);
+      ui->actionSearh->setText("Поиск устройств");
+      ui->actionSearh->setEnabled(true);
       ModbusTimer->stop();
     }
 }
@@ -262,6 +265,7 @@ void MainWindow::pollReplyModbus()
             if ( replyModbus->serverAddress() == LAST_MODBUS_ADRESS )
             {
                  ui->textBrowser->append("Закончен опрос порта: "+ vectorModbusDevice[intcomModBusDevice].nameCom);
+                 ui->treeWidget->setEnabled(true);
             }
         }
         replyModbus->deleteLater();
@@ -315,6 +319,7 @@ void MainWindow::setNameDevice(struct_tableRegsRead table,QString name)
 void MainWindow::getDeviceModbus(union_tableRegsRead table, struct_ComModbus com,QString nameconnect)
 {
    disconnect(ui->treeWidget,&QTreeWidget::itemChanged,this,&MainWindow::treeItemChange);
+   ui->treeWidget->setEnabled(false);
 
    struct_listSavedDevices locl;
    memcpy(&locl.device,&table.Regs,sizeof(locl.device));
@@ -390,7 +395,7 @@ void MainWindow::treeItemChange(QTreeWidgetItem * item, int column)
           }
           setNameDevice(table.device.Regs,table.devicename);
           ui->treeWidget->setHeaderLabel("Найденные устройства ( не сохранены )");
-          ui->saved->setEnabled(true);
+          ui->actionSaved->setEnabled(true);
      }
     }
   }
@@ -462,7 +467,7 @@ void MainWindow::DevicesSaved()
         stream << QList<QString> (strListSavedDevices);
         file.close();
         ui->treeWidget->setHeaderLabel("Найденные устройства...");
-        ui->saved->setDisabled(true);
+        ui->actionSaved->setDisabled(true);
     }
 }
 
@@ -493,6 +498,15 @@ QTreeWidgetItem *item = tree->itemAt( pos );
         if ( strloc.type() == QVariant::String )
         {
             QAction *newconnect = new QAction("Открыть");
+            QIcon icon1;
+            icon1.addFile(QString::fromUtf8(":/PNG/images/connect.png"), QSize(), QIcon::Normal, QIcon::Off);
+            newconnect->setIcon(icon1);
+            QAction *newdisconnect = new QAction("Закрыть");
+            QIcon icon2;
+            icon2.addFile(QString::fromUtf8(":/PNG/images/disconnect.png"), QSize(), QIcon::Normal, QIcon::Off);
+            newdisconnect->setIcon(icon2);
+            newdisconnect->setEnabled(false);
+
             QAction *newsave = new QAction("Сохранить");
             QAction *newSetting = new QAction("Свойства");
             QMenu menu(this);
@@ -500,6 +514,7 @@ QTreeWidgetItem *item = tree->itemAt( pos );
             connect(newconnect,&QAction::triggered,this,&MainWindow::LoadLibDevice);
 
             menu.addAction(newconnect);
+            menu.addAction(newdisconnect);
             menu.addAction(newsave);
             menu.addSection("new");
             menu.addAction(newSetting);

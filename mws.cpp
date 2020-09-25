@@ -154,6 +154,7 @@ MWS::~MWS()
     ModbusRegsTimer->stop();
     delete ModbusRegsTimer;
     delete ui;
+    emit closeWindow(strWindow);
 }
 
 void MWS::startView()
@@ -172,6 +173,7 @@ void MWS::startView()
 
 void MWS::getStr(QString str)
 {
+    strWindow = str;
     ui->edit_Password->setText(str);
     struct_listSavedDevices table = stringToTable(str);
     memcpy(&device.device,&table.device,sizeof(device.device));

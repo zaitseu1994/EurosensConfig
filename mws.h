@@ -22,6 +22,10 @@ public:
 public:
     void getStr(QString str);
     void start(QModbusClient *modbusDev);
+signals:
+    void closeWindow(QString str);
+private:
+    QString strWindow;
 private:
     typedef enum Action
     {

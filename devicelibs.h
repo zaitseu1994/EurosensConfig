@@ -10,13 +10,15 @@
 #include "structs_main.h"
 #include "mws.h"
 
-class DeviceLibs
+class DeviceLibs : public QObject
 {
+    Q_OBJECT
 public:
      DeviceLibs();
     ~DeviceLibs();
     bool LibOpen(QString str,QMdiArea *mdiArea,QModbusClient *modbus);
     bool CloseAll();
+    void SubWindowClose(QString str);
 private:
     typedef struct struct_DialofInfo
     {

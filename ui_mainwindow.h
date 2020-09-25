@@ -10,6 +10,7 @@
 #define UI_MAINWINDOW_H
 
 #include <QtCore/QVariant>
+#include <QtGui/QIcon>
 #include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QGridLayout>
@@ -33,9 +34,11 @@ class Ui_MainWindow
 public:
     QAction *add;
     QAction *view;
-    QAction *searh;
-    QAction *saved;
-    QAction *action;
+    QAction *actionSearh;
+    QAction *actionSaved;
+    QAction *actionCancel;
+    QAction *actionConfigure;
+    QAction *actionQuit;
     QWidget *centralwidget;
     QGridLayout *gridLayout;
     QSplitter *splitter_3;
@@ -49,6 +52,8 @@ public:
     QMenu *libs;
     QMenu *about;
     QMenu *devices;
+    QMenu *Settings;
+    QMenu *menu;
     QStatusBar *statusbar;
     QToolBar *toolBar;
 
@@ -56,17 +61,39 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
-        MainWindow->resize(1039, 540);
+        MainWindow->resize(853, 482);
+        QIcon icon;
+        icon.addFile(QString::fromUtf8(":/PNG/images/Logo3.PNG"), QSize(), QIcon::Normal, QIcon::Off);
+        MainWindow->setWindowIcon(icon);
         add = new QAction(MainWindow);
         add->setObjectName(QString::fromUtf8("add"));
         view = new QAction(MainWindow);
         view->setObjectName(QString::fromUtf8("view"));
-        searh = new QAction(MainWindow);
-        searh->setObjectName(QString::fromUtf8("searh"));
-        saved = new QAction(MainWindow);
-        saved->setObjectName(QString::fromUtf8("saved"));
-        action = new QAction(MainWindow);
-        action->setObjectName(QString::fromUtf8("action"));
+        actionSearh = new QAction(MainWindow);
+        actionSearh->setObjectName(QString::fromUtf8("actionSearh"));
+        QIcon icon1;
+        icon1.addFile(QString::fromUtf8(":/PNG/images/search.png"), QSize(), QIcon::Normal, QIcon::Off);
+        actionSearh->setIcon(icon1);
+        actionSaved = new QAction(MainWindow);
+        actionSaved->setObjectName(QString::fromUtf8("actionSaved"));
+        QIcon icon2;
+        icon2.addFile(QString::fromUtf8(":/PNG/images/save.png"), QSize(), QIcon::Normal, QIcon::Off);
+        actionSaved->setIcon(icon2);
+        actionCancel = new QAction(MainWindow);
+        actionCancel->setObjectName(QString::fromUtf8("actionCancel"));
+        QIcon icon3;
+        icon3.addFile(QString::fromUtf8(":/PNG/images/cancel.png"), QSize(), QIcon::Normal, QIcon::Off);
+        actionCancel->setIcon(icon3);
+        actionConfigure = new QAction(MainWindow);
+        actionConfigure->setObjectName(QString::fromUtf8("actionConfigure"));
+        QIcon icon4;
+        icon4.addFile(QString::fromUtf8(":/PNG/images/settings.png"), QSize(), QIcon::Normal, QIcon::Off);
+        actionConfigure->setIcon(icon4);
+        actionQuit = new QAction(MainWindow);
+        actionQuit->setObjectName(QString::fromUtf8("actionQuit"));
+        QIcon icon5;
+        icon5.addFile(QString::fromUtf8(":/PNG/images/application-exit.png"), QSize(), QIcon::Normal, QIcon::Off);
+        actionQuit->setIcon(icon5);
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
         gridLayout = new QGridLayout(centralwidget);
@@ -131,7 +158,7 @@ public:
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QString::fromUtf8("menubar"));
-        menubar->setGeometry(QRect(0, 0, 1039, 20));
+        menubar->setGeometry(QRect(0, 0, 853, 20));
         libs = new QMenu(menubar);
         libs->setObjectName(QString::fromUtf8("libs"));
         libs->setMouseTracking(true);
@@ -139,22 +166,33 @@ public:
         about->setObjectName(QString::fromUtf8("about"));
         devices = new QMenu(menubar);
         devices->setObjectName(QString::fromUtf8("devices"));
+        Settings = new QMenu(menubar);
+        Settings->setObjectName(QString::fromUtf8("Settings"));
+        menu = new QMenu(menubar);
+        menu->setObjectName(QString::fromUtf8("menu"));
         MainWindow->setMenuBar(menubar);
         statusbar = new QStatusBar(MainWindow);
         statusbar->setObjectName(QString::fromUtf8("statusbar"));
         MainWindow->setStatusBar(statusbar);
         toolBar = new QToolBar(MainWindow);
         toolBar->setObjectName(QString::fromUtf8("toolBar"));
-        toolBar->setMinimumSize(QSize(30, 30));
+        toolBar->setMinimumSize(QSize(25, 25));
         MainWindow->addToolBar(Qt::TopToolBarArea, toolBar);
 
+        menubar->addAction(menu->menuAction());
         menubar->addAction(devices->menuAction());
         menubar->addAction(libs->menuAction());
+        menubar->addAction(Settings->menuAction());
         menubar->addAction(about->menuAction());
         libs->addAction(add);
         libs->addAction(view);
-        devices->addAction(searh);
-        devices->addAction(saved);
+        devices->addAction(actionSearh);
+        devices->addAction(actionSaved);
+        menu->addAction(actionQuit);
+        toolBar->addAction(actionSearh);
+        toolBar->addAction(actionSaved);
+        toolBar->addAction(actionConfigure);
+        toolBar->addAction(actionQuit);
 
         retranslateUi(MainWindow);
 
@@ -163,15 +201,28 @@ public:
 
     void retranslateUi(QMainWindow *MainWindow)
     {
-        MainWindow->setWindowTitle(QCoreApplication::translate("MainWindow", "MainWindow", nullptr));
+        MainWindow->setWindowTitle(QCoreApplication::translate("MainWindow", "EuroSense", nullptr));
         add->setText(QCoreApplication::translate("MainWindow", "\320\224\320\276\320\261\320\260\320\262\320\270\321\202\321\214", nullptr));
         view->setText(QCoreApplication::translate("MainWindow", "\320\237\320\276\321\201\320\274\320\276\321\202\321\200\320\265\321\202\321\214", nullptr));
-        searh->setText(QCoreApplication::translate("MainWindow", "\320\237\320\276\320\270\321\201\320\272 \321\203\321\201\321\202\321\200\320\276\320\271\321\201\321\202\320\262", nullptr));
-        saved->setText(QCoreApplication::translate("MainWindow", "\320\241\320\276\321\205\321\200\320\260\320\275\320\270\321\202\321\214", nullptr));
-        action->setText(QCoreApplication::translate("MainWindow", "\320\236\321\201\321\202\320\260\320\275\320\276\320\262\320\270\321\202\321\214 \320\277\320\276\320\270\321\201\320\272", nullptr));
+        actionSearh->setText(QCoreApplication::translate("MainWindow", "\320\237\320\276\320\270\321\201\320\272 \321\203\321\201\321\202\321\200\320\276\320\271\321\201\321\202\320\262", nullptr));
+        actionSaved->setText(QCoreApplication::translate("MainWindow", "\320\241\320\276\321\205\321\200\320\260\320\275\320\270\321\202\321\214", nullptr));
+        actionCancel->setText(QCoreApplication::translate("MainWindow", "\320\236\321\201\321\202\320\260\320\275\320\276\320\262\320\270\321\202\321\214 \320\277\320\276\320\270\321\201\320\272", nullptr));
+        actionConfigure->setText(QCoreApplication::translate("MainWindow", "&Configure", nullptr));
+#if QT_CONFIG(tooltip)
+        actionConfigure->setToolTip(QCoreApplication::translate("MainWindow", "Configure serial port", nullptr));
+#endif // QT_CONFIG(tooltip)
+#if QT_CONFIG(shortcut)
+        actionConfigure->setShortcut(QCoreApplication::translate("MainWindow", "Alt+C", nullptr));
+#endif // QT_CONFIG(shortcut)
+        actionQuit->setText(QCoreApplication::translate("MainWindow", "\320\222\321\213\321\205\320\276\320\264", nullptr));
+#if QT_CONFIG(shortcut)
+        actionQuit->setShortcut(QCoreApplication::translate("MainWindow", "Ctrl+Q", nullptr));
+#endif // QT_CONFIG(shortcut)
         libs->setTitle(QCoreApplication::translate("MainWindow", "\320\221\320\270\320\261\320\273\320\270\320\276\321\202\320\265\320\272\320\270", nullptr));
         about->setTitle(QCoreApplication::translate("MainWindow", "\320\236 \320\277\321\200\320\276\320\263\321\200\320\260\320\274\320\274\320\265", nullptr));
         devices->setTitle(QCoreApplication::translate("MainWindow", "\320\243\321\201\321\202\321\200\320\276\320\271\321\201\321\202\320\262\320\260", nullptr));
+        Settings->setTitle(QCoreApplication::translate("MainWindow", "\320\235\320\260\321\201\321\202\321\200\320\276\320\271\320\272\320\270", nullptr));
+        menu->setTitle(QCoreApplication::translate("MainWindow", "\320\234\320\265\320\275\321\216", nullptr));
         toolBar->setWindowTitle(QCoreApplication::translate("MainWindow", "toolBar", nullptr));
     } // retranslateUi
 
