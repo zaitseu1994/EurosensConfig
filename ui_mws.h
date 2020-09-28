@@ -143,7 +143,7 @@ public:
     {
         if (MWS->objectName().isEmpty())
             MWS->setObjectName(QString::fromUtf8("MWS"));
-        MWS->resize(623, 467);
+        MWS->resize(687, 526);
         gridLayout_6 = new QGridLayout(MWS);
         gridLayout_6->setObjectName(QString::fromUtf8("gridLayout_6"));
         splitter_3 = new QSplitter(MWS);
@@ -656,10 +656,6 @@ public:
         splitter_3->addWidget(splitter);
         splitter_2 = new QSplitter(splitter_3);
         splitter_2->setObjectName(QString::fromUtf8("splitter_2"));
-        splitter_2->setFrameShape(QFrame::NoFrame);
-        splitter_2->setFrameShadow(QFrame::Plain);
-        splitter_2->setLineWidth(1);
-        splitter_2->setMidLineWidth(2);
         splitter_2->setOrientation(Qt::Horizontal);
         graph_table = new QCustomPlot(splitter_2);
         graph_table->setObjectName(QString::fromUtf8("graph_table"));

@@ -1,6 +1,9 @@
 #ifndef DEVICELIBS_H
 #define DEVICELIBS_H
 
+#include <QMdiSubWindow>
+#include <QCloseEvent>
+
 #include <QString>
 #include <QVector>
 #include <QLibrary>
@@ -10,6 +13,23 @@
 #include "structs_main.h"
 #include "mws.h"
 
+
+class MyQMdiSubWindow : public QMdiSubWindow
+{
+    Q_OBJECT
+
+signals:
+    void closed();
+
+protected:
+    void closeEvent( QCloseEvent * closeEvent )
+    {
+        emit closed();
+        closeEvent->accept();
+    }
+};
+
+
 class DeviceLibs : public QObject
 {
     Q_OBJECT
@@ -18,7 +38,6 @@ public:
     ~DeviceLibs();
     bool LibOpen(QString str,QMdiArea *mdiArea,QModbusClient *modbus);
     bool CloseAll();
-    void SubWindowClose(QString str);
 private:
     typedef struct struct_DialofInfo
     {
@@ -26,8 +45,11 @@ private:
         QModbusClient *modbus;
         QMdiArea      *mdiArea;
         MWS           *dialog;
+        MyQMdiSubWindow *subWin;
     }struct_DialofInfo;
     QVector<struct_DialofInfo> vectorDialogs;
 };
 
 #endif // DEVICELIBS_H
+
+

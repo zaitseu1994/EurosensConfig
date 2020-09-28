@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>623</width>
-    <height>467</height>
+    <width>687</width>
+    <height>526</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -620,18 +620,6 @@
       </widget>
      </widget>
      <widget class="QSplitter" name="splitter_2">
-      <property name="frameShape">
-       <enum>QFrame::NoFrame</enum>
-      </property>
-      <property name="frameShadow">
-       <enum>QFrame::Plain</enum>
-      </property>
-      <property name="lineWidth">
-       <number>1</number>
-      </property>
-      <property name="midLineWidth">
-       <number>2</number>
-      </property>
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>

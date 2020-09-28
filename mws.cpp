@@ -34,7 +34,7 @@ QStringList STXDisable = {"да","нет"};
 QStringList SProfile = {"1","2","3","4","5"};
 
 MWS::MWS(QWidget *parent) :
-    QDialog(parent),
+    QWidget(parent),
     ui(new Ui::MWS)
 {
     ui->setupUi(this);
@@ -152,9 +152,9 @@ MWS::~MWS()
 {
     if(ModbusRegsTimer->isActive())
     ModbusRegsTimer->stop();
+
     delete ModbusRegsTimer;
     delete ui;
-    emit closeWindow(strWindow);
 }
 
 void MWS::startView()

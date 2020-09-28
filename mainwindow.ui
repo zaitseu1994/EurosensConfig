@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>853</width>
-    <height>482</height>
+    <width>773</width>
+    <height>545</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,121 +19,133 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
+    <property name="leftMargin">
+     <number>1</number>
+    </property>
+    <property name="topMargin">
+     <number>1</number>
+    </property>
+    <property name="rightMargin">
+     <number>1</number>
+    </property>
+    <property name="bottomMargin">
+     <number>1</number>
+    </property>
+    <property name="spacing">
+     <number>2</number>
+    </property>
     <item row="0" column="0">
-     <widget class="QSplitter" name="splitter_3">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
+     <widget class="QTreeWidget" name="treeWidget">
+      <property name="minimumSize">
+       <size>
+        <width>150</width>
+        <height>100</height>
+       </size>
       </property>
-      <property name="handleWidth">
+      <property name="frameShape">
+       <enum>QFrame::Panel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Sunken</enum>
+      </property>
+      <property name="lineWidth">
        <number>1</number>
       </property>
-      <widget class="QTreeWidget" name="treeWidget">
-       <property name="minimumSize">
-        <size>
-         <width>150</width>
-         <height>100</height>
-        </size>
+      <property name="midLineWidth">
+       <number>0</number>
+      </property>
+      <property name="sizeAdjustPolicy">
+       <enum>QAbstractScrollArea::AdjustToContents</enum>
+      </property>
+      <property name="textElideMode">
+       <enum>Qt::ElideRight</enum>
+      </property>
+      <attribute name="headerCascadingSectionResizes">
+       <bool>true</bool>
+      </attribute>
+      <column>
+       <property name="text">
+        <string notr="true">1</string>
        </property>
-       <property name="frameShape">
-        <enum>QFrame::NoFrame</enum>
-       </property>
-       <property name="lineWidth">
-        <number>0</number>
-       </property>
-       <property name="sizeAdjustPolicy">
-        <enum>QAbstractScrollArea::AdjustToContents</enum>
-       </property>
-       <property name="textElideMode">
-        <enum>Qt::ElideRight</enum>
-       </property>
-       <attribute name="headerCascadingSectionResizes">
-        <bool>true</bool>
-       </attribute>
-       <column>
-        <property name="text">
-         <string notr="true">1</string>
-        </property>
-       </column>
-      </widget>
-      <widget class="QSplitter" name="splitter_2">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-       <widget class="QSplitter" name="splitter">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <widget class="QMdiArea" name="mdiArea">
-         <property name="autoFillBackground">
-          <bool>false</bool>
-         </property>
-         <property name="styleSheet">
-          <string notr="true"/>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::NoFrame</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Plain</enum>
-         </property>
-         <property name="verticalScrollBarPolicy">
-          <enum>Qt::ScrollBarAsNeeded</enum>
-         </property>
-         <property name="horizontalScrollBarPolicy">
-          <enum>Qt::ScrollBarAsNeeded</enum>
-         </property>
-         <property name="background">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>170</red>
-            <green>255</green>
-            <blue>255</blue>
-           </color>
-          </brush>
-         </property>
-         <property name="viewMode">
-          <enum>QMdiArea::SubWindowView</enum>
-         </property>
-         <property name="documentMode">
-          <bool>true</bool>
-         </property>
-         <property name="tabShape">
-          <enum>QTabWidget::Rounded</enum>
-         </property>
-        </widget>
-        <widget class="QListWidget" name="listInfo">
-         <property name="frameShape">
-          <enum>QFrame::NoFrame</enum>
-         </property>
-         <property name="verticalScrollBarPolicy">
-          <enum>Qt::ScrollBarAlwaysOn</enum>
-         </property>
-         <property name="horizontalScrollBarPolicy">
-          <enum>Qt::ScrollBarAlwaysOff</enum>
-         </property>
-        </widget>
-       </widget>
-       <widget class="QTextBrowser" name="textBrowser">
-        <property name="autoFillBackground">
-         <bool>false</bool>
-        </property>
-        <property name="frameShape">
-         <enum>QFrame::NoFrame</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Plain</enum>
-        </property>
-        <property name="midLineWidth">
-         <number>0</number>
-        </property>
-        <property name="verticalScrollBarPolicy">
-         <enum>Qt::ScrollBarAlwaysOn</enum>
-        </property>
-        <property name="horizontalScrollBarPolicy">
-         <enum>Qt::ScrollBarAsNeeded</enum>
-        </property>
-       </widget>
-      </widget>
+      </column>
+     </widget>
+    </item>
+    <item row="0" column="1">
+     <widget class="QMdiArea" name="mdiArea">
+      <property name="autoFillBackground">
+       <bool>false</bool>
+      </property>
+      <property name="styleSheet">
+       <string notr="true"/>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::Panel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Sunken</enum>
+      </property>
+      <property name="lineWidth">
+       <number>1</number>
+      </property>
+      <property name="verticalScrollBarPolicy">
+       <enum>Qt::ScrollBarAsNeeded</enum>
+      </property>
+      <property name="horizontalScrollBarPolicy">
+       <enum>Qt::ScrollBarAsNeeded</enum>
+      </property>
+      <property name="background">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>170</red>
+         <green>255</green>
+         <blue>255</blue>
+        </color>
+       </brush>
+      </property>
+      <property name="viewMode">
+       <enum>QMdiArea::SubWindowView</enum>
+      </property>
+      <property name="documentMode">
+       <bool>true</bool>
+      </property>
+      <property name="tabShape">
+       <enum>QTabWidget::Rounded</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="2">
+     <widget class="QListWidget" name="listInfo">
+      <property name="frameShape">
+       <enum>QFrame::Panel</enum>
+      </property>
+      <property name="verticalScrollBarPolicy">
+       <enum>Qt::ScrollBarAsNeeded</enum>
+      </property>
+      <property name="horizontalScrollBarPolicy">
+       <enum>Qt::ScrollBarAlwaysOff</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0" colspan="3">
+     <widget class="QTextBrowser" name="textBrowser">
+      <property name="autoFillBackground">
+       <bool>false</bool>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::Panel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Sunken</enum>
+      </property>
+      <property name="midLineWidth">
+       <number>0</number>
+      </property>
+      <property name="verticalScrollBarPolicy">
+       <enum>Qt::ScrollBarAsNeeded</enum>
+      </property>
+      <property name="horizontalScrollBarPolicy">
+       <enum>Qt::ScrollBarAsNeeded</enum>
+      </property>
      </widget>
     </item>
    </layout>
@@ -143,7 +155,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>853</width>
+     <width>773</width>
      <height>20</height>
     </rect>
    </property>
@@ -180,10 +192,16 @@
     </property>
     <addaction name="actionQuit"/>
    </widget>
+   <widget class="QMenu" name="view_ui">
+    <property name="title">
+     <string>Вид</string>
+    </property>
+   </widget>
    <addaction name="menu"/>
    <addaction name="devices"/>
    <addaction name="libs"/>
    <addaction name="Settings"/>
+   <addaction name="view_ui"/>
    <addaction name="about"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>

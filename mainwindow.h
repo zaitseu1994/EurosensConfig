@@ -58,6 +58,14 @@ public:
 
     void LoadLibDevice();
 private:
+    void readSettings();
+    void writeSettings();
+private:
+    QDockWidget *tree_dock = nullptr;
+    QDockWidget *browser_dock = nullptr;
+    QDockWidget *list_dock = nullptr;
+    QDockWidget *mdi_dock = nullptr;
+private:
     Ui::MainWindow *ui;
     DeviceLibs *libs = nullptr;
     QTimer *ModbusTimer = nullptr;

@@ -13,7 +13,7 @@ namespace Ui {
 class MWS;
 }
 
-class MWS : public QDialog
+class MWS : public QWidget
 {
     Q_OBJECT
 public:
@@ -22,8 +22,6 @@ public:
 public:
     void getStr(QString str);
     void start(QModbusClient *modbusDev);
-signals:
-    void closeWindow(QString str);
 private:
     QString strWindow;
 private:

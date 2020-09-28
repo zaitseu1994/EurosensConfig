@@ -1,6 +1,9 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include "QDockWidget"
+#include "QSettings"
+
 #include <QModbusRtuSerialMaster>
 #include <QPushButton>
 
@@ -28,9 +31,33 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    readSettings();
 
     ModbusTimer = new QTimer;
     libs = new DeviceLibs;
+
+    tree_dock = new QDockWidget(tr("Устройства"), this);
+    tree_dock->setObjectName("tree");
+    tree_dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea );
+    tree_dock->setWidget(ui->treeWidget);
+    addDockWidget(Qt::LeftDockWidgetArea, tree_dock);
+    ui->view_ui->addAction(tree_dock->toggleViewAction());
+
+    browser_dock = new QDockWidget(tr("Состояние"), this);
+    browser_dock->setObjectName("browser");
+    browser_dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea );
+    browser_dock->setWidget(ui->textBrowser);
+    addDockWidget(Qt::BottomDockWidgetArea, browser_dock);
+    ui->view_ui->addAction(browser_dock->toggleViewAction());
+
+    list_dock = new QDockWidget(tr("Инфо"), this);
+    list_dock->setObjectName("list");
+    list_dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea );
+    list_dock->setWidget(ui->listInfo);
+    addDockWidget(Qt::RightDockWidgetArea, list_dock);
+    ui->view_ui->addAction(list_dock->toggleViewAction());
+
+
     connect(ui->add,&QAction::triggered,this,&MainWindow::libsAdd);
     connect(ui->view,&QAction::triggered,this,&MainWindow::LibsView);
     connect(ui->actionSearh,&QAction::triggered,this,&MainWindow::DevicesSearch);
@@ -73,9 +100,38 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
-   // delete libs;
+    writeSettings();
+    delete tree_dock;
+    delete browser_dock;
+    delete list_dock;
+    delete mdi_dock;
+    delete libs;
     delete ModbusTimer;
     delete ui;
+}
+
+void MainWindow::readSettings()
+{
+
+
+
+
+}
+
+void MainWindow::writeSettings()
+{
+    static const char* const FILE_NAME = "settings.bin";
+    QFile file( FILE_NAME );
+    QDataStream stream( &file );
+    QByteArray window = saveGeometry();
+    QByteArray set = saveState();
+    file.open( QIODevice::WriteOnly );
+    if (file.isOpen())
+    {
+        stream << set;
+        stream << window;
+        file.close();
+    }
 }
 
 void MainWindow::libsAdd()
