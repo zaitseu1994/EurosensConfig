@@ -60,27 +60,43 @@ private:
       STAT_CMD_TABLE_END            =8,/*!< окончание тарировочной таблицы*/
     } cmd_status;
 
+    typedef enum type_send
+    {
+          ONLY_MEASURE,
+          RW_TABLE,
+          UPDATE_SETTINGS,
+          ANOTHER_ACTIONS,
+          ALL_TABLE
+    }type_send;
+
     typedef struct struct_pointTableCalibration
     {
                    uint16_t pointDistanse;
                    float pointVolume;
     }struct_pointTableCalibration;
 
+    typedef  enum  stat_readwrite
+    {
+        NO,
+        WRITE,
+        READ
+    }stat_readwrite;
+
 private:
     Action CurrentAction = NO_ACTION;
     int CounterStepAction;
 private:
     struct_listSavedDevices stringToTable(QString str);
-    void updateRegs();
+    void updateRegs(int startAdr, int countregs);
     void replyReceivedRead();
-    void sendRegs();
+    void sendRegs(int startAdr, int countregs);
     void replyReceivedWrite();
-    void upperModbusCheck();
+    stat_readwrite upperModbusCheck();
     void setupAction(Action Action);
-    void ActionWriteTable();
-    void ActionReadTable();
-    void ActionSaveConfig();
-    void ActionReadConfig();
+    stat_readwrite ActionWriteTable();
+    stat_readwrite ActionReadTable();
+    stat_readwrite ActionSaveConfig();
+    stat_readwrite ActionReadConfig();
     void readTableWidget();
     void writeTableWidget();
 
@@ -91,8 +107,8 @@ private:
     void addPointMeasure(double distatanse,double volume);
     void updatePlotWidget(int s,int k);
     void updateTableWidget(int countPoints);
-    void updateAllSettingsView(union_tableRegsWrite Table);
-    void updateAllSettingsTable(union_tableRegsWrite *Table);
+    void updateAllSettingsView( union_tableRegsWrite Table);
+    bool updateAllSettingsTable( union_tableRegsWrite *Table);
     void startView();
 
     qreal Lagranj (double X);
@@ -112,7 +128,7 @@ private:
     QTimer *ModbusRegsTimer = nullptr;
     struct_listSavedDevices device;
     QModbusClient *modbusDevice = nullptr;
-    bool firstRequest;
+    bool firstRequest = true;
 };
 
 #endif // MWS_H

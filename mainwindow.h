@@ -16,7 +16,7 @@
 
 #define LAST_MODBUS_ADRESS 50
 #define MODBUS_TIMEOUT_REPLY 20
-#define MODBUS_COUNT_REPEAT  1
+#define MODBUS_COUNT_REPEAT  2
 
 class QModbusClient;
 class QModbusReply;

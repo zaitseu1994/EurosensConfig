@@ -17,10 +17,11 @@
 class MyQMdiSubWindow : public QMdiSubWindow
 {
     Q_OBJECT
-
+public:
+    explicit MyQMdiSubWindow(QMdiSubWindow *parent = nullptr);
+    ~MyQMdiSubWindow();
 signals:
     void closed();
-
 protected:
     void closeEvent( QCloseEvent * closeEvent )
     {
@@ -29,12 +30,11 @@ protected:
     }
 };
 
-
 class DeviceLibs : public QObject
 {
     Q_OBJECT
 public:
-     DeviceLibs();
+    explicit DeviceLibs();
     ~DeviceLibs();
     bool LibOpen(QString str,QMdiArea *mdiArea,QModbusClient *modbus);
     bool CloseAll();

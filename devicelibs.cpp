@@ -8,6 +8,18 @@
 
 #include <QFile>
 
+
+MyQMdiSubWindow::MyQMdiSubWindow(QMdiSubWindow *parent) :
+        QMdiSubWindow(parent)
+{
+
+}
+
+MyQMdiSubWindow::~MyQMdiSubWindow()
+{
+
+}
+
 DeviceLibs::DeviceLibs()
 {
 
@@ -15,7 +27,7 @@ DeviceLibs::DeviceLibs()
 
 DeviceLibs::~DeviceLibs()
 {
-
+    CloseAll();
 }
 
 bool DeviceLibs:: LibOpen(QString str,QMdiArea *mdiArea,QModbusClient *modbus)
@@ -44,7 +56,6 @@ bool DeviceLibs:: LibOpen(QString str,QMdiArea *mdiArea,QModbusClient *modbus)
             }
             if( m_settings!=nullptr )
             {
-               m_settings->hide();
                m_settings->deleteLater();
                mysub->deleteLater();
             }
@@ -81,7 +92,6 @@ bool DeviceLibs:: LibOpen(QString str,QMdiArea *mdiArea,QModbusClient *modbus)
     vectorDialogs << infidialog;
 
     return  stat;
-
 }
 
 bool DeviceLibs:: CloseAll()
@@ -90,7 +100,6 @@ bool DeviceLibs:: CloseAll()
     {
          if( vectorDialogs[i].dialog!=nullptr )
          {
-             vectorDialogs[i].dialog->hide();
              vectorDialogs[i].dialog->deleteLater();
          }
          if( vectorDialogs[i].subWin!=nullptr)

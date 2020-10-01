@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>773</width>
-    <height>545</height>
+    <width>763</width>
+    <height>490</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,21 +19,6 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
-    <property name="leftMargin">
-     <number>1</number>
-    </property>
-    <property name="topMargin">
-     <number>1</number>
-    </property>
-    <property name="rightMargin">
-     <number>1</number>
-    </property>
-    <property name="bottomMargin">
-     <number>1</number>
-    </property>
-    <property name="spacing">
-     <number>2</number>
-    </property>
     <item row="0" column="0">
      <widget class="QTreeWidget" name="treeWidget">
       <property name="minimumSize">
@@ -155,7 +140,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>773</width>
+     <width>763</width>
      <height>20</height>
     </rect>
    </property>

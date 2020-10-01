@@ -58,7 +58,7 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
-        MainWindow->resize(773, 545);
+        MainWindow->resize(763, 490);
         QIcon icon;
         icon.addFile(QString::fromUtf8(":/PNG/images/Logo3.PNG"), QSize(), QIcon::Normal, QIcon::Off);
         MainWindow->setWindowIcon(icon);
@@ -94,9 +94,7 @@ public:
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
         gridLayout = new QGridLayout(centralwidget);
-        gridLayout->setSpacing(2);
         gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
-        gridLayout->setContentsMargins(1, 1, 1, 1);
         treeWidget = new QTreeWidget(centralwidget);
         QTreeWidgetItem *__qtreewidgetitem = new QTreeWidgetItem();
         __qtreewidgetitem->setText(0, QString::fromUtf8("1"));
@@ -153,7 +151,7 @@ public:
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QString::fromUtf8("menubar"));
-        menubar->setGeometry(QRect(0, 0, 773, 20));
+        menubar->setGeometry(QRect(0, 0, 763, 20));
         libs = new QMenu(menubar);
         libs->setObjectName(QString::fromUtf8("libs"));
         libs->setMouseTracking(true);

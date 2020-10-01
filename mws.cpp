@@ -17,7 +17,7 @@
 #define MODBUS_TIMEOUT_PACKET 200
 #define MODBUS_COUNT_REPAET   1
 
-#define MODBUS_COUNT_READ_ADR sizeof(struct_tableRegsWrite)/2
+#define MODBUS_COUNT_READ_ADR COUNT_REGSWRITE
 
 #define MODBUS_INTERVAL_ALL 400
 #define MODBUS_INTERVAL_FAST 40
@@ -39,14 +39,105 @@ MWS::MWS(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    static const char* const FILE_NAME = "lib.bin";
+    QFile file( FILE_NAME );
+    QDataStream stream( &file );
+    QByteArray window3;
+    QByteArray window2;
+    QByteArray window;
+    file.open( QIODevice::ReadOnly );
+    if (file.isOpen())
+    {
+            stream >> window3;
+            stream >> window2;
+            stream >> window;
+
+        file.close();
+        ui->splitter_3->restoreState(window3);
+        ui->splitter_2->restoreState(window2);
+        ui->splitter->restoreState(window);
+    }
+
     ModbusRegsTimer = new QTimer();
     ModbusRegsTimer->stop();
     ModbusRegsTimer->setSingleShot(false);
     ModbusRegsTimer->setInterval(MODBUS_INTERVAL_ALL);
+
     connect(ModbusRegsTimer,&QTimer::timeout,this,[=]
     {
-         sendRegs();
-         updateRegs();
+//        if ( updateAllSettingsTable(&LoclTableRecieve) || CurrentAction!=NO_ACTION ) // параметры изменили
+//        {
+//             sendRegs(0,MODBUS_COUNT_READ_ADR);
+//        }
+//        updateRegs(0,MODBUS_COUNT_READ_ADR);
+
+        type_send type = ONLY_MEASURE;
+        if ( updateAllSettingsTable(&LoclTableRecieve) )
+        {
+             type = UPDATE_SETTINGS;
+        }
+        if( ( CurrentAction == SEND_TO_UPDATE_CONFIG ) || ( CurrentAction == SEND_TO_SAVE_CONFIG ) || ( CurrentAction == SEND_TO_CHECK_PASSWORD ) )
+        {
+             type = ANOTHER_ACTIONS;
+        }
+        if ( CurrentAction == WRITE_TABLE || ( CurrentAction == READ_TABLE ) )
+        {
+             type = RW_TABLE;
+        }
+
+        switch(type)
+        {
+           case ONLY_MEASURE:
+            {
+                updateRegs(START_MINIMAL_ADR_R,COUNT_MINIMAL_REGS_R);
+            }
+            break;
+           case RW_TABLE:
+            {
+                sendRegs(START_MINIMAL_ADR_W,COUNT_MINIMAL_REGS_W);
+                updateRegs(START_MINIMAL_ADR_W,COUNT_MINIMAL_REGS_W);
+            }
+            break;
+           case UPDATE_SETTINGS:
+            {
+                sendRegs(START_MINIMAL_ADR_R,COUNT_MINIMAL_REGS_R+COUNT_SENSOR_REGS+COUNT_DEV_REGS);
+                updateRegs(START_MINIMAL_ADR_R,COUNT_MINIMAL_REGS_R+COUNT_SENSOR_REGS+COUNT_DEV_REGS);
+            }
+            break;
+           case ANOTHER_ACTIONS:
+            {
+                sendRegs(START_MINIMAL_ADR_R,COUNT_MINIMAL_REGS_R+COUNT_SENSOR_REGS+COUNT_DEV_REGS);
+                updateRegs(START_MINIMAL_ADR_R,COUNT_MINIMAL_REGS_R+COUNT_SENSOR_REGS+COUNT_DEV_REGS);
+            }
+            break;
+           case ALL_TABLE:
+            {
+                sendRegs(START_MINIMAL_ADR_R,COUNT_MINIMAL_REGS_R+COUNT_SENSOR_REGS+COUNT_DEV_REGS+COUNT_ADDDEV_REGS);
+                updateRegs(START_MINIMAL_ADR_R,COUNT_MINIMAL_REGS_R+COUNT_SENSOR_REGS+COUNT_DEV_REGS+COUNT_ADDDEV_REGS);
+            }
+            break;
+        }
+
+//         if( updateAllSettingsTable(&LoclTableRecieve) || ( CurrentAction == SEND_TO_UPDATE_CONFIG ) )
+//         {
+//             sendRegs(START_MINIMAL_ADR_R,COUNT_MINIMAL_REGS_R+COUNT_SENSOR_REGS+COUNT_DEV_REGS);
+//             updateRegs(START_MINIMAL_ADR_R,COUNT_MINIMAL_REGS_R+COUNT_SENSOR_REGS+COUNT_DEV_REGS);
+//         }else
+//         {
+//                 sendRegs(START_MINIMAL_ADR_W,COUNT_MINIMAL_REGS_W);
+//                 updateRegs(START_MINIMAL_ADR_R,COUNT_MINIMAL_REGS_R);
+//         }
+
+//         updateAllSettingsTable(&LoclTableRecieve);
+//         sendRegs(START_SENSOR_ADR,COUNT_SENSOR_REGS+COUNT_DEV_REGS);
+//         updateRegs(START_SENSOR_ADR,COUNT_SENSOR_REGS+COUNT_DEV_REGS);
+
+//        sendRegs(START_MINIMAL_ADR_R,COUNT_MINIMAL_REGS_R+COUNT_SENSOR_REGS+COUNT_DEV_REGS);
+//        updateRegs(START_MINIMAL_ADR_R,COUNT_MINIMAL_REGS_R+COUNT_SENSOR_REGS+COUNT_DEV_REGS);
+
+//        sendRegs(START_MINIMAL_ADR_W,COUNT_MINIMAL_REGS_W);
+//        updateRegs(START_MINIMAL_ADR_R,COUNT_MINIMAL_REGS_R);
+
     });
 
     connect(ui->slid_AdrModbus,&QSlider::valueChanged,ui->spin_AdrModbus,&QSpinBox::setValue);
@@ -85,8 +176,6 @@ MWS::MWS(QWidget *parent) :
        ui->slid_RunningAverage->setValue(static_cast<int>(ui->spin_RunningAverage->value()*100));
     });
 
-    firstRequest = true;
-
     connect(ui->spin_CountPoint,QOverload<int>::of(&QSpinBox::valueChanged),this,&MWS::updateTableWidget);
 
     connect(ui->button_SendTable,&QPushButton::clicked,this,[=]
@@ -108,8 +197,8 @@ MWS::MWS(QWidget *parent) :
        ModbusRegsTimer->stop();
        ModbusRegsTimer->setInterval(MODBUS_INTERVAL_FAST);
        ModbusRegsTimer->start();
-       ui->button_SendTable->setEnabled(false);
        ui->button_ReseiveTable->setEnabled(false);
+       ui->button_SendTable->setEnabled(false);
    });
    connect(ui->button_Accept,&QPushButton::clicked,this,[=]
    {
@@ -153,6 +242,20 @@ MWS::~MWS()
     if(ModbusRegsTimer->isActive())
     ModbusRegsTimer->stop();
 
+    static const char* const FILE_NAME = "lib.bin";
+    QFile file( FILE_NAME );
+    QDataStream stream( &file );
+    QByteArray window3 = ui->splitter_3->saveState();
+    QByteArray window2 = ui->splitter_2->saveState();
+    QByteArray window = ui->splitter->saveState();
+    file.open( QIODevice::WriteOnly );
+    if (file.isOpen())
+    {
+            stream << window3;
+            stream << window2;
+            stream << window;
+        file.close();
+    }
     delete ModbusRegsTimer;
     delete ui;
 }
@@ -194,8 +297,8 @@ struct_listSavedDevices MWS::stringToTable(QString str)
          table.modbusadr = name[2];
          if( tablstr.count()==5)
          {
-             table.device.Regs.LastDate = tablstr[0].toUInt();
-             table.device.Regs.LogError = tablstr[1].toUShort();
+             table.device.Regs.timeconnect = tablstr[0].toULong();
+             table.device.Regs.LogError = tablstr[1].toUInt();
              table.device.Regs.SerialNum = tablstr[2].toUInt();
              table.device.Regs.TypeDevice = tablstr[3].toUShort();
              table.device.Regs.VerApp = tablstr[4].toUInt();
@@ -210,26 +313,20 @@ void MWS::start(QModbusClient *modbusDev)
     startView();
     if(modbusDevice->state() == QModbusDevice::ConnectedState)
     {
-
         modbusDevice->setTimeout(MODBUS_TIMEOUT_PACKET);
         modbusDevice->setNumberOfRetries(MODBUS_COUNT_REPAET);
         ModbusRegsTimer->start();
 
         TableCalibration.clear();
-        setupAction(READ_TABLE);
-        ModbusRegsTimer->stop();
-        ModbusRegsTimer->setInterval(MODBUS_INTERVAL_FAST);
-        ModbusRegsTimer->start();
-        ui->button_SendTable->setEnabled(false);
-        ui->button_ReseiveTable->setEnabled(false);
     }
 }
 
-void MWS::updateRegs()
+
+void MWS::updateRegs(int startAdr, int countregs)
 {
     if ( modbusDevice->state() == QModbusDevice::ConnectedState)
     {
-        QModbusDataUnit readUnit = QModbusDataUnit(QModbusDataUnit::HoldingRegisters,0,MODBUS_COUNT_READ_ADR);
+        QModbusDataUnit readUnit = QModbusDataUnit(QModbusDataUnit::HoldingRegisters,startAdr,countregs);
         QModbusReply *reply = nullptr;
         reply =  modbusDevice->sendReadRequest(readUnit, device.modbusadr.toInt());
         if (reply) {
@@ -240,8 +337,9 @@ void MWS::updateRegs()
             else
                 delete reply; // broadcast replies return immediately
         } else {
-                ui->lcd_Distance->display("хрень");
+                 ui->lcd_Distance->setText("хрень");
         }
+
     } else
     {
        ModbusRegsTimer->stop();
@@ -255,20 +353,15 @@ void MWS::replyReceivedRead()
     return;
         if (replyModbus->error() == QModbusDevice::NoError) {
             const QModbusDataUnit unit = replyModbus->result();
-            if ( int(unit.valueCount()) == sizeof(struct_tableRegsWrite)/2 )
-            {
+
                 for(int i = 0, total  = int(unit.valueCount()); i < total ;i++) // переписываем ответ в локальную таблицу регистров
                 {
-                   LoclTableRecieve.Adr[i] = unit.value(i);
+                   LoclTableRecieve.Adr[i+unit.startAddress()] = unit.value(i);
                 }
-                   updateAllSettingsView(LoclTableRecieve);
-                   addPointMeasure(LoclTableRecieve.Regs.CurrentDistanse,LoclTableRecieve.Regs.CurrentVolume);
-                   upperModbusCheck();
-                   firstRequest=false;
-            }else
-            {
-
-            }
+                updateAllSettingsView(LoclTableRecieve);
+                addPointMeasure(LoclTableRecieve.Regs.CurrentDistanse,LoclTableRecieve.Regs.CurrentVolume);
+                upperModbusCheck();
+                firstRequest=false;
         } else {
             ui->edit_Password->setText("sdf");
             ModbusRegsTimer->stop();
@@ -276,35 +369,31 @@ void MWS::replyReceivedRead()
         replyModbus->deleteLater();
 }
 
-void MWS::sendRegs()
+void MWS::sendRegs(int startAdr, int countregs)
 {
     if ( modbusDevice->state() == QModbusDevice::ConnectedState)
     {
-        QModbusDataUnit writeUnit = QModbusDataUnit(QModbusDataUnit::HoldingRegisters, 0, MODBUS_COUNT_READ_ADR);
-        QModbusReply *reply = nullptr;
-        if(!firstRequest)
+        if( !firstRequest )
         {
-            updateAllSettingsTable(&LoclTableRecieve);
+            QModbusDataUnit writeUnit = QModbusDataUnit(QModbusDataUnit::HoldingRegisters, startAdr, countregs);
+            QModbusReply *reply = nullptr;
             upperModbusCheck();
             for (int i = 0, total = int(writeUnit.valueCount()); i < total; i++) {
-                 writeUnit.setValue(i,LoclTableRecieve.Adr[i]);
+                 writeUnit.setValue(i,LoclTableRecieve.Adr[i+writeUnit.startAddress()]);
             }
             reply =  modbusDevice->sendWriteRequest(writeUnit,device.modbusadr.toInt());
             LoclTableRecieve.Regs.RegCommand = 0;
-            if (reply) {
-                if (!reply->isFinished())
-                {
-                     connect(reply, &QModbusReply::finished, this, &MWS::replyReceivedWrite);
-                }
-                else
-                    delete reply; // broadcast replies return immediately
-            } else {
-                    ui->lcd_Distance->display("хрень");
+        if (reply) {
+            if (!reply->isFinished())
+            {
+                 connect(reply, &QModbusReply::finished, this, &MWS::replyReceivedWrite);
             }
+            else
+                delete reply; // broadcast replies return immediately
+        } else {
+                ui->lcd_Distance->setText("хрень");
         }
-        else
-        {
-          // сразу запрос на чтение
+
         }
     } else
     {
@@ -318,8 +407,7 @@ void MWS::replyReceivedWrite()
     if ( !replyModbus )
     return;
         if (replyModbus->error() == QModbusDevice::NoError) {
-            const QModbusDataUnit unit = replyModbus->result();
-
+            //QModbusDataUnit unit = replyModbus->result();
         } else {
             ui->edit_Password->setText("sdf");
             ModbusRegsTimer->stop();
@@ -327,8 +415,9 @@ void MWS::replyReceivedWrite()
         replyModbus->deleteLater();
 }
 
-void MWS::upperModbusCheck()
+MWS::stat_readwrite MWS::upperModbusCheck()
 {
+   stat_readwrite stat = NO;
        switch ( CurrentAction )
        {
        case NO_ACTION:
@@ -337,11 +426,11 @@ void MWS::upperModbusCheck()
        }break;
        case SEND_TO_SAVE_CONFIG:
        {
-             ActionSaveConfig();
+         stat = ActionSaveConfig();
        }break;
        case SEND_TO_UPDATE_CONFIG:
        {
-             ActionReadConfig();
+         stat = ActionReadConfig();
        }break;
        case SEND_TO_CHECK_PASSWORD:
        {
@@ -349,15 +438,16 @@ void MWS::upperModbusCheck()
        }break;
        case WRITE_TABLE:
        {
-            ActionWriteTable();
+         stat = ActionWriteTable();
        }break;
        case READ_TABLE:
        {
-            ActionReadTable();
+         stat = ActionReadTable();
        }break;
        default:
        break;
        };
+   return stat;
 }
 
 void MWS::setupAction(Action Action)
@@ -366,14 +456,16 @@ void MWS::setupAction(Action Action)
     CounterStepAction = 0;
 }
 
-void MWS::ActionSaveConfig()
+MWS::stat_readwrite MWS::ActionSaveConfig()
 {
+    stat_readwrite stat = NO;
     switch( CounterStepAction )
     {
     case 0:
     {
         LoclTableRecieve.Regs.RegCommand = MODBUS_SAVE_CONFIG;
         CounterStepAction = 1;
+        stat = WRITE;
     }break;
     case 1:
     {
@@ -387,18 +479,25 @@ void MWS::ActionSaveConfig()
             ModbusRegsTimer->start();
             ui->button_Accept->setEnabled(true);
             ui->button_Update->setEnabled(true);
+            stat = NO;
+            break;
         }
+        stat = READ;
     }break;
     }
+    return stat;
 }
-void MWS::ActionReadConfig()
+
+MWS::stat_readwrite MWS::ActionReadConfig()
 {
+    stat_readwrite stat = NO;
     switch( CounterStepAction )
     {
     case 0:
     {
         LoclTableRecieve.Regs.RegCommand = MODBUS_UPDATE_CONFIG;
         CounterStepAction = 1;
+        stat = WRITE;
     }break;
     case 1:
     {
@@ -412,19 +511,25 @@ void MWS::ActionReadConfig()
             ModbusRegsTimer->start();
             ui->button_Accept->setEnabled(true);
             ui->button_Update->setEnabled(true);
+            stat =NO;
+            break;
         }
+        stat = READ;
     }break;
     }
+    return stat;
 }
 
-void MWS::ActionReadTable()
+MWS::stat_readwrite MWS::ActionReadTable()
 {
+    stat_readwrite stat =NO;
     switch( CounterStepAction )
     {
     case 0:
     {
       LoclTableRecieve.Regs.RegCommand = MODBUS_CMD_TABLE_POZITION;
       CounterStepAction = 1;
+      stat = WRITE;
     }break;
     case 1:
     {
@@ -433,11 +538,13 @@ void MWS::ActionReadTable()
           LoclTableRecieve.Regs.RegStatus =0;
           CounterStepAction = 2;
       }
+      stat = READ;
     }break;
     case 2:
     {
         LoclTableRecieve.Regs.RegCommand = MODBUS_CMD_TABLE_TRANSMIT;
         CounterStepAction = 3;
+        stat = WRITE;
     }break;
     case 3:
     {
@@ -463,20 +570,26 @@ void MWS::ActionReadTable()
                 writeTableWidget();
                 ui->button_SendTable->setEnabled(true);
                 ui->button_ReseiveTable->setEnabled(true);
+                stat =NO;
+                break;
             }
         }
+        stat = READ;
     }break;
     }
+    return stat;
 }
 
-void MWS::ActionWriteTable()
+MWS::stat_readwrite MWS::ActionWriteTable()
 {
+    stat_readwrite stat = NO;
     switch( CounterStepAction )
     {
     case 0:
     {
       LoclTableRecieve.Regs.RegCommand = MODBUS_CMD_TABLE_CLEAR;
       CounterStepAction = 1;
+      stat = WRITE;
     }break;
     case 1:
     {
@@ -485,6 +598,7 @@ void MWS::ActionWriteTable()
           LoclTableRecieve.Regs.RegStatus =0;
           CounterStepAction = 2;
       }
+      stat = READ;
     }break;
     case 2:
     {
@@ -500,6 +614,7 @@ void MWS::ActionWriteTable()
               LoclTableRecieve.Regs.RegCommand = MODBUS_CMD_TABLE_WRITE_END;
               CounterStepAction = 4;
           }
+          stat = WRITE;
     }break;
     case 3:
     {
@@ -513,7 +628,10 @@ void MWS::ActionWriteTable()
               {
                   LoclTableRecieve.Regs.RegCommand = MODBUS_CMD_TABLE_WRITE_END;
                   CounterStepAction = 4;
+                  stat = WRITE;
+                  break;
               }
+              stat = READ;
           }
     }break;
     case 4:
@@ -529,9 +647,13 @@ void MWS::ActionWriteTable()
           ModbusRegsTimer->start();
           ui->button_SendTable->setEnabled(true);
           ui->button_ReseiveTable->setEnabled(true);
+          stat = NO;
+          break;
       }
+      stat = READ;
     }break;
     }
+    return stat;
 }
 
 void MWS::updateTableWidget(int countPoints)
@@ -707,18 +829,11 @@ void MWS::addMeasure(double distatanse,double volume)
 
 void MWS::addPointMeasure(double distatanse,double volume)
 {
-//     double volum = 0;
-//    if(LoclTableRecieve.Regs.TypeApproxim == 0)
-//       volum = Linear(distatanse);
-//    else
-//       volum = Lagranj(distatanse);
     addMeasure(distatanse,volume);
-
 }
 
 void MWS::updatePlotWidget(int s,int k)
 {
-
     readPlotGraph();
 
     ui->graph_table->clearGraphs();//Если нужно, но очищаем все графики
@@ -774,8 +889,8 @@ void MWS::updatePlotWidget(int s,int k)
 
 void MWS::updateAllSettingsView(union_tableRegsWrite Table)
 {
-     ui->lcd_Distance->display(Table.Regs.CurrentDistanse);
-     ui->lcd_Volume1->display(Table.Regs.CurrentVolume);
+     ui->lcd_Distance->setText(QString::number(Table.Regs.CurrentDistanse));
+     ui->lcd_Volume->setText(QString::number(Table.Regs.CurrentVolume));
 
      ui->spin_AdrModbus->setValue(Table.Regs.AdrModbus);
 
@@ -799,8 +914,10 @@ void MWS::updateAllSettingsView(union_tableRegsWrite Table)
      ui->comb_TypeAverage->setCurrentIndex(Table.Regs.TypeAverag);
 }
 
-void MWS::updateAllSettingsTable(union_tableRegsWrite *Table)
+bool MWS::updateAllSettingsTable(union_tableRegsWrite *Table)
 {
+     bool stat = false;
+     static union_tableRegsWrite TableCheck;
      Table->Regs.AdrModbus = ui->spin_AdrModbus->value();
      Table->Regs.LenghtOfMeasure = ui->spin_EndMeasure->value();
      Table->Regs.HWAAS = ui->spin_HWAAS->value();
@@ -813,6 +930,13 @@ void MWS::updateAllSettingsTable(union_tableRegsWrite *Table)
 
      Table->Regs.TypeApproxim = ui->comb_TypeApproximation->currentIndex();
      Table->Regs.TypeAverag = ui->comb_TypeAverage->currentIndex();
+
+     if( memcmp(&TableCheck.Adr[10],&(Table->Adr[10]),(COUNT_SENSOR_REGS+COUNT_DEV_REGS)*2))
+     {
+         memcpy(&TableCheck.Adr[10],&(Table->Adr[10]),(COUNT_SENSOR_REGS+COUNT_DEV_REGS)*2);
+         stat = true;
+     }
+     return stat;
 }
 
 qreal MWS::Linear (double X)

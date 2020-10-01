@@ -107,13 +107,20 @@ MainWindow::~MainWindow()
     delete mdi_dock;
     delete libs;
     delete ModbusTimer;
+    for( int i=0;i<vectorModbusDevice.count();i++)
+    {
+        vectorModbusDevice[i].modbusDev->disconnectDevice();
+        vectorModbusDevice[i].modbusDev->deleteLater();
+    }
+    vectorModbusDevice.clear();
+    tablListSavedDevices.clear();
+    strListSavedDevices.clear();
+    ui->mdiArea->closeAllSubWindows();
     delete ui;
 }
 
 void MainWindow::readSettings()
 {
-
-
 
 
 }
@@ -152,10 +159,13 @@ void MainWindow::DevicesSearch()
  ui->actionSearh->setText("Идет поиск...");
  ui->actionSearh->setDisabled(true);
 
- libs->CloseAll();
+
  QList<QMdiSubWindow *> list = ui->mdiArea->subWindowList(QMdiArea::CreationOrder);
  if(list.count()!=0)
- ui->mdiArea->closeAllSubWindows();
+ {
+     ui->mdiArea->closeAllSubWindows();
+     libs->CloseAll();
+ }
 
  tablListSavedDevices.clear();
  strListSavedDevices.clear();
@@ -267,7 +277,7 @@ void MainWindow::pollAdrModbus()
         QModbusDataUnit request;
         request.setRegisterType(QModbusDataUnit::InputRegisters);
         request.setStartAddress(0);
-        request.setValueCount(8);
+        request.setValueCount(sizeof(union_tableRegsRead)/2);
         //vectorModbusDevice.first().currentAdr++;
         vectorModbusDevice[intcomModBusDevice].currentAdr++;
 
@@ -309,7 +319,7 @@ void MainWindow::pollReplyModbus()
             {
                 ui->textBrowser->append("Найдено устройство; Протокол: MODBUS-rtu; Адрес: "+ QString::number(replyModbus->serverAddress()));
                 union_tableRegsRead LoclTable;
-                for(int i = 0, total  = int(unit.valueCount()); i < total ;i++) // переписываем ответ в локальную таблицу регистров
+                for(int i = unit.startAddress(), total  = int(unit.valueCount()); i < total ;i++) // переписываем ответ в локальную таблицу регистров
                 {
                    LoclTable.Adr[i] = unit.value(i);
                 }
@@ -406,7 +416,7 @@ void MainWindow::getDeviceModbus(union_tableRegsRead table, struct_ComModbus com
    itemType->setText(0,"Тип: "+QString::number(table.Regs.TypeDevice));
    itemSerial->setText(0,"Серийный №: "+QString::number(table.Regs.SerialNum));
    itemApp->setText(0,"Аппаратная версия: "+QString::number(table.Regs.VerApp));
-   itemDate->setText(0,"Дата связи: "+QString::number(table.Regs.LastDate));
+   itemDate->setText(0,"Дата связи: "+QString::number(table.Regs.timeconnect));
    itemLog->setText(0,"Лог ошибок: "+QString::number(table.Regs.LogError));
 
    Protocol->setText(0,"Протокол");
@@ -461,7 +471,7 @@ void MainWindow::treeItemChange(QTreeWidgetItem * item, int column)
 QString MainWindow::tableToString(struct_listSavedDevices table_point)
 {
   QString str = table_point.devicename +";"+table_point.portname +";"+table_point.modbusadr +";"
-                         +QString::number(table_point.device.Regs.LastDate) +","
+                         +QString::number(table_point.device.Regs.timeconnect) +","
                          +QString::number(table_point.device.Regs.LogError) +","
                          +QString::number(table_point.device.Regs.SerialNum) +","
                          +QString::number(table_point.device.Regs.TypeDevice) +","
@@ -481,8 +491,8 @@ struct_listSavedDevices MainWindow::stringToTable(QString str)
          table.modbusadr = name[2];
          if( tablstr.count()==5)
          {
-             table.device.Regs.LastDate = tablstr[0].toUInt();
-             table.device.Regs.LogError = tablstr[1].toUShort();
+             table.device.Regs.timeconnect = tablstr[0].toULong();
+             table.device.Regs.LogError = tablstr[1].toUInt();
              table.device.Regs.SerialNum = tablstr[2].toUInt();
              table.device.Regs.TypeDevice = tablstr[3].toUShort();
              table.device.Regs.VerApp = tablstr[4].toUInt();
@@ -609,4 +619,3 @@ void MainWindow::LoadLibDevice()
          }
      }
 }
-

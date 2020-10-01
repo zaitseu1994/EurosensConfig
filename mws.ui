@@ -592,16 +592,13 @@
        <property name="title">
         <string>Текущие парметры</string>
        </property>
-       <layout class="QGridLayout" name="gridLayout_5" rowstretch="1,1,1,1,7">
+       <layout class="QGridLayout" name="gridLayout_5" rowstretch="1,1,1,1,1,5" rowminimumheight="1,1,1,1,1,1">
         <item row="0" column="0">
          <widget class="QLabel" name="lab_Distance">
           <property name="text">
            <string>Расстояние мм:</string>
           </property>
          </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLCDNumber" name="lcd_Distance"/>
         </item>
         <item row="2" column="0">
          <widget class="QLabel" name="lab_Volume">
@@ -610,10 +607,37 @@
           </property>
          </widget>
         </item>
-        <item row="3" column="0">
-         <widget class="QLCDNumber" name="lcd_Volume1"/>
+        <item row="1" column="0">
+         <widget class="QLabel" name="lcd_Distance">
+          <property name="font">
+           <font>
+            <family>Segoe Print</family>
+            <pointsize>10</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>100</string>
+          </property>
+         </widget>
         </item>
-        <item row="4" column="0">
+        <item row="3" column="0">
+         <widget class="QLabel" name="lcd_Volume">
+          <property name="font">
+           <font>
+            <family>Segoe Print</family>
+            <pointsize>10</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>100</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0" rowspan="2">
          <widget class="QCustomPlot" name="graph_distanse" native="true"/>
         </item>
        </layout>

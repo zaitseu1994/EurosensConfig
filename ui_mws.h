@@ -18,7 +18,6 @@
 #include <QtWidgets/QGroupBox>
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QHeaderView>
-#include <QtWidgets/QLCDNumber>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QPushButton>
@@ -128,9 +127,9 @@ public:
     QGroupBox *groupBox;
     QGridLayout *gridLayout_5;
     QLabel *lab_Distance;
-    QLCDNumber *lcd_Distance;
     QLabel *lab_Volume;
-    QLCDNumber *lcd_Volume1;
+    QLabel *lcd_Distance;
+    QLabel *lcd_Volume;
     QCustomPlot *graph_distanse;
     QSplitter *splitter_2;
     QCustomPlot *graph_table;
@@ -627,31 +626,45 @@ public:
 
         gridLayout_5->addWidget(lab_Distance, 0, 0, 1, 1);
 
-        lcd_Distance = new QLCDNumber(groupBox);
-        lcd_Distance->setObjectName(QString::fromUtf8("lcd_Distance"));
-
-        gridLayout_5->addWidget(lcd_Distance, 1, 0, 1, 1);
-
         lab_Volume = new QLabel(groupBox);
         lab_Volume->setObjectName(QString::fromUtf8("lab_Volume"));
 
         gridLayout_5->addWidget(lab_Volume, 2, 0, 1, 1);
 
-        lcd_Volume1 = new QLCDNumber(groupBox);
-        lcd_Volume1->setObjectName(QString::fromUtf8("lcd_Volume1"));
+        lcd_Distance = new QLabel(groupBox);
+        lcd_Distance->setObjectName(QString::fromUtf8("lcd_Distance"));
+        QFont font1;
+        font1.setFamily(QString::fromUtf8("Segoe Print"));
+        font1.setPointSize(10);
+        font1.setBold(true);
+        font1.setWeight(75);
+        lcd_Distance->setFont(font1);
 
-        gridLayout_5->addWidget(lcd_Volume1, 3, 0, 1, 1);
+        gridLayout_5->addWidget(lcd_Distance, 1, 0, 1, 1);
+
+        lcd_Volume = new QLabel(groupBox);
+        lcd_Volume->setObjectName(QString::fromUtf8("lcd_Volume"));
+        lcd_Volume->setFont(font1);
+
+        gridLayout_5->addWidget(lcd_Volume, 3, 0, 1, 1);
 
         graph_distanse = new QCustomPlot(groupBox);
         graph_distanse->setObjectName(QString::fromUtf8("graph_distanse"));
 
-        gridLayout_5->addWidget(graph_distanse, 4, 0, 1, 1);
+        gridLayout_5->addWidget(graph_distanse, 4, 0, 2, 1);
 
         gridLayout_5->setRowStretch(0, 1);
         gridLayout_5->setRowStretch(1, 1);
         gridLayout_5->setRowStretch(2, 1);
         gridLayout_5->setRowStretch(3, 1);
-        gridLayout_5->setRowStretch(4, 7);
+        gridLayout_5->setRowStretch(4, 1);
+        gridLayout_5->setRowStretch(5, 5);
+        gridLayout_5->setRowMinimumHeight(0, 1);
+        gridLayout_5->setRowMinimumHeight(1, 1);
+        gridLayout_5->setRowMinimumHeight(2, 1);
+        gridLayout_5->setRowMinimumHeight(3, 1);
+        gridLayout_5->setRowMinimumHeight(4, 1);
+        gridLayout_5->setRowMinimumHeight(5, 1);
         splitter->addWidget(groupBox);
         splitter_3->addWidget(splitter);
         splitter_2 = new QSplitter(splitter_3);
@@ -721,6 +734,8 @@ public:
         groupBox->setTitle(QCoreApplication::translate("MWS", "\320\242\320\265\320\272\321\203\321\211\320\270\320\265 \320\277\320\260\321\200\320\274\320\265\321\202\321\200\321\213", nullptr));
         lab_Distance->setText(QCoreApplication::translate("MWS", "\320\240\320\260\321\201\321\201\321\202\320\276\321\217\320\275\320\270\320\265 \320\274\320\274:", nullptr));
         lab_Volume->setText(QCoreApplication::translate("MWS", "\320\236\320\261\321\214\320\265\320\274 \320\273:", nullptr));
+        lcd_Distance->setText(QCoreApplication::translate("MWS", "100", nullptr));
+        lcd_Volume->setText(QCoreApplication::translate("MWS", "100", nullptr));
         group_Approximation->setTitle(QCoreApplication::translate("MWS", "\320\220\320\277\320\277\321\200\320\276\320\272\321\201\320\270\320\274\320\260\321\206\320\270\321\217", nullptr));
         check_Linear->setText(QCoreApplication::translate("MWS", "\320\272\321\203\321\201\320\276\321\207\320\275\320\276-\320\273\320\270\320\275\320\265\320\271\320\275\320\260\321\217", nullptr));
         check_Lagranj->setText(QCoreApplication::translate("MWS", "\320\277\320\276\320\273\320\270\320\275.\320\233\320\260\320\263\321\200\320\260\320\275\320\266\320\260", nullptr));

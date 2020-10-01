@@ -6,11 +6,16 @@
 #pragma pack(push, 1)
 typedef struct struct_tableRegsRead
 {
-               uint16_t TypeDevice; // тип устройства 		        // 2b
-               uint32_t SerialNum;  // серийный номер устройства    // 4b
-               uint32_t VerApp;     // аппаратная версия устройства // 4b
-               uint32_t LastDate;   // дата/время последней связи   // 4b
-               uint16_t LogError;   // код логов ошибок             // 2b
+   uint32_t  LogError;         // лог ошибок
+   uint64_t  timeconnect;      // Дата последней связи            // 8b
+   uint64_t  timechange;       // Дата изменения настроек         // 8b
+   uint32_t  idchange;         // id пользователя внес изменения  // 4b
+   uint64_t  timedefault;      // Дата изменения заводских        // 8b
+   uint32_t  iddefault;        // id пользователя внес заводские  // 4b
+   uint16_t  TypeDevice;       // тип устройства 		          // 2b
+   uint32_t  SerialNum;        // серийный номер устройства       // 4b
+   uint32_t  VerApp;           // аппаратная версия устройства    // 4b
+   uint16_t  mas[10];          // доп резерв                      // 20b
 }struct_tableRegsRead;
 #pragma pack(pop)
 
