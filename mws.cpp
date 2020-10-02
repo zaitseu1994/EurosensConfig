@@ -39,6 +39,11 @@ MWS::MWS(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    ui->dat_lastconnect->setEnabled(false);
+    ui->lin_idchange->setEnabled(false);
+    ui->tabWidget->removeTab(3);
+
+
     static const char* const FILE_NAME = "lib.bin";
     QFile file( FILE_NAME );
     QDataStream stream( &file );
@@ -71,20 +76,62 @@ MWS::MWS(QWidget *parent) :
 //        }
 //        updateRegs(0,MODBUS_COUNT_READ_ADR);
 
+        static bool fastread = false;
+        if(!firstRequest)
+        if ( !isCurrentAction() )
+        {
+             if(!queueAction.isEmpty())
+             {
+                 Action act = queueAction.dequeue();
+                 setupAction(act);
+                 if((act == WRITE_TABLE) || (act == READ_TABLE))
+                 {
+                     ModbusRegsTimer->stop();
+                     ModbusRegsTimer->setInterval(MODBUS_INTERVAL_FAST);
+                     ModbusRegsTimer->start();
+                     fastread = true;
+                 }
+             }else
+             if ( fastread )
+             {
+                  fastread =false;
+                  ModbusRegsTimer->stop();
+                  ModbusRegsTimer->setInterval(MODBUS_INTERVAL_ALL);
+                  ModbusRegsTimer->start();
+             }
+        }
+
         type_send type = ONLY_MEASURE;
         if ( updateAllSettingsTable(&LoclTableRecieve) )
         {
              type = UPDATE_SETTINGS;
+             if(!firstRequest)
+             {
+                 QDate cd = QDate::currentDate();
+                 QTime ct = QTime::currentTime();
+                 startTime.setDate(cd);
+                 startTime.setTime(ct);
+                 QDateTime datechange;
+                 datechange.setDate(QDate::currentDate());
+                 datechange.setTime(QTime::currentTime());
+                 device.device.Regs.timechange = datechange.toTime_t();
+                 device.device.Regs.idchange  = idUser.toUInt();
+             }
         }
         if( ( CurrentAction == SEND_TO_UPDATE_CONFIG ) || ( CurrentAction == SEND_TO_SAVE_CONFIG ) || ( CurrentAction == SEND_TO_CHECK_PASSWORD ) )
         {
              type = ANOTHER_ACTIONS;
         }
-        if ( CurrentAction == WRITE_TABLE || ( CurrentAction == READ_TABLE ) )
+        if ( CurrentAction == UPDATE_ALLREGS )
+        {
+             type = ALL_TABLE;
+        }
+        if ( CurrentAction == WRITE_TABLE || ( CurrentAction == READ_TABLE ) || ( CurrentAction == SEND_TO_SAVE_FACTORY ) )
         {
              type = RW_TABLE;
         }
 
+        if(!firstRequest)
         switch(type)
         {
            case ONLY_MEASURE:
@@ -114,29 +161,46 @@ MWS::MWS(QWidget *parent) :
             {
                 sendRegs(START_MINIMAL_ADR_R,COUNT_MINIMAL_REGS_R+COUNT_SENSOR_REGS+COUNT_DEV_REGS+COUNT_ADDDEV_REGS);
                 updateRegs(START_MINIMAL_ADR_R,COUNT_MINIMAL_REGS_R+COUNT_SENSOR_REGS+COUNT_DEV_REGS+COUNT_ADDDEV_REGS);
+                CurrentAction = NO_ACTION;
             }
             break;
+         }
+         else
+         updateRegs(START_MINIMAL_ADR_R,COUNT_MINIMAL_REGS_R+COUNT_SENSOR_REGS+COUNT_DEV_REGS);
+    });
+
+    connect(ui->button_password,&QPushButton::clicked,this,[=]
+    {
+        QString str = ui->edit_Password->text();
+        ui->edit_Password->clear();
+        if ( str == "1111" )
+        {
+            QWidget* tab = ui->tabWidget->findChild<QWidget*>("addit",Qt::FindChildrenRecursively);
+            ui->tabWidget->insertTab(3,tab,"Заводские");
         }
+    });
 
-//         if( updateAllSettingsTable(&LoclTableRecieve) || ( CurrentAction == SEND_TO_UPDATE_CONFIG ) )
-//         {
-//             sendRegs(START_MINIMAL_ADR_R,COUNT_MINIMAL_REGS_R+COUNT_SENSOR_REGS+COUNT_DEV_REGS);
-//             updateRegs(START_MINIMAL_ADR_R,COUNT_MINIMAL_REGS_R+COUNT_SENSOR_REGS+COUNT_DEV_REGS);
-//         }else
-//         {
-//                 sendRegs(START_MINIMAL_ADR_W,COUNT_MINIMAL_REGS_W);
-//                 updateRegs(START_MINIMAL_ADR_R,COUNT_MINIMAL_REGS_R);
-//         }
+    connect(ui->button_savefactory,&QPushButton::clicked,this,[=]
+    {
+            //ui->tabWidget->removeTab(3);
+            LoclTableRecieve.Regs.timeconnect = startTime.toTime_t();
+            LoclTableRecieve.Regs.timechange = device.device.Regs.timechange;
+            LoclTableRecieve.Regs.idchange = device.device.Regs.idchange;
 
-//         updateAllSettingsTable(&LoclTableRecieve);
-//         sendRegs(START_SENSOR_ADR,COUNT_SENSOR_REGS+COUNT_DEV_REGS);
-//         updateRegs(START_SENSOR_ADR,COUNT_SENSOR_REGS+COUNT_DEV_REGS);
+            QDateTime datefactory;
+            datefactory.setDate(QDate::currentDate());
+            datefactory.setTime(QTime::currentTime());
+            LoclTableRecieve.Regs.timedefault = datefactory.toTime_t();
 
-//        sendRegs(START_MINIMAL_ADR_R,COUNT_MINIMAL_REGS_R+COUNT_SENSOR_REGS+COUNT_DEV_REGS);
-//        updateRegs(START_MINIMAL_ADR_R,COUNT_MINIMAL_REGS_R+COUNT_SENSOR_REGS+COUNT_DEV_REGS);
+            LoclTableRecieve.Regs.iddefault = idUser.toUInt();
 
-//        sendRegs(START_MINIMAL_ADR_W,COUNT_MINIMAL_REGS_W);
-//        updateRegs(START_MINIMAL_ADR_R,COUNT_MINIMAL_REGS_R);
+            LoclTableRecieve.Regs.TypeDevice = ui->lin_typedev->text().toUShort();
+            LoclTableRecieve.Regs.SerialNum = ui->lin_serial->text().toUInt();
+            LoclTableRecieve.Regs.VerApp = ui->lin_verapp->text().toUInt();
+            memcpy(LoclTableRecieve.Regs.mas,ui->lin_addit->text().toLocal8Bit(),sizeof(LoclTableRecieve.Regs.mas));
+
+            queueAction.enqueue(UPDATE_ALLREGS);
+            queueAction.enqueue(SEND_TO_SAVE_FACTORY);
 
     });
 
@@ -181,11 +245,8 @@ MWS::MWS(QWidget *parent) :
     connect(ui->button_SendTable,&QPushButton::clicked,this,[=]
     {
         readTableWidget();
-        setupAction(WRITE_TABLE);
         currentPointTableCalibration = 0;
-        ModbusRegsTimer->stop();
-        ModbusRegsTimer->setInterval(MODBUS_INTERVAL_FAST);
-        ModbusRegsTimer->start();
+        queueAction.enqueue(WRITE_TABLE);
         ui->button_SendTable->setEnabled(false);
         ui->button_ReseiveTable->setEnabled(false);
     });
@@ -193,28 +254,20 @@ MWS::MWS(QWidget *parent) :
    connect(ui->button_ReseiveTable,&QPushButton::clicked,this,[=]
    {
        TableCalibration.clear();
-       setupAction(READ_TABLE);
-       ModbusRegsTimer->stop();
-       ModbusRegsTimer->setInterval(MODBUS_INTERVAL_FAST);
-       ModbusRegsTimer->start();
+       queueAction.enqueue(READ_TABLE);
+
        ui->button_ReseiveTable->setEnabled(false);
        ui->button_SendTable->setEnabled(false);
    });
    connect(ui->button_Accept,&QPushButton::clicked,this,[=]
    {
-      setupAction(SEND_TO_SAVE_CONFIG);
-      ModbusRegsTimer->stop();
-      ModbusRegsTimer->setInterval(MODBUS_INTERVAL_FAST);
-      ModbusRegsTimer->start();
+      queueAction.enqueue(SEND_TO_SAVE_CONFIG);
       ui->button_Accept->setEnabled(false);
       ui->button_Update->setEnabled(false);
    });
    connect(ui->button_Update,&QPushButton::clicked,this,[=]
    {
-       setupAction(SEND_TO_UPDATE_CONFIG);
-       ModbusRegsTimer->stop();
-       ModbusRegsTimer->setInterval(MODBUS_INTERVAL_ALL);
-       ModbusRegsTimer->start();
+       queueAction.enqueue(SEND_TO_UPDATE_CONFIG);
        ui->button_Accept->setEnabled(false);
        ui->button_Update->setEnabled(false);
    });
@@ -277,12 +330,22 @@ void MWS::startView()
 void MWS::getStr(QString str)
 {
     strWindow = str;
-    ui->edit_Password->setText(str);
     struct_listSavedDevices table = stringToTable(str);
     memcpy(&device.device,&table.device,sizeof(device.device));
     device.devicename = table.devicename;
     device.modbusadr = table.modbusadr;
     device.portname = table.portname;
+
+    QDate cd = QDate::currentDate();
+    QTime ct = QTime::currentTime();
+    startTime.setDate(cd);
+    startTime.setTime(ct);
+
+    ui->lin_idchange->setText(idUser);
+    ui->dat_lastconnect->setDateTime(startTime);
+    ui->lin_serial->setText(QString::number(device.device.Regs.SerialNum));
+    ui->lin_typedev->setText(QString::number(device.device.Regs.TypeDevice));
+    ui->lin_verapp->setText(QString::number(device.device.Regs.VerApp));
 }
 
 struct_listSavedDevices MWS::stringToTable(QString str)
@@ -373,8 +436,6 @@ void MWS::sendRegs(int startAdr, int countregs)
 {
     if ( modbusDevice->state() == QModbusDevice::ConnectedState)
     {
-        if( !firstRequest )
-        {
             QModbusDataUnit writeUnit = QModbusDataUnit(QModbusDataUnit::HoldingRegisters, startAdr, countregs);
             QModbusReply *reply = nullptr;
             upperModbusCheck();
@@ -392,8 +453,6 @@ void MWS::sendRegs(int startAdr, int countregs)
                 delete reply; // broadcast replies return immediately
         } else {
                 ui->lcd_Distance->setText("хрень");
-        }
-
         }
     } else
     {
@@ -444,10 +503,21 @@ MWS::stat_readwrite MWS::upperModbusCheck()
        {
          stat = ActionReadTable();
        }break;
+       case SEND_TO_SAVE_FACTORY:
+       {
+         stat = ActionSaveFactory();
+       }break;
        default:
        break;
        };
    return stat;
+}
+
+bool MWS::isCurrentAction()
+{
+  if(CurrentAction==NO_ACTION)
+  return false;
+  return true;
 }
 
 void MWS::setupAction(Action Action)
@@ -455,6 +525,34 @@ void MWS::setupAction(Action Action)
     CurrentAction = Action;
     CounterStepAction = 0;
 }
+
+MWS::stat_readwrite MWS::ActionSaveFactory()
+{
+    stat_readwrite stat = NO;
+    switch( CounterStepAction )
+    {
+    case 0:
+    {
+        LoclTableRecieve.Regs.RegCommand = MODBUS_CMD_SAVE_FACTORY;
+        CounterStepAction = 1;
+        stat = WRITE;
+    }break;
+    case 1:
+    {
+        if( LoclTableRecieve.Regs.RegStatus == STAT_CMD_SAVE_FACTORY )
+        {
+            LoclTableRecieve.Regs.RegStatus = 0;
+            CounterStepAction = 0;
+            CurrentAction = NO_ACTION;
+            stat = NO;
+            break;
+        }
+        stat = READ;
+    }break;
+    }
+    return stat;
+}
+
 
 MWS::stat_readwrite MWS::ActionSaveConfig()
 {
@@ -472,13 +570,10 @@ MWS::stat_readwrite MWS::ActionSaveConfig()
         if( LoclTableRecieve.Regs.RegStatus == STAT_CONFIG_SAVE )
         {
             LoclTableRecieve.Regs.RegStatus = 0;
-            CurrentAction = NO_ACTION;
             CounterStepAction = 0;
-            ModbusRegsTimer->stop();
-            ModbusRegsTimer->setInterval(MODBUS_INTERVAL_ALL);
-            ModbusRegsTimer->start();
             ui->button_Accept->setEnabled(true);
             ui->button_Update->setEnabled(true);
+            CurrentAction = NO_ACTION;
             stat = NO;
             break;
         }
@@ -504,13 +599,13 @@ MWS::stat_readwrite MWS::ActionReadConfig()
         if( LoclTableRecieve.Regs.RegStatus == STAT_CONFIG_UPDATE )
         {
             LoclTableRecieve.Regs.RegStatus = 0;
-            CurrentAction = NO_ACTION;
             CounterStepAction = 0;
             ModbusRegsTimer->stop();
             ModbusRegsTimer->setInterval(MODBUS_INTERVAL_ALL);
             ModbusRegsTimer->start();
             ui->button_Accept->setEnabled(true);
             ui->button_Update->setEnabled(true);
+            CurrentAction = NO_ACTION;
             stat =NO;
             break;
         }
@@ -562,14 +657,14 @@ MWS::stat_readwrite MWS::ActionReadTable()
             {
                 LoclTableRecieve.Regs.RegStatus = 0;
                 currentPointTableCalibration = 0;
-                CurrentAction = NO_ACTION;
                 CounterStepAction = 0;
-                ModbusRegsTimer->stop();
-                ModbusRegsTimer->setInterval(MODBUS_INTERVAL_ALL);
-                ModbusRegsTimer->start();
+//                ModbusRegsTimer->stop();
+//                ModbusRegsTimer->setInterval(MODBUS_INTERVAL_ALL);
+//                ModbusRegsTimer->start();
                 writeTableWidget();
                 ui->button_SendTable->setEnabled(true);
                 ui->button_ReseiveTable->setEnabled(true);
+                CurrentAction = NO_ACTION;
                 stat =NO;
                 break;
             }
@@ -640,13 +735,13 @@ MWS::stat_readwrite MWS::ActionWriteTable()
       {
           LoclTableRecieve.Regs.RegStatus =0;
           currentPointTableCalibration = 0;
-          CurrentAction = NO_ACTION;
           CounterStepAction = 0;
-          ModbusRegsTimer->stop();
-          ModbusRegsTimer->setInterval(MODBUS_INTERVAL_ALL);
-          ModbusRegsTimer->start();
+//          ModbusRegsTimer->stop();
+//          ModbusRegsTimer->setInterval(MODBUS_INTERVAL_ALL);
+//          ModbusRegsTimer->start();
           ui->button_SendTable->setEnabled(true);
           ui->button_ReseiveTable->setEnabled(true);
+          CurrentAction = NO_ACTION;
           stat = NO;
           break;
       }

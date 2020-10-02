@@ -6,671 +6,779 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>687</width>
-    <height>526</height>
+    <width>536</width>
+    <height>463</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_6">
+  <layout class="QGridLayout" name="gridLayout_11">
    <item row="0" column="0">
-    <widget class="QSplitter" name="splitter_3">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <widget class="QSplitter" name="splitter">
-      <property name="frameShape">
-       <enum>QFrame::NoFrame</enum>
-      </property>
-      <property name="lineWidth">
-       <number>1</number>
-      </property>
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-      <widget class="QWidget" name="layoutWidget">
-       <layout class="QVBoxLayout" name="verticalLayout">
-        <item>
-         <widget class="QTabWidget" name="tabWidget">
-          <property name="currentIndex">
-           <number>0</number>
-          </property>
-          <widget class="QWidget" name="tab">
-           <attribute name="title">
-            <string>Настройки датчика</string>
-           </attribute>
-           <layout class="QGridLayout" name="gridLayout_3">
+    <layout class="QGridLayout" name="gridLayout_10">
+     <item row="0" column="0" colspan="3">
+      <widget class="QSplitter" name="splitter_3">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <widget class="QSplitter" name="splitter">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <widget class="QTabWidget" name="tabWidget">
+         <property name="currentIndex">
+          <number>3</number>
+         </property>
+         <widget class="QWidget" name="settings">
+          <attribute name="title">
+           <string>Настройки датчика</string>
+          </attribute>
+          <layout class="QGridLayout" name="gridLayout_3">
+           <item row="0" column="0">
+            <layout class="QGridLayout" name="gridLayout_6">
+             <item row="1" column="0" colspan="4">
+              <widget class="QLabel" name="lab_TypeApproximation">
+               <property name="text">
+                <string>Тип аппроксимации</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="7" colspan="2">
+              <widget class="QPushButton" name="button_password">
+               <property name="text">
+                <string>Ввод</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0" colspan="4">
+              <widget class="QLabel" name="lab_AdrModbus">
+               <property name="text">
+                <string>Адрес модбас</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0" colspan="4">
+              <widget class="QLabel" name="lab_TypeAverage">
+               <property name="text">
+                <string>Тип усреднения</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="7" colspan="2">
+              <widget class="QSlider" name="slid_IntAverage">
+               <property name="maximum">
+                <number>20</number>
+               </property>
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0" colspan="4">
+              <widget class="QLabel" name="lab_IntAverage">
+               <property name="text">
+                <string>Интервал усреднения</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="4" colspan="3">
+              <widget class="QSpinBox" name="spin_IntAverage">
+               <property name="maximum">
+                <number>20</number>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="4" colspan="3">
+              <widget class="QSpinBox" name="spin_AdrModbus">
+               <property name="maximum">
+                <number>247</number>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="7" colspan="2">
+              <widget class="QSlider" name="slid_AdrModbus">
+               <property name="maximum">
+                <number>247</number>
+               </property>
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="4" colspan="5">
+              <widget class="QComboBox" name="comb_TypeApproximation"/>
+             </item>
+             <item row="2" column="4" colspan="5">
+              <widget class="QComboBox" name="comb_TypeAverage"/>
+             </item>
+             <item row="4" column="4" colspan="3">
+              <widget class="QLineEdit" name="edit_Password"/>
+             </item>
+             <item row="4" column="0" colspan="4">
+              <widget class="QLabel" name="lab_Password">
+               <property name="text">
+                <string>Пароль</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="sensor">
+          <attribute name="title">
+           <string>Настройки сенсора</string>
+          </attribute>
+          <layout class="QGridLayout" name="gridLayout_4">
+           <item row="0" column="0">
+            <layout class="QGridLayout" name="gridLayout_2">
+             <item row="1" column="4">
+              <widget class="QSlider" name="slid_StartMeasure">
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="minimum">
+                <number>-70</number>
+               </property>
+               <property name="maximum">
+                <number>700</number>
+               </property>
+               <property name="singleStep">
+                <number>1</number>
+               </property>
+               <property name="value">
+                <number>-70</number>
+               </property>
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="3">
+              <widget class="QSpinBox" name="spin_EndMeasure">
+               <property name="maximumSize">
+                <size>
+                 <width>50</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="maximum">
+                <number>770</number>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="4">
+              <widget class="QSlider" name="slid_EndMeasure">
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="maximum">
+                <number>770</number>
+               </property>
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="4">
+              <widget class="QSlider" name="slid_ReceiverGain">
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="maximum">
+                <number>100</number>
+               </property>
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="5" colspan="3">
+              <widget class="QLabel" name="lab_PowerSaveMode">
+               <property name="font">
+                <font>
+                 <pointsize>7</pointsize>
+                </font>
+               </property>
+               <property name="text">
+                <string>Режим энергосбережения:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="8">
+              <widget class="QComboBox" name="comb_PowerSaveMode"/>
+             </item>
+             <item row="4" column="4">
+              <widget class="QSlider" name="slid_HWAAS">
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="8">
+              <widget class="QComboBox" name="comb_AsynchMeasure"/>
+             </item>
+             <item row="5" column="4">
+              <widget class="QSlider" name="slid_RunningAverage">
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="maximum">
+                <number>100</number>
+               </property>
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="6" column="3" colspan="2">
+              <widget class="QComboBox" name="comb_TXDisable"/>
+             </item>
+             <item row="0" column="8">
+              <widget class="QComboBox" name="comb_Noize"/>
+             </item>
+             <item row="0" column="4">
+              <widget class="QSlider" name="slid_IdSensor">
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="3">
+              <widget class="QSpinBox" name="spin_IdSensor">
+               <property name="maximumSize">
+                <size>
+                 <width>50</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="3">
+              <widget class="QSpinBox" name="spin_StartMeasure">
+               <property name="maximumSize">
+                <size>
+                 <width>50</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="minimum">
+                <number>-70</number>
+               </property>
+               <property name="maximum">
+                <number>700</number>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="3">
+              <widget class="QDoubleSpinBox" name="spin_ReceiverGain">
+               <property name="maximumSize">
+                <size>
+                 <width>50</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="maximum">
+                <double>1.000000000000000</double>
+               </property>
+               <property name="singleStep">
+                <double>0.010000000000000</double>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="3">
+              <widget class="QSpinBox" name="spin_HWAAS">
+               <property name="maximumSize">
+                <size>
+                 <width>50</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="3">
+              <widget class="QDoubleSpinBox" name="spin_RunningAverage">
+               <property name="maximumSize">
+                <size>
+                 <width>50</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="maximum">
+                <double>1.000000000000000</double>
+               </property>
+               <property name="singleStep">
+                <double>0.010000000000000</double>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0" colspan="3">
+              <widget class="QLabel" name="lab_IdSensor">
+               <property name="font">
+                <font>
+                 <pointsize>7</pointsize>
+                </font>
+               </property>
+               <property name="text">
+                <string>ID сенсора</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0" colspan="3">
+              <widget class="QLabel" name="lab_StartMeasure">
+               <property name="font">
+                <font>
+                 <pointsize>7</pointsize>
+                </font>
+               </property>
+               <property name="text">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Начало измерения:&lt;br/&gt;(мм)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0" colspan="3">
+              <widget class="QLabel" name="lab_EndMeasure">
+               <property name="font">
+                <font>
+                 <pointsize>7</pointsize>
+                </font>
+               </property>
+               <property name="text">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Конец измерений:&lt;br/&gt;(мм)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0" colspan="3">
+              <widget class="QLabel" name="lab_ReceiverGain">
+               <property name="font">
+                <font>
+                 <pointsize>7</pointsize>
+                </font>
+               </property>
+               <property name="text">
+                <string>Усиление сигнала:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="0" colspan="3">
+              <widget class="QLabel" name="lab_HWAAS">
+               <property name="font">
+                <font>
+                 <pointsize>7</pointsize>
+                </font>
+               </property>
+               <property name="text">
+                <string>HWAAS:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="0" colspan="3">
+              <widget class="QLabel" name="lab_RunningAverage">
+               <property name="font">
+                <font>
+                 <pointsize>7</pointsize>
+                </font>
+               </property>
+               <property name="text">
+                <string>Бегущее среднее:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="6" column="0" colspan="3">
+              <widget class="QLabel" name="lab_TXDisable">
+               <property name="font">
+                <font>
+                 <pointsize>7</pointsize>
+                </font>
+               </property>
+               <property name="text">
+                <string>Выключить TXD:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="8">
+              <widget class="QComboBox" name="comb_MaximizeSignal"/>
+             </item>
+             <item row="1" column="8">
+              <widget class="QComboBox" name="comb_DownSampFactor"/>
+             </item>
+             <item row="5" column="8">
+              <widget class="QComboBox" name="comb_RepetitionMode"/>
+             </item>
+             <item row="6" column="8">
+              <widget class="QComboBox" name="comb_Profile"/>
+             </item>
+             <item row="5" column="5" colspan="3">
+              <widget class="QLabel" name="lab_RepetitionMode">
+               <property name="font">
+                <font>
+                 <pointsize>7</pointsize>
+                </font>
+               </property>
+               <property name="text">
+                <string>Режим повторения:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="6" column="5" colspan="3">
+              <widget class="QLabel" name="lab_Profile">
+               <property name="font">
+                <font>
+                 <pointsize>7</pointsize>
+                </font>
+               </property>
+               <property name="text">
+                <string>Профиль:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="5" colspan="3">
+              <widget class="QLabel" name="lab_AsynchMeasure">
+               <property name="font">
+                <font>
+                 <pointsize>7</pointsize>
+                </font>
+               </property>
+               <property name="text">
+                <string>Асинхр. измерение:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="5" colspan="3">
+              <widget class="QLabel" name="lab_MaximizeSignal">
+               <property name="font">
+                <font>
+                 <pointsize>7</pointsize>
+                </font>
+               </property>
+               <property name="text">
+                <string>Макс сигнал:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="5" colspan="3">
+              <widget class="QLabel" name="lab_DownSampFactor">
+               <property name="font">
+                <font>
+                 <pointsize>7</pointsize>
+                </font>
+               </property>
+               <property name="text">
+                <string>Делитель:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="5" colspan="3">
+              <widget class="QLabel" name="lab_Noize">
+               <property name="font">
+                <font>
+                 <pointsize>7</pointsize>
+                </font>
+               </property>
+               <property name="text">
+                <string>Шум:</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="table">
+          <attribute name="title">
+           <string>Тарировочная таблица</string>
+          </attribute>
+          <layout class="QGridLayout" name="gridLayout_8">
+           <item row="0" column="0">
+            <layout class="QHBoxLayout" name="horizontalLayout_15">
+             <item>
+              <widget class="QLabel" name="lab_CountPoint">
+               <property name="text">
+                <string>Количество точек</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QSpinBox" name="spin_CountPoint"/>
+             </item>
+            </layout>
+           </item>
+           <item row="1" column="0">
+            <widget class="QTableWidget" name="tableWidget"/>
+           </item>
+           <item row="2" column="0">
+            <layout class="QHBoxLayout" name="horizontalLayout_16">
+             <item>
+              <spacer name="horizontalSpacer_2">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>178</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QPushButton" name="button_SendTable">
+               <property name="text">
+                <string>Отправить</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="button_ReseiveTable">
+               <property name="text">
+                <string>Считать</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="addit">
+          <attribute name="title">
+           <string>Заводские</string>
+          </attribute>
+          <layout class="QGridLayout" name="gridLayout_7">
+           <item row="0" column="0" colspan="2">
+            <layout class="QHBoxLayout" name="horizontalLayout_2">
+             <item>
+              <layout class="QVBoxLayout" name="verticalLayout_9">
+               <item>
+                <widget class="QLabel" name="lab_lastconnect">
+                 <property name="text">
+                  <string>Дата последней связи</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="lab_idchange">
+                 <property name="text">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Id пользователя &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="lab_typedev">
+                 <property name="text">
+                  <string>Тип устройства</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="lab_serial">
+                 <property name="text">
+                  <string>Серийный номер устройства</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="lab_verapp">
+                 <property name="text">
+                  <string>аппаратная версия устроства</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <layout class="QVBoxLayout" name="verticalLayout_8">
+               <item>
+                <widget class="QDateTimeEdit" name="dat_lastconnect"/>
+               </item>
+               <item>
+                <widget class="QLineEdit" name="lin_idchange"/>
+               </item>
+               <item>
+                <widget class="QLineEdit" name="lin_typedev"/>
+               </item>
+               <item>
+                <widget class="QLineEdit" name="lin_serial"/>
+               </item>
+               <item>
+                <widget class="QLineEdit" name="lin_verapp"/>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="lab_addit">
+             <property name="text">
+              <string>Доп.поле 20 символов макс:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLineEdit" name="lin_addit"/>
+           </item>
+           <item row="2" column="0">
+            <spacer name="horizontalSpacer_3">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="2" column="1">
+            <widget class="QPushButton" name="button_savefactory">
+             <property name="text">
+              <string>Сохранить</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+        <widget class="QGroupBox" name="groupBox">
+         <property name="title">
+          <string>Текущие парметры</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_9">
+          <item row="0" column="0">
+           <layout class="QGridLayout" name="gridLayout_5" rowstretch="1,1,1,1,5">
             <item row="0" column="0">
-             <layout class="QHBoxLayout" name="horizontalLayout_5">
-              <item>
-               <layout class="QVBoxLayout" name="verticalLayout_2">
-                <item>
-                 <widget class="QLabel" name="lab_AdrModbus">
-                  <property name="text">
-                   <string>Адрес модбас</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="lab_TypeApproximation">
-                  <property name="text">
-                   <string>Тип аппроксимации</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="lab_TypeAverage">
-                  <property name="text">
-                   <string>Тип усреднения</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="lab_IntAverage">
-                  <property name="text">
-                   <string>Интервал усреднения</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="lab_Password">
-                  <property name="text">
-                   <string>Пароль</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QVBoxLayout" name="verticalLayout_3" stretch="0,0,0,0,0">
-                <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="2,5">
-                  <item>
-                   <widget class="QSpinBox" name="spin_AdrModbus">
-                    <property name="maximum">
-                     <number>247</number>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QSlider" name="slid_AdrModbus">
-                    <property name="maximum">
-                     <number>247</number>
-                    </property>
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item>
-                 <widget class="QComboBox" name="comb_TypeApproximation"/>
-                </item>
-                <item>
-                 <widget class="QComboBox" name="comb_TypeAverage"/>
-                </item>
-                <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="2,5">
-                  <item>
-                   <widget class="QSpinBox" name="spin_IntAverage">
-                    <property name="maximum">
-                     <number>20</number>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QSlider" name="slid_IntAverage">
-                    <property name="maximum">
-                     <number>20</number>
-                    </property>
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item>
-                 <widget class="QLineEdit" name="edit_Password"/>
-                </item>
-               </layout>
-              </item>
-             </layout>
-            </item>
-           </layout>
-          </widget>
-          <widget class="QWidget" name="tab_2">
-           <attribute name="title">
-            <string>Настройки сенсора</string>
-           </attribute>
-           <layout class="QGridLayout" name="gridLayout_2">
-            <item row="0" column="0">
-             <layout class="QHBoxLayout" name="horizontalLayout_14">
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_12">
-                <item>
-                 <layout class="QVBoxLayout" name="verticalLayout_4">
-                  <item>
-                   <widget class="QLabel" name="lab_IdSensor">
-                    <property name="font">
-                     <font>
-                      <pointsize>7</pointsize>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>ID сенсора</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QLabel" name="lab_StartMeasure">
-                    <property name="font">
-                     <font>
-                      <pointsize>7</pointsize>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Начало измерения:&lt;br/&gt;(мм)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QLabel" name="lab_EndMeasure">
-                    <property name="font">
-                     <font>
-                      <pointsize>7</pointsize>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Конец измерений:&lt;br/&gt;(мм)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QLabel" name="lab_ReceiverGain">
-                    <property name="font">
-                     <font>
-                      <pointsize>7</pointsize>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Усиление сигнала:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QLabel" name="lab_HWAAS">
-                    <property name="font">
-                     <font>
-                      <pointsize>7</pointsize>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>HWAAS:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QLabel" name="lab_RunningAverage">
-                    <property name="font">
-                     <font>
-                      <pointsize>7</pointsize>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Бегущее среднее:</string>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item>
-                 <layout class="QVBoxLayout" name="verticalLayout_5">
-                  <item>
-                   <layout class="QHBoxLayout" name="horizontalLayout_9" stretch="2,5">
-                    <item>
-                     <widget class="QSpinBox" name="spin_IdSensor"/>
-                    </item>
-                    <item>
-                     <widget class="QSlider" name="slid_IdSensor">
-                      <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
-                  </item>
-                  <item>
-                   <layout class="QHBoxLayout" name="horizontalLayout_6" stretch="2,5">
-                    <item>
-                     <widget class="QSpinBox" name="spin_StartMeasure">
-                      <property name="minimum">
-                       <number>-70</number>
-                      </property>
-                      <property name="maximum">
-                       <number>700</number>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QSlider" name="slid_StartMeasure">
-                      <property name="minimum">
-                       <number>-70</number>
-                      </property>
-                      <property name="maximum">
-                       <number>700</number>
-                      </property>
-                      <property name="singleStep">
-                       <number>1</number>
-                      </property>
-                      <property name="value">
-                       <number>-70</number>
-                      </property>
-                      <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
-                  </item>
-                  <item>
-                   <layout class="QHBoxLayout" name="horizontalLayout_10" stretch="2,5">
-                    <item>
-                     <widget class="QSpinBox" name="spin_EndMeasure">
-                      <property name="maximum">
-                       <number>770</number>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QSlider" name="slid_EndMeasure">
-                      <property name="maximum">
-                       <number>770</number>
-                      </property>
-                      <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
-                  </item>
-                  <item>
-                   <layout class="QHBoxLayout" name="horizontalLayout_7" stretch="2,5">
-                    <item>
-                     <widget class="QDoubleSpinBox" name="spin_ReceiverGain">
-                      <property name="maximum">
-                       <double>1.000000000000000</double>
-                      </property>
-                      <property name="singleStep">
-                       <double>0.010000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QSlider" name="slid_ReceiverGain">
-                      <property name="maximum">
-                       <number>100</number>
-                      </property>
-                      <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
-                  </item>
-                  <item>
-                   <layout class="QHBoxLayout" name="horizontalLayout_11" stretch="2,5">
-                    <item>
-                     <widget class="QSpinBox" name="spin_HWAAS"/>
-                    </item>
-                    <item>
-                     <widget class="QSlider" name="slid_HWAAS">
-                      <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
-                  </item>
-                  <item>
-                   <layout class="QHBoxLayout" name="horizontalLayout_8" stretch="2,5">
-                    <item>
-                     <widget class="QDoubleSpinBox" name="spin_RunningAverage">
-                      <property name="maximum">
-                       <double>1.000000000000000</double>
-                      </property>
-                      <property name="singleStep">
-                       <double>0.010000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QSlider" name="slid_RunningAverage">
-                      <property name="maximum">
-                       <number>100</number>
-                      </property>
-                      <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
-                  </item>
-                 </layout>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_13" stretch="2,5">
-                <item>
-                 <layout class="QVBoxLayout" name="verticalLayout_6">
-                  <item>
-                   <widget class="QLabel" name="lab_Noize">
-                    <property name="font">
-                     <font>
-                      <pointsize>7</pointsize>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Шум:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QLabel" name="lab_DownSampFactor">
-                    <property name="font">
-                     <font>
-                      <pointsize>7</pointsize>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Делитель:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QLabel" name="lab_MaximizeSignal">
-                    <property name="font">
-                     <font>
-                      <pointsize>7</pointsize>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Макс сигнал:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QLabel" name="lab_PowerSaveMode">
-                    <property name="font">
-                     <font>
-                      <pointsize>7</pointsize>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Режим энергосбережения:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QLabel" name="lab_AsynchMeasure">
-                    <property name="font">
-                     <font>
-                      <pointsize>7</pointsize>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Асинхр. измерение:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QLabel" name="lab_RepetitionMode">
-                    <property name="font">
-                     <font>
-                      <pointsize>7</pointsize>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Режим повторения:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QLabel" name="lab_TXDisable">
-                    <property name="font">
-                     <font>
-                      <pointsize>7</pointsize>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Выключить TXD:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QLabel" name="lab_Profile">
-                    <property name="font">
-                     <font>
-                      <pointsize>7</pointsize>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Профиль:</string>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item>
-                 <layout class="QVBoxLayout" name="verticalLayout_7">
-                  <item>
-                   <widget class="QComboBox" name="comb_Noize"/>
-                  </item>
-                  <item>
-                   <widget class="QComboBox" name="comb_DownSampFactor"/>
-                  </item>
-                  <item>
-                   <widget class="QComboBox" name="comb_MaximizeSignal"/>
-                  </item>
-                  <item>
-                   <widget class="QComboBox" name="comb_PowerSaveMode"/>
-                  </item>
-                  <item>
-                   <widget class="QComboBox" name="comb_AsynchMeasure"/>
-                  </item>
-                  <item>
-                   <widget class="QComboBox" name="comb_RepetitionMode"/>
-                  </item>
-                  <item>
-                   <widget class="QComboBox" name="comb_TXDisable"/>
-                  </item>
-                  <item>
-                   <widget class="QComboBox" name="comb_Profile"/>
-                  </item>
-                 </layout>
-                </item>
-               </layout>
-              </item>
-             </layout>
-            </item>
-           </layout>
-          </widget>
-          <widget class="QWidget" name="tab_3">
-           <attribute name="title">
-            <string>Тарировочная таблица</string>
-           </attribute>
-           <layout class="QGridLayout" name="gridLayout_4">
-            <item row="0" column="0">
-             <layout class="QHBoxLayout" name="horizontalLayout_15">
-              <item>
-               <widget class="QLabel" name="lab_CountPoint">
-                <property name="text">
-                 <string>Количество точек</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QSpinBox" name="spin_CountPoint"/>
-              </item>
-             </layout>
+             <widget class="QLabel" name="lab_Distance">
+              <property name="text">
+               <string>Расстояние мм:</string>
+              </property>
+             </widget>
             </item>
             <item row="1" column="0">
-             <widget class="QTableWidget" name="tableWidget"/>
+             <widget class="QLabel" name="lcd_Distance">
+              <property name="font">
+               <font>
+                <family>Segoe Print</family>
+                <pointsize>10</pointsize>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>100</string>
+              </property>
+             </widget>
             </item>
             <item row="2" column="0">
-             <layout class="QHBoxLayout" name="horizontalLayout_16">
-              <item>
-               <spacer name="horizontalSpacer_2">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>178</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QPushButton" name="button_SendTable">
-                <property name="text">
-                 <string>Отправить</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="button_ReseiveTable">
-                <property name="text">
-                 <string>Считать</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
+             <widget class="QLabel" name="lab_Volume">
+              <property name="text">
+               <string>Обьем л:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <widget class="QLabel" name="lcd_Volume">
+              <property name="font">
+               <font>
+                <family>Segoe Print</family>
+                <pointsize>10</pointsize>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>100</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0">
+             <widget class="QCustomPlot" name="graph_distanse" native="true"/>
             </item>
            </layout>
-          </widget>
-         </widget>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout">
-          <item>
-           <spacer name="horizontalSpacer">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>208</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
           </item>
-          <item>
-           <widget class="QPushButton" name="button_Update">
+         </layout>
+        </widget>
+       </widget>
+       <widget class="QSplitter" name="splitter_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <widget class="QCustomPlot" name="graph_table" native="true"/>
+        <widget class="QGroupBox" name="group_Approximation">
+         <property name="title">
+          <string>Аппроксимация</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout">
+          <item row="0" column="0">
+           <widget class="QCheckBox" name="check_Linear">
             <property name="text">
-             <string>Обновить</string>
+             <string>кусочно-линейная</string>
             </property>
            </widget>
           </item>
-          <item>
-           <widget class="QPushButton" name="button_Accept">
+          <item row="1" column="0">
+           <widget class="QCheckBox" name="check_Lagranj">
             <property name="text">
-             <string>Применить</string>
+             <string>полин.Лагранжа</string>
             </property>
            </widget>
           </item>
          </layout>
-        </item>
-       </layout>
+        </widget>
+       </widget>
       </widget>
-      <widget class="QGroupBox" name="groupBox">
-       <property name="title">
-        <string>Текущие парметры</string>
+     </item>
+     <item row="1" column="0">
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
        </property>
-       <layout class="QGridLayout" name="gridLayout_5" rowstretch="1,1,1,1,1,5" rowminimumheight="1,1,1,1,1,1">
-        <item row="0" column="0">
-         <widget class="QLabel" name="lab_Distance">
-          <property name="text">
-           <string>Расстояние мм:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="lab_Volume">
-          <property name="text">
-           <string>Обьем л:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="lcd_Distance">
-          <property name="font">
-           <font>
-            <family>Segoe Print</family>
-            <pointsize>10</pointsize>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>100</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0">
-         <widget class="QLabel" name="lcd_Volume">
-          <property name="font">
-           <font>
-            <family>Segoe Print</family>
-            <pointsize>10</pointsize>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>100</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="0" rowspan="2">
-         <widget class="QCustomPlot" name="graph_distanse" native="true"/>
-        </item>
-       </layout>
-      </widget>
-     </widget>
-     <widget class="QSplitter" name="splitter_2">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-      <widget class="QCustomPlot" name="graph_table" native="true"/>
-      <widget class="QGroupBox" name="group_Approximation">
-       <property name="title">
-        <string>Аппроксимация</string>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>376</width>
+         <height>20</height>
+        </size>
        </property>
-       <layout class="QGridLayout" name="gridLayout">
-        <item row="0" column="0">
-         <widget class="QCheckBox" name="check_Linear">
-          <property name="text">
-           <string>кусочно-линейная</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QCheckBox" name="check_Lagranj">
-          <property name="text">
-           <string>полин.Лагранжа</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
+      </spacer>
+     </item>
+     <item row="1" column="1">
+      <widget class="QPushButton" name="button_Update">
+       <property name="text">
+        <string>Обновить</string>
+       </property>
       </widget>
-     </widget>
-    </widget>
+     </item>
+     <item row="1" column="2">
+      <widget class="QPushButton" name="button_Accept">
+       <property name="text">
+        <string>Применить</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>

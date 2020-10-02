@@ -9,6 +9,9 @@
 
 #include <QPointF>
 
+#include <QQueue>
+#include <QDateTime>
+
 namespace Ui {
 class MWS;
 }
@@ -24,6 +27,8 @@ public:
     void start(QModbusClient *modbusDev);
 private:
     QString strWindow;
+    QString idUser = "1000";
+    QDateTime startTime;
 private:
     typedef enum Action
     {
@@ -32,7 +37,9 @@ private:
        SEND_TO_UPDATE_CONFIG,
        SEND_TO_CHECK_PASSWORD,
        WRITE_TABLE,
-       READ_TABLE
+       READ_TABLE,
+       UPDATE_ALLREGS,            // без записи команд в регистр
+       SEND_TO_SAVE_FACTORY
     }Action;
 
     typedef enum cmd_command
@@ -45,7 +52,8 @@ private:
        MODBUS_CMD_TABLE_RECEIVE    =5,/*!< команда   отправления под запись точки тарировочной таблицы*/
        MODBUS_CMD_TABLE_POZITION   =6,/*!< команда   постановки позиции текущей точки тарированной таблицы в 0*/
        MODBUS_CMD_TABLE_TRANSMIT   =7,/*!< команда   запроса сохраненой точки тарировочной таблицы*/
-       MODBUS_CMD_TABLE_WRITE_END  =8 /*!< команда   окончания записи тарировочной таблицы*/
+       MODBUS_CMD_TABLE_WRITE_END  =8,/*!< команда   окончания записи тарировочной таблицы*/
+       MODBUS_CMD_SAVE_FACTORY     =9 /*!< команда   сохранить параметры (serial, type,app ...)*/
     }cmd_command;
 
     typedef enum cmd_status
@@ -58,6 +66,7 @@ private:
       STAT_CMD_TABLE_POZITION       =6,/*!< подтверждение установки позиции текущей точки тарировочной таблицы в 0*/
       STAT_CMD_TABLE_TRANSMIT       =7,/*!< подтверждение выставления в регистры передачи текущей точки тарировочной таблицы*/
       STAT_CMD_TABLE_END            =8,/*!< окончание тарировочной таблицы*/
+      STAT_CMD_SAVE_FACTORY         =9 /*!< подтверждение сохранения параметров (serial, type,app ...)*/
     } cmd_status;
 
     typedef enum type_send
@@ -84,6 +93,7 @@ private:
 
 private:
     Action CurrentAction = NO_ACTION;
+    QQueue <Action> queueAction;
     int CounterStepAction;
 private:
     struct_listSavedDevices stringToTable(QString str);
@@ -93,8 +103,10 @@ private:
     void replyReceivedWrite();
     stat_readwrite upperModbusCheck();
     void setupAction(Action Action);
+    bool isCurrentAction();
     stat_readwrite ActionWriteTable();
     stat_readwrite ActionReadTable();
+    stat_readwrite ActionSaveFactory();
     stat_readwrite ActionSaveConfig();
     stat_readwrite ActionReadConfig();
     void readTableWidget();
