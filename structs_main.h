@@ -33,4 +33,6 @@ typedef struct struct_listSavedDevices
 }struct_listSavedDevices;
 
 
+
+
 #endif // STRUCTS_MAIN_H

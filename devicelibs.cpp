@@ -40,9 +40,10 @@ bool DeviceLibs:: LibOpen(QString str,QMdiArea *mdiArea,QModbusClient *modbus)
 //    QMdiSubWindow * subWindow = mdiArea->addSubWindow(m_settings);
 
     MyQMdiSubWindow *mysub = new MyQMdiSubWindow();
+    mysub->setStr(str);
     mysub->setWidget(m_settings);
     mdiArea->addSubWindow(mysub);
-    connect(mysub,&MyQMdiSubWindow::closed,this,[=]
+    connect(mysub,&MyQMdiSubWindow::closed,this,[=](QString strWindow)
     {
             static const char* const FILE_NAME = "mws.bin";
             QFile file( FILE_NAME );
@@ -54,14 +55,22 @@ bool DeviceLibs:: LibOpen(QString str,QMdiArea *mdiArea,QModbusClient *modbus)
                 stream << window;
                 file.close();
             }
-            if( m_settings!=nullptr )
+
+            for(int i=0;i<vectorDialogs.count();i++)
             {
-               m_settings->deleteLater();
-               mysub->deleteLater();
-            }
-            if ( mysub!=nullptr )
-            {
-                 mysub->deleteLater();
+                if( vectorDialogs[i].str == strWindow )
+                {
+                    if( vectorDialogs[i].dialog!=nullptr )
+                    {
+                       vectorDialogs[i].dialog->deleteLater();
+                    }
+                    if ( vectorDialogs[i].subWin!=nullptr )
+                    {
+                         vectorDialogs[i].subWin->deleteLater();
+                    }
+                    vectorDialogs.remove(i);
+                    break;
+                }
             }
     });
 

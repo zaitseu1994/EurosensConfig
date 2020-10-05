@@ -404,7 +404,9 @@ void MainWindow::getDeviceModbus(union_tableRegsRead table, struct_ComModbus com
    QTreeWidgetItem *itemType=new QTreeWidgetItem(toplevel);
    QTreeWidgetItem *itemSerial=new QTreeWidgetItem(toplevel);
    QTreeWidgetItem *itemApp=new QTreeWidgetItem(toplevel);
-   QTreeWidgetItem *itemDate=new QTreeWidgetItem(toplevel);
+   QTreeWidgetItem *itemDateConnect=new QTreeWidgetItem(toplevel);
+   QTreeWidgetItem *itemDateChange=new QTreeWidgetItem(toplevel);
+   QTreeWidgetItem *itemDateFactory=new QTreeWidgetItem(toplevel);
    QTreeWidgetItem *itemLog=new QTreeWidgetItem(toplevel);
    QTreeWidgetItem *Protocol=new QTreeWidgetItem(toplevel);
    QTreeWidgetItem *FisicalPort=new QTreeWidgetItem(toplevel);
@@ -416,7 +418,11 @@ void MainWindow::getDeviceModbus(union_tableRegsRead table, struct_ComModbus com
    itemType->setText(0,"Тип: "+QString::number(table.Regs.TypeDevice));
    itemSerial->setText(0,"Серийный №: "+QString::number(table.Regs.SerialNum));
    itemApp->setText(0,"Аппаратная версия: "+QString::number(table.Regs.VerApp));
-   itemDate->setText(0,"Дата связи: "+QString::number(table.Regs.timeconnect));
+
+   itemDateConnect->setText(0,"Дата связи: "+QDateTime::fromTime_t(table.Regs.timeconnect).toString("yyyy-MM-dd  HH:mm:ss"));
+   itemDateChange->setText(0,"Дата изменения настроек: "+QDateTime::fromTime_t(table.Regs.timechange).toString("yyyy-MM-dd  HH:mm:ss"));
+   itemDateFactory->setText(0,"Дата установки: "+QDateTime::fromTime_t(table.Regs.timedefault).toString("yyyy-MM-dd  HH:mm:ss"));
+   //itemDate->setText(0,"Дата связи: "+QString::number(table.Regs.timeconnect));
    itemLog->setText(0,"Лог ошибок: "+QString::number(table.Regs.LogError));
 
    Protocol->setText(0,"Протокол");

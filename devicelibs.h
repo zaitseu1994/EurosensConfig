@@ -20,12 +20,19 @@ class MyQMdiSubWindow : public QMdiSubWindow
 public:
     explicit MyQMdiSubWindow(QMdiSubWindow *parent = nullptr);
     ~MyQMdiSubWindow();
+private:
+QString str = "0";
+public:
+void setStr(QString st)
+{
+  str = st;
+};
 signals:
-    void closed();
+    void closed(QString str);
 protected:
     void closeEvent( QCloseEvent * closeEvent )
     {
-        emit closed();
+        emit closed(str);
         closeEvent->accept();
     }
 };

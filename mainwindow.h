@@ -11,6 +11,7 @@
 
 #include "devicelibs.h"
 #include "structs_ui.h"
+#include "structs_main.h"
 
 #include "mws.h"
 
@@ -26,9 +27,22 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
+
+//QDataStream & operator<<(QDataStream & in, struct_listSavedDevices const & x)
+//{
+//    return in << x.devicename << x.modbusadr << x.portname << x.device.Adr[0];
+//}
+
+//QDataStream & operator>>(QDataStream & out, struct_listSavedDevices & x)
+//{
+//    return out >> x.devicename >> x.modbusadr >> x.portname;
+//}
+
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
+
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
