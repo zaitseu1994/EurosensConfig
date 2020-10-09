@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>763</width>
-    <height>490</height>
+    <width>816</width>
+    <height>504</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,6 +19,19 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="2">
+     <widget class="QListWidget" name="listInfo">
+      <property name="frameShape">
+       <enum>QFrame::Panel</enum>
+      </property>
+      <property name="verticalScrollBarPolicy">
+       <enum>Qt::ScrollBarAsNeeded</enum>
+      </property>
+      <property name="horizontalScrollBarPolicy">
+       <enum>Qt::ScrollBarAlwaysOff</enum>
+      </property>
+     </widget>
+    </item>
     <item row="0" column="0">
      <widget class="QTreeWidget" name="treeWidget">
       <property name="minimumSize">
@@ -98,19 +111,6 @@
       </property>
      </widget>
     </item>
-    <item row="0" column="2">
-     <widget class="QListWidget" name="listInfo">
-      <property name="frameShape">
-       <enum>QFrame::Panel</enum>
-      </property>
-      <property name="verticalScrollBarPolicy">
-       <enum>Qt::ScrollBarAsNeeded</enum>
-      </property>
-      <property name="horizontalScrollBarPolicy">
-       <enum>Qt::ScrollBarAlwaysOff</enum>
-      </property>
-     </widget>
-    </item>
     <item row="1" column="0" colspan="3">
      <widget class="QTextBrowser" name="textBrowser">
       <property name="autoFillBackground">
@@ -140,20 +140,10 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>763</width>
+     <width>816</width>
      <height>20</height>
     </rect>
    </property>
-   <widget class="QMenu" name="libs">
-    <property name="mouseTracking">
-     <bool>true</bool>
-    </property>
-    <property name="title">
-     <string>Библиотеки</string>
-    </property>
-    <addaction name="add"/>
-    <addaction name="view"/>
-   </widget>
    <widget class="QMenu" name="about">
     <property name="title">
      <string>О программе</string>
@@ -184,7 +174,6 @@
    </widget>
    <addaction name="menu"/>
    <addaction name="devices"/>
-   <addaction name="libs"/>
    <addaction name="Settings"/>
    <addaction name="view_ui"/>
    <addaction name="about"/>

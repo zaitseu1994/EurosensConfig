@@ -1,6 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include <QDesktopWidget>
+
 #include "QDockWidget"
 #include "QSettings"
 
@@ -30,10 +32,23 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
+
     ui->setupUi(this);
-    readSettings();
 
     ModbusTimer = new QTimer;
+
+    connect(ModbusTimer,&QTimer::timeout,this,[this]()
+            {
+                ModbusTimer->stop();
+                ui->actionSearh->setEnabled(true);
+                ui->treeWidget->clear();
+                ui->treeWidget->setEnabled(true);
+                Progesslabel.hide();
+                ProgressPercent.hide();
+                QString comname = vectorModbusDevice[intcomModBusDevice].nameCom;
+                QMessageBox::warning(this, comname,"Проверьте соединение с портом");
+            });
+
     libs = new DeviceLibs;
 
     tree_dock = new QDockWidget(tr("Устройства"), this);
@@ -57,31 +72,22 @@ MainWindow::MainWindow(QWidget *parent)
     addDockWidget(Qt::RightDockWidgetArea, list_dock);
     ui->view_ui->addAction(list_dock->toggleViewAction());
 
-
-    connect(ui->add,&QAction::triggered,this,&MainWindow::libsAdd);
-    connect(ui->view,&QAction::triggered,this,&MainWindow::LibsView);
     connect(ui->actionSearh,&QAction::triggered,this,&MainWindow::DevicesSearch);
     connect(ui->actionSaved,&QAction::triggered,this,&MainWindow::DevicesSaved);
 
-//    connect(modbusDevice, &QModbusClient::errorOccurred, [this](QModbusDevice::Error)
-//    {
-//        ui->textBrowser->append(modbusDevice->errorString());
-//    });
-
-//    connect(modbusDevice, &QModbusClient::stateChanged,this,[this](QModbusDevice::State)
-//    {
-//        if(modbusDevice->state() == QModbusDevice::UnconnectedState)
-//        {
-//         ui->textBrowser->append("Modbus Disconnect");
-//        }
-//        if(modbusDevice->state() == QModbusDevice::ConnectedState)
-//         ui->textBrowser->append("Modbus Connect");
-//    });
     ui->treeWidget->setHeaderLabel(" ");
    // ui->treeWidget->headerItem()->setHidden(true);
     ui->treeWidget->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->treeWidget,&QTreeWidget::customContextMenuRequested,this,&MainWindow::prepareMenu);
     ui->actionSaved->setDisabled(true);
+
+    ProgressPercent.setValue(0);
+    Progesslabel.setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred));
+    ProgressPercent.setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred));
+    Progesslabel.hide();
+    ProgressPercent.hide();
+    ui->statusbar->addWidget(&Progesslabel);
+    ui->statusbar->addWidget(&ProgressPercent);
 
 //    setStyleSheet("QTreeWidget{"
 //    //"background-color: red;"
@@ -96,6 +102,32 @@ MainWindow::MainWindow(QWidget *parent)
 //    );
 //    ui->treeWidget->setWindowOpacity(1);
 
+
+       login = new Login;
+
+//     this->setEnabled(false);
+//     login->setWindowFlags(Qt::FramelessWindowHint | Qt::Dialog);
+//     QRect rec = QApplication::desktop()->screenGeometry();
+//     QPoint poz = rec.center();
+//     QSize logsize= login->size();
+//     poz.setX(poz.x()-logsize.width()/2);
+//     poz.setY(poz.y()-logsize.height()/2);
+//     login->move(poz);
+//     login->show();
+//     connect(login,&Login::closeLogin,this,[=]
+//     {
+//        login->close();
+//        this->close();
+//     });
+//     connect(login,&Login::clickLogin,this,[=](QString str)
+//     {
+//         setIduser(str);
+//         login->close();
+//         this->setEnabled(true);
+//     });
+
+       QLineEdit *lin = new QLineEdit(this);
+       ui->toolBar->addWidget(lin);
 }
 
 MainWindow::~MainWindow()
@@ -116,13 +148,13 @@ MainWindow::~MainWindow()
     tablListSavedDevices.clear();
     strListSavedDevices.clear();
     ui->mdiArea->closeAllSubWindows();
+    delete login;
     delete ui;
 }
 
-void MainWindow::readSettings()
+void MainWindow::setIduser(QString str)
 {
-
-
+    idUser = str;
 }
 
 void MainWindow::writeSettings()
@@ -141,15 +173,6 @@ void MainWindow::writeSettings()
     }
 }
 
-void MainWindow::libsAdd()
-{
-
-}
-
-void MainWindow::LibsView()
-{
-
-}
 
 void MainWindow::DevicesSearch()
 {
@@ -159,6 +182,9 @@ void MainWindow::DevicesSearch()
  ui->actionSearh->setText("Идет поиск...");
  ui->actionSearh->setDisabled(true);
 
+ ProgressPercent.setValue(0);
+ Progesslabel.show();
+ ProgressPercent.show();
 
  QList<QMdiSubWindow *> list = ui->mdiArea->subWindowList(QMdiArea::CreationOrder);
  if(list.count()!=0)
@@ -167,6 +193,7 @@ void MainWindow::DevicesSearch()
      libs->CloseAll();
  }
 
+ tablListFindDevices.clear();
  tablListSavedDevices.clear();
  strListSavedDevices.clear();
  DevicesRead();
@@ -189,20 +216,18 @@ void MainWindow::DevicesSearch()
  endcomModBusDevice = infos.count();
  intcomModBusDevice = 0;
 
+ CountRequestAdr = infos.count()*LAST_MODBUS_ADRESS;
+ CurentRequestAdr = 0;
+
  ModbusTimer->stop();
  ModbusTimer->setSingleShot(true);
- ModbusTimer->setInterval(infos.count()*(LAST_MODBUS_ADRESS*MODBUS_TIMEOUT_REPLY*(MODBUS_COUNT_REPEAT+1))*2.5);
- connect(ModbusTimer,&QTimer::timeout,this,[this]()
-         {
-              QString comname = vectorModbusDevice[intcomModBusDevice].nameCom;
-//              vectorModbusDevice.first().modbusDev->disconnectDevice();
-//              vectorModbusDevice.first().modbusDev->deleteLater();
-              QMessageBox::warning(this, comname,"Проверьте соединение с портом");
-//              vectorModbusDevice.clear();
-              ui->actionSearh->setEnabled(true);
-         });
+ ModbusTimer->setInterval(infos.count()*(LAST_MODBUS_ADRESS*MODBUS_TIMEOUT_REPLY*(MODBUS_COUNT_REPEAT+1))*2);
+
+
+
  ModbusTimer->start();
 
+ ui->treeWidget->setEnabled(false);
  searchModbusDevice(infos);
  pollModbus();
 }
@@ -219,6 +244,18 @@ void MainWindow::searchModbusDevice(QList<QSerialPortInfo> listport)
     for (const QSerialPortInfo &info : listport) {
            struct_ComModbus newCh;
            newCh.modbusDev = new QModbusRtuSerialMaster();
+
+           connect(newCh.modbusDev, &QModbusClient::errorOccurred, [this](QModbusDevice::Error)
+           {
+
+           });
+
+           connect(newCh.modbusDev, &QModbusClient::stateChanged,this,[this](QModbusDevice::State)
+           {
+
+
+           });
+
            newCh.nameCom =   info.portName();
            newCh.currentAdr = 0;
            newCh.description = info.description();
@@ -244,11 +281,9 @@ void MainWindow::pollModbus()
          vectorModbusDevice[intcomModBusDevice].modbusDev->setTimeout(MODBUS_TIMEOUT_REPLY);
          vectorModbusDevice[intcomModBusDevice].modbusDev->setNumberOfRetries(MODBUS_COUNT_REPEAT);
 
-
          if ( !vectorModbusDevice[intcomModBusDevice].modbusDev->connectDevice() )
          {
               ui->textBrowser->append(tr("Соединение с портом ") + vectorModbusDevice[intcomModBusDevice].nameCom +" не установленно:" + vectorModbusDevice[intcomModBusDevice].modbusDev->errorString());
-
 
               vectorModbusDevice[intcomModBusDevice].modbusDev->disconnectDevice();
               vectorModbusDevice[intcomModBusDevice].modbusDev->deleteLater();
@@ -263,23 +298,31 @@ void MainWindow::pollModbus()
          }
     }else
     {
+      ui->treeWidget->setEnabled(true);
       ui->actionSearh->setText("Поиск устройств");
       ui->actionSearh->setEnabled(true);
       ModbusTimer->stop();
+
+      ProgressPercent.setValue(0);
+      Progesslabel.hide();
+      ProgressPercent.hide();
     }
 }
 
 void MainWindow::pollAdrModbus()
 {
 
-    if ( vectorModbusDevice[intcomModBusDevice].currentAdr !=LAST_MODBUS_ADRESS+1)
+    if ( vectorModbusDevice[intcomModBusDevice].currentAdr !=LAST_MODBUS_ADRESS )
     {
         QModbusDataUnit request;
         request.setRegisterType(QModbusDataUnit::InputRegisters);
         request.setStartAddress(0);
         request.setValueCount(sizeof(union_tableRegsRead)/2);
-        //vectorModbusDevice.first().currentAdr++;
         vectorModbusDevice[intcomModBusDevice].currentAdr++;
+
+        CurentRequestAdr++;
+        ProgressPercent.setValue(CurentRequestAdr*100/CountRequestAdr);
+        Progesslabel.setText(vectorModbusDevice[intcomModBusDevice].nameCom+": Адрес:"+QString::number(vectorModbusDevice[intcomModBusDevice].currentAdr));
 
         if (auto *reply =  vectorModbusDevice[intcomModBusDevice].modbusDev->sendReadRequest(request,  vectorModbusDevice[intcomModBusDevice].currentAdr)) {
             if (!reply->isFinished())
@@ -290,6 +333,7 @@ void MainWindow::pollAdrModbus()
                 delete reply; // broadcast replies return immediately
         } else {
             ui->textBrowser->append("Read error: " + vectorModbusDevice[intcomModBusDevice].modbusDev->errorString());
+            ui->textBrowser->append("Проблема соединения");
         }
     }
     else
@@ -331,7 +375,6 @@ void MainWindow::pollReplyModbus()
             if ( replyModbus->serverAddress() == LAST_MODBUS_ADRESS )
             {
                  ui->textBrowser->append("Закончен опрос порта: "+ vectorModbusDevice[intcomModBusDevice].nameCom);
-                 ui->treeWidget->setEnabled(true);
             }
         }
         replyModbus->deleteLater();
@@ -385,7 +428,6 @@ void MainWindow::setNameDevice(struct_tableRegsRead table,QString name)
 void MainWindow::getDeviceModbus(union_tableRegsRead table, struct_ComModbus com,QString nameconnect)
 {
    disconnect(ui->treeWidget,&QTreeWidget::itemChanged,this,&MainWindow::treeItemChange);
-   ui->treeWidget->setEnabled(false);
 
    struct_listSavedDevices locl;
    memcpy(&locl.device,&table.Regs,sizeof(locl.device));
@@ -393,6 +435,14 @@ void MainWindow::getDeviceModbus(union_tableRegsRead table, struct_ComModbus com
    locl.portname = com.nameCom;
    locl.modbusadr = QString::number(com.currentAdr);
    QString strRole = tableToString(locl);
+
+   struct_listSavedDevices FindDevice;
+   memcpy(&FindDevice.device,&table,sizeof(FindDevice.device));
+   FindDevice.devicename = nameconnect;
+   FindDevice.modbusadr = QString::number( com.currentAdr );
+   FindDevice.portname = com.nameCom;
+   tablListFindDevices << FindDevice;
+
 
    QString str ="№ номер: "+ QString::number(table.Regs.SerialNum);
    QTreeWidgetItem *toplevel = new QTreeWidgetItem(ui->treeWidget);
@@ -405,24 +455,18 @@ void MainWindow::getDeviceModbus(union_tableRegsRead table, struct_ComModbus com
    QTreeWidgetItem *itemSerial=new QTreeWidgetItem(toplevel);
    QTreeWidgetItem *itemApp=new QTreeWidgetItem(toplevel);
    QTreeWidgetItem *itemDateConnect=new QTreeWidgetItem(toplevel);
-   QTreeWidgetItem *itemDateChange=new QTreeWidgetItem(toplevel);
-   QTreeWidgetItem *itemDateFactory=new QTreeWidgetItem(toplevel);
    QTreeWidgetItem *itemLog=new QTreeWidgetItem(toplevel);
    QTreeWidgetItem *Protocol=new QTreeWidgetItem(toplevel);
    QTreeWidgetItem *FisicalPort=new QTreeWidgetItem(toplevel);
 
    itemName->setText(0,"Имя: "+nameconnect);
    itemName->setFlags(Qt::ItemIsEditable|Qt::ItemIsEnabled);
-   //itemName->setData(0, Qt::UserRole, strRole);
 
    itemType->setText(0,"Тип: "+QString::number(table.Regs.TypeDevice));
    itemSerial->setText(0,"Серийный №: "+QString::number(table.Regs.SerialNum));
    itemApp->setText(0,"Аппаратная версия: "+QString::number(table.Regs.VerApp));
 
    itemDateConnect->setText(0,"Дата связи: "+QDateTime::fromTime_t(table.Regs.timeconnect).toString("yyyy-MM-dd  HH:mm:ss"));
-   itemDateChange->setText(0,"Дата изменения настроек: "+QDateTime::fromTime_t(table.Regs.timechange).toString("yyyy-MM-dd  HH:mm:ss"));
-   itemDateFactory->setText(0,"Дата установки: "+QDateTime::fromTime_t(table.Regs.timedefault).toString("yyyy-MM-dd  HH:mm:ss"));
-   //itemDate->setText(0,"Дата связи: "+QString::number(table.Regs.timeconnect));
    itemLog->setText(0,"Лог ошибок: "+QString::number(table.Regs.LogError));
 
    Protocol->setText(0,"Протокол");
@@ -477,7 +521,6 @@ void MainWindow::treeItemChange(QTreeWidgetItem * item, int column)
 QString MainWindow::tableToString(struct_listSavedDevices table_point)
 {
   QString str = table_point.devicename +";"+table_point.portname +";"+table_point.modbusadr +";"
-                         +QString::number(table_point.device.Regs.timeconnect) +","
                          +QString::number(table_point.device.Regs.LogError) +","
                          +QString::number(table_point.device.Regs.SerialNum) +","
                          +QString::number(table_point.device.Regs.TypeDevice) +","
@@ -495,13 +538,12 @@ struct_listSavedDevices MainWindow::stringToTable(QString str)
          table.devicename = name[0];
          table.portname = name[1];
          table.modbusadr = name[2];
-         if( tablstr.count()==5)
+         if( tablstr.count()==4)
          {
-             table.device.Regs.timeconnect = tablstr[0].toULong();
-             table.device.Regs.LogError = tablstr[1].toUInt();
-             table.device.Regs.SerialNum = tablstr[2].toUInt();
-             table.device.Regs.TypeDevice = tablstr[3].toUShort();
-             table.device.Regs.VerApp = tablstr[4].toUInt();
+             table.device.Regs.LogError = tablstr[0].toUInt();
+             table.device.Regs.SerialNum = tablstr[1].toUInt();
+             table.device.Regs.TypeDevice = tablstr[2].toUShort();
+             table.device.Regs.VerApp = tablstr[3].toUInt();
          }
      }
      return table;
@@ -584,6 +626,8 @@ QTreeWidgetItem *item = tree->itemAt( pos );
             QMenu menu(this);
             newconnect->setData(strloc);
             connect(newconnect,&QAction::triggered,this,&MainWindow::LoadLibDevice);
+            newSetting->setData(strloc);
+            connect(newSetting,&QAction::triggered,this,&MainWindow::ViewSettingsDevice);
 
             menu.addAction(newconnect);
             menu.addAction(newdisconnect);
@@ -624,4 +668,71 @@ void MainWindow::LoadLibDevice()
               }
          }
      }
+}
+
+void MainWindow::ViewSettingsDevice()
+{
+     QAction* open = qobject_cast< QAction* >( sender() );
+     QDialog *dialog = new QDialog(ui->mdiArea);
+     QLabel *dataconect = new QLabel(dialog);
+     QLabel *datachange = new QLabel(dialog);
+     QLabel *idchange = new QLabel(dialog);
+     QLabel *datafactory = new QLabel(dialog);
+     QLabel *idfactory = new QLabel(dialog);
+     QLabel *additFil = new QLabel(dialog);
+     additFil->setText("Доп.поле:");
+     QLineEdit *additLin = new QLineEdit(dialog);
+     additLin->setEnabled(false);
+     QGridLayout * grid = new QGridLayout(dialog);
+     grid->addWidget(dataconect,0,0);
+     grid->addWidget(datachange,1,0);
+     grid->addWidget(idchange,2,0);
+     grid->addWidget(datafactory,3,0);
+     grid->addWidget(idfactory,4,0);
+     grid->addWidget(additFil,5,0);
+     grid->addWidget(additLin,6,0);
+
+     auto data = open->data();
+     if ( data.isValid() )
+     {
+         if ( data.type()==QVariant::String )
+         {
+              QString str = QString("%1").arg(data.toString());
+              struct_listSavedDevices table = stringToTable(str);
+              int poz;
+              for( poz=0;poz<tablListFindDevices.count();poz++ )
+              {
+                  if( (tablListFindDevices[poz].portname == table.portname)
+                       &&(tablListFindDevices[poz].device.Regs.SerialNum == table.device.Regs.SerialNum )
+                       &&(tablListFindDevices[poz].device.Regs.TypeDevice == table.device.Regs.TypeDevice)
+                       &&(tablListFindDevices[poz].device.Regs.VerApp == table.device.Regs.VerApp))
+                  {
+
+                      dataconect->setText("Дата связи: "+QDateTime::fromTime_t(tablListFindDevices[poz].device.Regs.timeconnect).toString("yyyy-MM-dd  HH:mm:ss"));
+                      datachange->setText("Дата изменения настроек: "+QDateTime::fromTime_t(tablListFindDevices[poz].device.Regs.timechange).toString("yyyy-MM-dd  HH:mm:ss"));
+                      idchange->setText("Id изменившего: "+QString::number(tablListFindDevices[poz].device.Regs.idchange));
+                      datafactory->setText("Дата установки: "+QDateTime::fromTime_t(tablListFindDevices[poz].device.Regs.timedefault).toString("yyyy-MM-dd  HH:mm:ss"));
+                      idfactory->setText("Id изменившего: "+QString::number(tablListFindDevices[poz].device.Regs.iddefault));
+                      QString str;
+                      QByteArray aray;
+                      for (int i = 0; i < static_cast<int>(sizeof(tablListFindDevices[poz].device.Regs.mas)); ++i)
+                      {
+                          aray.append((const char*)(tablListFindDevices[poz].device.Regs.mas + i), sizeof(uint16_t));
+                      }
+
+//                      for(int i = 0; i<static_cast<int>(sizeof(tablListFindDevices[poz].device.Regs.mas));i++)
+//                      {
+//                          if(i%2)
+//                          str+=QString::number((tablListFindDevices[poz].device.Regs.mas[i]) & 0x00ff);
+//                          else
+//                          str+=QString::number((tablListFindDevices[poz].device.Regs.mas[i]) >> 8);
+//                      }
+                      str = QString::fromLocal8Bit(aray);
+                      additLin->setText(str);
+                      break;
+                  }
+              }
+         }
+     }
+     dialog->show();
 }

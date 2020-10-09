@@ -18,6 +18,7 @@ QT += widgets printsupport
 
 SOURCES += \
     devicelibs.cpp \
+    login.cpp \
     main.cpp \
     mainwindow.cpp \
     mws.cpp \
@@ -25,6 +26,7 @@ SOURCES += \
 
 HEADERS += \
     devicelibs.h \
+    login.h \
     mainwindow.h \
     mws.h \
     qcustomplot.h \
@@ -34,6 +36,7 @@ HEADERS += \
     ui_mws.h
 
 FORMS += \
+    login.ui \
     mainwindow.ui \
     mws.ui
 

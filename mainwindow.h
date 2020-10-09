@@ -2,12 +2,14 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-
+#include "login.h"
 
 #include <qtreewidget.h>
 
 #include <QTimer>
 #include <QTime>
+#include <QProgressBar>
+#include <QLabel>
 
 #include "devicelibs.h"
 #include "structs_ui.h"
@@ -27,27 +29,12 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
-
-//QDataStream & operator<<(QDataStream & in, struct_listSavedDevices const & x)
-//{
-//    return in << x.devicename << x.modbusadr << x.portname << x.device.Adr[0];
-//}
-
-//QDataStream & operator>>(QDataStream & out, struct_listSavedDevices & x)
-//{
-//    return out >> x.devicename >> x.modbusadr >> x.portname;
-//}
-
-
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
-
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-    void libsAdd();
-    void LibsView();
     void DevicesSearch();
     void DevicesSaved();
     void DevicesRead();
@@ -71,14 +58,22 @@ public:
     void prepareMenu( const QPoint & pos );
 
     void LoadLibDevice();
+    void ViewSettingsDevice();
+
+   void setIduser(QString str);
 private:
-    void readSettings();
     void writeSettings();
 private:
     QDockWidget *tree_dock = nullptr;
     QDockWidget *browser_dock = nullptr;
     QDockWidget *list_dock = nullptr;
     QDockWidget *mdi_dock = nullptr;
+    QProgressBar ProgressPercent;
+    QLabel Progesslabel;
+    int CountRequestAdr;
+    int CurentRequestAdr;
+    Login *login;
+    QString idUser;
 private:
     Ui::MainWindow *ui;
     DeviceLibs *libs = nullptr;
@@ -87,9 +82,7 @@ private:
     int intcomModBusDevice;
     int endcomModBusDevice;
     QVector<struct_listSavedDevices> tablListSavedDevices;
+    QVector<struct_listSavedDevices> tablListFindDevices;
     QList<QString> strListSavedDevices;
-
-    QVector<int> testvec;
-
 };
 #endif // MAINWINDOW_H

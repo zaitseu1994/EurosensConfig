@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="res.qrc">
+    <normaloff>:/PNG/images/Logo3.PNG</normaloff>:/PNG/images/Logo3.PNG</iconset>
+  </property>
   <layout class="QGridLayout" name="gridLayout_11">
    <item row="0" column="0">
     <layout class="QGridLayout" name="gridLayout_10">
@@ -790,6 +794,8 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="res.qrc"/>
+ </resources>
  <connections/>
 </ui>

@@ -43,7 +43,6 @@ MWS::MWS(QWidget *parent) :
     ui->lin_idchange->setEnabled(false);
     ui->tabWidget->removeTab(3);
 
-
     static const char* const FILE_NAME = "lib.bin";
     QFile file( FILE_NAME );
     QDataStream stream( &file );
@@ -199,7 +198,14 @@ MWS::MWS(QWidget *parent) :
             LoclTableRecieve.Regs.TypeDevice = ui->lin_typedev->text().toUShort();
             LoclTableRecieve.Regs.SerialNum = ui->lin_serial->text().toUInt();
             LoclTableRecieve.Regs.VerApp = ui->lin_verapp->text().toUInt();
-            memcpy(LoclTableRecieve.Regs.mas,ui->lin_addit->text().toLocal8Bit(),sizeof(LoclTableRecieve.Regs.mas));
+            QByteArray aray = ui->lin_addit->text().toLocal8Bit();
+            int k=0;
+            memset(LoclTableRecieve.Regs.mas,0,sizeof(LoclTableRecieve.Regs.mas));
+
+            if(aray.length()<=20)
+            memcpy(LoclTableRecieve.Regs.mas,aray,aray.length());
+            else
+            memcpy(LoclTableRecieve.Regs.mas,aray,20);
 
             queueAction.enqueue(UPDATE_ADDREGS);
             queueAction.enqueue(SEND_TO_SAVE_FACTORY);
@@ -361,13 +367,12 @@ struct_listSavedDevices MWS::stringToTable(QString str)
          table.devicename = name[0];
          table.portname = name[1];
          table.modbusadr = name[2];
-         if( tablstr.count()==5)
+         if( tablstr.count()==4)
          {
-             table.device.Regs.timeconnect = tablstr[0].toULong();
-             table.device.Regs.LogError = tablstr[1].toUInt();
-             table.device.Regs.SerialNum = tablstr[2].toUInt();
-             table.device.Regs.TypeDevice = tablstr[3].toUShort();
-             table.device.Regs.VerApp = tablstr[4].toUInt();
+             table.device.Regs.LogError = tablstr[0].toUInt();
+             table.device.Regs.SerialNum = tablstr[1].toUInt();
+             table.device.Regs.TypeDevice = tablstr[2].toUShort();
+             table.device.Regs.VerApp = tablstr[3].toUInt();
          }
      }
      return table;

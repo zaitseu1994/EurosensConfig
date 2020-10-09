@@ -11,5 +11,8 @@
         <file>images/search.png</file>
         <file>images/unblock.png</file>
         <file>images/Logo3.PNG</file>
+        <file>images/bac.png</file>
+        <file>images/bac1.png</file>
+        <file>images/baclogo.png</file>
     </qresource>
 </RCC>

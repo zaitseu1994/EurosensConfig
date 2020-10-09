@@ -24,6 +24,10 @@ int main(int argc, char *argv[])
         w.restoreGeometry(window);
         w.restoreState(state);
     }
-    w.show();
+   w.show();
+   // v.setWindowFlags(Qt::FramelessWindowHint | Qt::Dialog);
+   // v.setStyleSheet("border-image: url(:/PNG/images/baclogo.png)");
+   // v.show();
     return a.exec();
 }
+
