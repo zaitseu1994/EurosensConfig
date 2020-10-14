@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QCommandLinkButton>
 #include "login.h"
 
 #include <qtreewidget.h>
@@ -73,7 +74,8 @@ private:
     int CountRequestAdr;
     int CurentRequestAdr;
     Login *login;
-    QString idUser;
+    QCommandLinkButton *butlogin = nullptr;
+    QString idUser = "0";
 private:
     Ui::MainWindow *ui;
     DeviceLibs *libs = nullptr;

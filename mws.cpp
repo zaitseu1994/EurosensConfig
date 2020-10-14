@@ -19,7 +19,7 @@
 
 #define MODBUS_COUNT_READ_ADR COUNT_REGSWRITE
 
-#define MODBUS_INTERVAL_ALL 400
+#define MODBUS_INTERVAL_ALL 300
 #define MODBUS_INTERVAL_FAST 40
 
 QStringList STypeApproximation = {"кусочно линейный","полином Лангранжа"};
@@ -42,6 +42,8 @@ MWS::MWS(QWidget *parent) :
     ui->dat_lastconnect->setEnabled(false);
     ui->lin_idchange->setEnabled(false);
     ui->tabWidget->removeTab(3);
+
+    memset(&LoclTableRecieve,0,sizeof(LoclTableRecieve));
 
     static const char* const FILE_NAME = "lib.bin";
     QFile file( FILE_NAME );
@@ -209,7 +211,6 @@ MWS::MWS(QWidget *parent) :
 
             queueAction.enqueue(UPDATE_ADDREGS);
             queueAction.enqueue(SEND_TO_SAVE_FACTORY);
-
     });
 
     connect(ui->slid_AdrModbus,&QSlider::valueChanged,ui->spin_AdrModbus,&QSpinBox::setValue);
@@ -291,12 +292,18 @@ MWS::MWS(QWidget *parent) :
        updatePlotWidget(0,0);
    });
 
+   barGraph = new QCPBars(ui->graph_distanse->xAxis, ui->graph_distanse->yAxis);
    ui->graph_table->clearGraphs();
    ui->graph_table->addGraph(); // наши точки
    ui->graph_table->addGraph(); // аппроксимация лагранжа
    ui->graph_table->addGraph(); // аппроксимация кусочно линейная
    ui->graph_table->addGraph(); // текущий обьем по Y
    ui->graph_table->addGraph(); // текущее расстояние по X
+}
+
+void MWS::setId(QString str)
+{
+  idUser = str;
 }
 
 MWS::~MWS()
@@ -318,6 +325,7 @@ MWS::~MWS()
             stream << window;
         file.close();
     }
+    barGraph->deleteLater();
     delete ModbusRegsTimer;
     delete ui;
 }
@@ -933,6 +941,69 @@ void MWS::addLinear(double maxX,double minX)
     ui->graph_table->graph(2)->setPen(pen);
 }
 
+void MWS::addAmplitude(double distanse)
+{
+    static QVector<double> graph_amplitudeX{1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
+    static QVector<double> graph_amplitudeY{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+    std::rotate ( graph_amplitudeY.begin() , graph_amplitudeY.begin()+1, graph_amplitudeY.end() ) ;
+    graph_amplitudeY[19] = distanse;
+
+    //static QCPBars *barGraph = new QCPBars(ui->graph_distanse->xAxis, ui->graph_distanse->yAxis);
+    barGraph->setWidth(15/(double)graph_amplitudeX.size());
+    barGraph->setData(graph_amplitudeX, graph_amplitudeY);
+    barGraph->setPen(Qt::NoPen);
+    barGraph->setBrush(QColor(10, 140, 70, 160));
+
+    // set some pens, brushes and backgrounds:
+//    ui->graph_distanse->xAxis->setBasePen(QPen(Qt::white, 1));
+//    ui->graph_distanse->yAxis->setBasePen(QPen(Qt::white, 1));
+
+//    ui->graph_distanse->xAxis->setTickPen(QPen(Qt::white, 1));
+//    ui->graph_distanse->yAxis->setTickPen(QPen(Qt::white, 1));
+
+//    ui->graph_distanse->xAxis->setSubTickPen(QPen(Qt::white, 1));
+//    ui->graph_distanse->yAxis->setSubTickPen(QPen(Qt::white, 1));
+
+//    ui->graph_distanse->xAxis->setTickLabelColor(Qt::white);
+//    ui->graph_distanse->yAxis->setTickLabelColor(Qt::white);
+
+//    ui->graph_distanse->xAxis->grid()->setPen(QPen(QColor(140, 140, 140), 1, Qt::DotLine));
+//    ui->graph_distanse->yAxis->grid()->setPen(QPen(QColor(140, 140, 140), 1, Qt::DotLine));
+
+//    ui->graph_distanse->xAxis->grid()->setSubGridPen(QPen(QColor(80, 80, 80), 1, Qt::DotLine));
+//    ui->graph_distanse->yAxis->grid()->setSubGridPen(QPen(QColor(80, 80, 80), 1, Qt::DotLine));
+
+    ui->graph_distanse->xAxis->grid()->setSubGridVisible(false);
+    ui->graph_distanse->yAxis->grid()->setSubGridVisible(false);
+
+    ui->graph_distanse->xAxis->grid()->setVisible(false);
+    ui->graph_distanse->yAxis->grid()->setVisible(false);
+
+    ui->graph_distanse->xAxis->setVisible(false);
+//    ui->graph_distanse->xAxis->grid()->setZeroLinePen(Qt::NoPen);
+//    ui->graph_distanse->yAxis->grid()->setZeroLinePen(Qt::NoPen);
+
+    ui->graph_distanse->xAxis->setUpperEnding(QCPLineEnding::esSpikeArrow);
+    ui->graph_distanse->yAxis->setUpperEnding(QCPLineEnding::esSpikeArrow);
+
+//    QLinearGradient plotGradient;
+//    plotGradient.setStart(0, 0);
+//    plotGradient.setFinalStop(0, 350);
+//    plotGradient.setColorAt(0, QColor(80, 80, 80));
+//    plotGradient.setColorAt(1, QColor(50, 50, 50));
+//    ui->graph_distanse->setBackground(plotGradient);
+
+//    QLinearGradient axisRectGradient;
+//    axisRectGradient.setStart(0, 0);
+//    axisRectGradient.setFinalStop(0, 350);
+//    axisRectGradient.setColorAt(0, QColor(80, 80, 80));
+//    axisRectGradient.setColorAt(1, QColor(30, 30, 30));
+//    ui->graph_distanse->axisRect()->setBackground(axisRectGradient);
+
+    ui->graph_distanse->rescaleAxes();
+    ui->graph_distanse->replot();
+}
+
 void MWS::addMeasure(double distatanse,double volume)
 {
     QVector<double> distanseX,distaseY;
@@ -963,12 +1034,27 @@ void MWS::addMeasure(double distatanse,double volume)
     pens.setColor(QColor(0x55,0x05,0x05));
     ui->graph_table->graph(4)->setPen(pens);
 
+    ui->graph_table->rescaleAxes();
+    ui->graph_table->xAxis->setUpperEnding(QCPLineEnding::esSpikeArrow);
+    ui->graph_table->yAxis->setUpperEnding(QCPLineEnding::esSpikeArrow);
+
+    QLinearGradient plotGradient;
+    plotGradient.setStart(0, 0);
+    plotGradient.setFinalStop(0, 350);
+    plotGradient.setColorAt(0, QColor(200, 200, 200));
+    plotGradient.setColorAt(1, QColor(50, 50, 50));
+    ui->graph_table->setBackground(plotGradient);
+
+    ui->graph_table->xAxis->grid()->setVisible(false);
+    ui->graph_table->yAxis->grid()->setVisible(false);
+
     ui->graph_table->replot();
 }
 
 void MWS::addPointMeasure(double distatanse,double volume)
 {
     addMeasure(distatanse,volume);
+    addAmplitude(distatanse);
 }
 
 void MWS::updatePlotWidget(int s,int k)
@@ -993,9 +1079,9 @@ void MWS::updatePlotWidget(int s,int k)
     QPen penM;
     penM.setWidth(1);
     penM.setColor(QColor(0xE8,0x10,0x40));
-    ui->graph_table->graph(0)->setPen(penM);
+    ui->graph_table->graph(0)->setPen(QPen(QColor(120, 120, 120), 2));
     ui->graph_table->graph(0)->setLineStyle(QCPGraph::lsNone);
-    ui->graph_table->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, 4));
+    ui->graph_table->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(Qt::black, 1.5), QBrush(Qt::white), 9));
 
     //Подписываем оси Ox и Oy
     ui->graph_table->xAxis->setLabel("Расстояние");
@@ -1023,6 +1109,10 @@ void MWS::updatePlotWidget(int s,int k)
          if(ui->check_Linear->isChecked())
          addLinear(maxX,minX);
     }
+
+    ui->graph_table->xAxis->setUpperEnding(QCPLineEnding::esSpikeArrow);
+    ui->graph_table->yAxis->setUpperEnding(QCPLineEnding::esSpikeArrow);
+
     ui->graph_table->replot();
 }
 

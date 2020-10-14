@@ -8,6 +8,7 @@
 
 #include <QModbusRtuSerialMaster>
 #include <QPushButton>
+#include <QCommandLinkButton>
 
 #include "structs_ui.h"
 #include "structs_main.h"
@@ -32,7 +33,6 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
-
     ui->setupUi(this);
 
     ModbusTimer = new QTimer;
@@ -102,32 +102,51 @@ MainWindow::MainWindow(QWidget *parent)
 //    );
 //    ui->treeWidget->setWindowOpacity(1);
 
+     login = new Login(this);
+     butlogin = new QCommandLinkButton(this);
+     butlogin->setText("Нажмите чтоб войти");
 
-       login = new Login;
+     ui->menu->setEnabled(false);
+     ui->devices->setEnabled(false);
+     ui->Settings->setEnabled(false);
+     ui->actionSearh->setEnabled(false);
+     ui->actionConfigure->setEnabled(false);
 
-//     this->setEnabled(false);
-//     login->setWindowFlags(Qt::FramelessWindowHint | Qt::Dialog);
-//     QRect rec = QApplication::desktop()->screenGeometry();
-//     QPoint poz = rec.center();
-//     QSize logsize= login->size();
-//     poz.setX(poz.x()-logsize.width()/2);
-//     poz.setY(poz.y()-logsize.height()/2);
-//     login->move(poz);
-//     login->show();
-//     connect(login,&Login::closeLogin,this,[=]
-//     {
-//        login->close();
-//        this->close();
-//     });
-//     connect(login,&Login::clickLogin,this,[=](QString str)
-//     {
-//         setIduser(str);
-//         login->close();
-//         this->setEnabled(true);
-//     });
+     login->setWindowFlags(Qt::FramelessWindowHint | Qt::Dialog);
+     connect(login,&Login::closeLogin,this,[=]
+     {
+        login->close();
+        this->close();
+     });
+     connect(login,&Login::clickLogin,this,[=](QString str)
+     {
+         if( str.length()>0)
+         {
+             setIduser(str);
+             butlogin->setText("Сменить пользователя( ID "+idUser+" )");
+             login->close();
+             ui->menu->setEnabled(true);
+             ui->devices->setEnabled(true);
+             ui->Settings->setEnabled(true);
+             ui->actionSearh->setEnabled(true);
+             ui->actionConfigure->setEnabled(true);
+         }
+     });
+     login->checkLogin();
 
-       QLineEdit *lin = new QLineEdit(this);
-       ui->toolBar->addWidget(lin);
+     connect(butlogin,&QCommandLinkButton::clicked,this,[=]
+     {
+       //QRect rec = QApplication::desktop()->screenGeometry();
+       //QPoint poz = rec.center();
+       QPoint poz = this->pos();
+       QSize logsize= login->size();
+       QSize mainsize= this->size();
+       poz.setX(poz.x()+mainsize.width()/2 - logsize.width()/2);
+       poz.setY(poz.y()+mainsize.height()/2 - logsize.height()/2);
+       login->move(poz);
+       login->show();
+     });
+     ui->toolBar->addWidget(butlogin);
 }
 
 MainWindow::~MainWindow()
@@ -148,6 +167,7 @@ MainWindow::~MainWindow()
     tablListSavedDevices.clear();
     strListSavedDevices.clear();
     ui->mdiArea->closeAllSubWindows();
+
     delete login;
     delete ui;
 }
@@ -658,13 +678,13 @@ void MainWindow::LoadLibDevice()
                       modbus  = vectorModbusDevice[i].modbusDev;
                   }
               }
-              if(modbus!=nullptr)
+              if( modbus!=nullptr )
               {
+                  libs->setIdUser( idUser );
+                  if ( libs->LibOpen(str,ui->mdiArea,modbus) )
+                  {
 
-                if ( libs->LibOpen(str,ui->mdiArea,modbus) )
-                {
-
-                }
+                  }
               }
          }
      }
@@ -707,12 +727,28 @@ void MainWindow::ViewSettingsDevice()
                        &&(tablListFindDevices[poz].device.Regs.TypeDevice == table.device.Regs.TypeDevice)
                        &&(tablListFindDevices[poz].device.Regs.VerApp == table.device.Regs.VerApp))
                   {
+                      QString strfield;
+                      if( tablListFindDevices[poz].device.Regs.timeconnect<UINT64_MAX && tablListFindDevices[poz].device.Regs.timeconnect>0)
+                         strfield = QDateTime::fromTime_t(tablListFindDevices[poz].device.Regs.timeconnect).toString("yyyy-MM-dd  HH:mm:ss");
+                      dataconect->setText("Дата связи: "+strfield);
+                      strfield.clear();
+                      if(tablListFindDevices[poz].device.Regs.timechange<UINT64_MAX)
+                         strfield = QDateTime::fromTime_t(tablListFindDevices[poz].device.Regs.timechange).toString("yyyy-MM-dd  HH:mm:ss");
+                      datachange->setText("Дата изменения настроек: "+strfield);
+                      strfield.clear();
+                      if(tablListFindDevices[poz].device.Regs.idchange<UINT32_MAX)
+                          strfield = QString::number(tablListFindDevices[poz].device.Regs.idchange);
+                      idchange->setText("Id изменившего: "+strfield);
+                      strfield.clear();
+                      if(tablListFindDevices[poz].device.Regs.timedefault<UINT64_MAX)
+                          strfield = QDateTime::fromTime_t(tablListFindDevices[poz].device.Regs.timedefault).toString("yyyy-MM-dd  HH:mm:ss");
+                      datafactory->setText("Дата установки: "+strfield);
+                      strfield.clear();
+                      if(tablListFindDevices[poz].device.Regs.iddefault<UINT32_MAX)
+                          strfield = QString::number(tablListFindDevices[poz].device.Regs.iddefault);
+                      idfactory->setText("Id изменившего: "+strfield);
+                      strfield.clear();
 
-                      dataconect->setText("Дата связи: "+QDateTime::fromTime_t(tablListFindDevices[poz].device.Regs.timeconnect).toString("yyyy-MM-dd  HH:mm:ss"));
-                      datachange->setText("Дата изменения настроек: "+QDateTime::fromTime_t(tablListFindDevices[poz].device.Regs.timechange).toString("yyyy-MM-dd  HH:mm:ss"));
-                      idchange->setText("Id изменившего: "+QString::number(tablListFindDevices[poz].device.Regs.idchange));
-                      datafactory->setText("Дата установки: "+QDateTime::fromTime_t(tablListFindDevices[poz].device.Regs.timedefault).toString("yyyy-MM-dd  HH:mm:ss"));
-                      idfactory->setText("Id изменившего: "+QString::number(tablListFindDevices[poz].device.Regs.iddefault));
                       QString str;
                       QByteArray aray;
                       for (int i = 0; i < static_cast<int>(sizeof(tablListFindDevices[poz].device.Regs.mas)); ++i)
@@ -727,8 +763,15 @@ void MainWindow::ViewSettingsDevice()
 //                          else
 //                          str+=QString::number((tablListFindDevices[poz].device.Regs.mas[i]) >> 8);
 //                      }
-                      str = QString::fromLocal8Bit(aray);
-                      additLin->setText(str);
+                      for ( int i=0;i<static_cast<int>(sizeof(tablListFindDevices[poz].device.Regs.mas));i++ )
+                      {
+                            if(aray[i].operator!=(0xFF))
+                            {
+                                str = QString::fromLocal8Bit(aray);
+                                additLin->setText(str);
+                                break;
+                            }
+                      }
                       break;
                   }
               }

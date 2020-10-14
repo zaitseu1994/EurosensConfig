@@ -15,6 +15,8 @@ class Login : public QWidget
 public:
     explicit Login(QWidget *parent = nullptr);
     ~Login();
+    void checkLogin();
+    bool checkPass(QString login,QString pass);
 signals:
     void clickLogin(QString str);
     void closeLogin();

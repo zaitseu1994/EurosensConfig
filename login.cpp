@@ -1,6 +1,7 @@
 #include "login.h"
 #include "ui_login.h"
 #include <QPainter>
+#include <QFile>
 
 Login::Login(QWidget *parent) :
     QWidget(parent),
@@ -36,17 +37,75 @@ Login::Login(QWidget *parent) :
 
     connect(ui->button_login,&QPushButton::clicked,this,[=]
     {
-        QString str = ui->lin_login->text() +":"+ ui->lin_password->text();
-        emit clickLogin(str);
+        QString str_login = ui->lin_login->text();
+        QString str_pas = ui->lin_password->text();
+        ui->lin_password->clear();
+
+        static const char* const FILE_NAME = "login.bin";
+        if( ui->checkBox->isChecked())
+        {
+            QFile file( FILE_NAME );
+            QDataStream stream( &file );
+            file.open( QIODevice::WriteOnly );
+            if (file.isOpen())
+            {
+                stream << str_login;
+                stream << str_pas;
+            }
+        }else
+        {
+           QFile file( FILE_NAME );
+           file.remove();
+        }
+        if(checkPass(str_login,str_pas))
+        emit clickLogin(str_login);
+        else
+        {
+            ui->lin_login->clear();
+            ui->lin_password->clear();
+        }
+
     });
     connect(ui->button_exit,&QPushButton::clicked,this,[=]
     {
+        static const char* const FILE_NAME = "login.bin";
+        QFile file( FILE_NAME );
+        file.remove();
         emit closeLogin();
     });
 }
 
 Login::~Login()
 {
-    emit closeLogin();
     delete ui;
+}
+
+void Login::checkLogin()
+{
+    QString str_login;
+    QString str_pas;
+
+    static const char* const FILE_NAME = "login.bin";
+    QFile file( FILE_NAME );
+    QDataStream stream( &file );
+
+    file.open( QIODevice::ReadOnly );
+    if (file.isOpen())
+    {
+        stream >> str_login;
+        stream >> str_pas;
+    }
+    if(checkPass(str_login,str_pas))
+    {
+        emit clickLogin(str_login);
+    }
+}
+
+bool Login::checkPass(QString login,QString pass)
+{
+ bool stat =false;
+ if(login.length()>0)
+     if(pass =="100")
+         stat =true;
+ return stat;
 }

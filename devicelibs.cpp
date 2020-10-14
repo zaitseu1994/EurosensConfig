@@ -36,7 +36,6 @@ bool DeviceLibs:: LibOpen(QString str,QMdiArea *mdiArea,QModbusClient *modbus)
     MWS *m_settings = new MWS(mdiArea);
 
 //    MdiSubWindowEventFilter * p_mdiSubWindowEventFilter;
-
 //    QMdiSubWindow * subWindow = mdiArea->addSubWindow(m_settings);
 
     MyQMdiSubWindow *mysub = new MyQMdiSubWindow();
@@ -86,10 +85,10 @@ bool DeviceLibs:: LibOpen(QString str,QMdiArea *mdiArea,QModbusClient *modbus)
         mysub->restoreGeometry(window);
     }
 
+    m_settings->setId(idUser);
     m_settings->getStr(str);
     m_settings->start(modbus);
     m_settings->setWindowTitle(str);
-
     m_settings->show();
 
     struct_DialofInfo infidialog;

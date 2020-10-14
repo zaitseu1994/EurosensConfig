@@ -12,6 +12,8 @@
 #include <QQueue>
 #include <QDateTime>
 
+#include <qcustomplot.h>
+
 namespace Ui {
 class MWS;
 }
@@ -25,9 +27,10 @@ public:
 public:
     void getStr(QString str);
     void start(QModbusClient *modbusDev);
+    void setId(QString str);
 private:
     QString strWindow;
-    QString idUser = "1000";
+    QString idUser = "0";
     QDateTime startTime;
 private:
     typedef enum Action
@@ -119,6 +122,7 @@ private:
     void readPlotGraph();
     void addLagranj(double maxX,double minX);
     void addLinear(double maxX,double minX);
+    void addAmplitude(double distanse);
     void addMeasure(double distatanse,double volume);
     void addPointMeasure(double distatanse,double volume);
     void updatePlotWidget(int s,int k);
@@ -139,6 +143,8 @@ private:
     QVector<double> GraphsMainVolume;
 
     QVector<QPointF> graphTable;
+
+    QCPBars *barGraph;
 private:
     Ui::MWS *ui;
     QTimer *ModbusRegsTimer = nullptr;

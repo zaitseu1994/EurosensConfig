@@ -22,11 +22,15 @@ public:
     ~MyQMdiSubWindow();
 private:
 QString str = "0";
+QString idUser = "0";
 public:
+
 void setStr(QString st)
 {
-  str = st;
+     str = st;
 };
+public:
+
 signals:
     void closed(QString str);
 protected:
@@ -45,7 +49,12 @@ public:
     ~DeviceLibs();
     bool LibOpen(QString str,QMdiArea *mdiArea,QModbusClient *modbus);
     bool CloseAll();
+    void setIdUser(QString str)
+    {
+       idUser = str;
+    };
 private:
+    QString idUser = "0";
     typedef struct struct_DialofInfo
     {
         QString str;
