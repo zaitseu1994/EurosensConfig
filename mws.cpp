@@ -19,8 +19,8 @@
 
 #define MODBUS_COUNT_READ_ADR COUNT_REGSWRITE
 
-#define MODBUS_INTERVAL_ALL 300
-#define MODBUS_INTERVAL_FAST 40
+#define MODBUS_INTERVAL_ALL 400
+#define MODBUS_INTERVAL_FAST 50
 
 QStringList STypeApproximation = {"кусочно линейный","полином Лангранжа"};
 QStringList STypeAverage = {"экспоненциальный","бегущее среднее"};

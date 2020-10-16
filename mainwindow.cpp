@@ -37,6 +37,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     ModbusTimer = new QTimer;
 
+
+
     connect(ModbusTimer,&QTimer::timeout,this,[this]()
             {
                 ModbusTimer->stop();
@@ -74,6 +76,10 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->actionSearh,&QAction::triggered,this,&MainWindow::DevicesSearch);
     connect(ui->actionSaved,&QAction::triggered,this,&MainWindow::DevicesSaved);
+    connect(ui->actionQuit,&QAction::triggered,this,[=]
+    {
+        this->close();
+    });
 
     ui->treeWidget->setHeaderLabel(" ");
    // ui->treeWidget->headerItem()->setHidden(true);
@@ -89,18 +95,6 @@ MainWindow::MainWindow(QWidget *parent)
     ui->statusbar->addWidget(&Progesslabel);
     ui->statusbar->addWidget(&ProgressPercent);
 
-//    setStyleSheet("QTreeWidget{"
-//    //"background-color: red;"
-//    "border-style: solid;"
-//    "border-width: 1px;"
-//    "border-radius: 20px;"
-//    //"border-color: beige;"
-//    //"font: bold 14px;"
-//    "min-width: 10em;"
-//    "padding: 5px;"
-//    "}"
-//    );
-//    ui->treeWidget->setWindowOpacity(1);
 
      login = new Login(this);
      butlogin = new QCommandLinkButton(this);
@@ -241,9 +235,7 @@ void MainWindow::DevicesSearch()
 
  ModbusTimer->stop();
  ModbusTimer->setSingleShot(true);
- ModbusTimer->setInterval(infos.count()*(LAST_MODBUS_ADRESS*MODBUS_TIMEOUT_REPLY*(MODBUS_COUNT_REPEAT+1))*2);
-
-
+ ModbusTimer->setInterval(infos.count()*(LAST_MODBUS_ADRESS*MODBUS_TIMEOUT_REPLY*(MODBUS_COUNT_REPEAT))*2.5);
 
  ModbusTimer->start();
 
@@ -267,12 +259,11 @@ void MainWindow::searchModbusDevice(QList<QSerialPortInfo> listport)
 
            connect(newCh.modbusDev, &QModbusClient::errorOccurred, [this](QModbusDevice::Error)
            {
-
+                   QMessageBox::warning(this, "Модбас","Проверьте соединение с портом");
            });
 
            connect(newCh.modbusDev, &QModbusClient::stateChanged,this,[this](QModbusDevice::State)
            {
-
 
            });
 
@@ -294,7 +285,7 @@ void MainWindow::pollModbus()
     {
          vectorModbusDevice[intcomModBusDevice].modbusDev->setConnectionParameter(QModbusDevice::SerialPortNameParameter,vectorModbusDevice[intcomModBusDevice].nameCom);
          vectorModbusDevice[intcomModBusDevice].modbusDev->setConnectionParameter(QModbusDevice::SerialParityParameter,QSerialPort::NoParity);
-         vectorModbusDevice[intcomModBusDevice].modbusDev->setConnectionParameter(QModbusDevice::SerialBaudRateParameter,QSerialPort::Baud115200);
+         vectorModbusDevice[intcomModBusDevice].modbusDev->setConnectionParameter(QModbusDevice::SerialBaudRateParameter,QSerialPort::Baud19200);
          vectorModbusDevice[intcomModBusDevice].modbusDev->setConnectionParameter(QModbusDevice::SerialDataBitsParameter,QSerialPort::Data8);
          vectorModbusDevice[intcomModBusDevice].modbusDev->setConnectionParameter(QModbusDevice::SerialStopBitsParameter,QSerialPort::OneStop);
 
