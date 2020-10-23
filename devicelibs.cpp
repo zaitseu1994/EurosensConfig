@@ -35,9 +35,6 @@ bool DeviceLibs:: LibOpen(QString str,QMdiArea *mdiArea,QModbusClient *modbus)
     bool stat =false;
     MWS *m_settings = new MWS(mdiArea);
 
-//    MdiSubWindowEventFilter * p_mdiSubWindowEventFilter;
-//    QMdiSubWindow * subWindow = mdiArea->addSubWindow(m_settings);
-
     MyQMdiSubWindow *mysub = new MyQMdiSubWindow();
     mysub->setStr(str);
     mysub->setWidget(m_settings);

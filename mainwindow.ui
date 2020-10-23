@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>816</width>
-    <height>504</height>
+    <width>835</width>
+    <height>468</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>EuroSense</string>
+   <string>EUROSENS CONFIG 1.0.0</string>
   </property>
   <property name="windowIcon">
    <iconset resource="res.qrc">
@@ -63,7 +63,12 @@
       </attribute>
       <column>
        <property name="text">
-        <string notr="true">1</string>
+        <string notr="true"/>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string/>
        </property>
       </column>
      </widget>
@@ -140,7 +145,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>816</width>
+     <width>835</width>
      <height>20</height>
     </rect>
    </property>
@@ -151,32 +156,37 @@
    </widget>
    <widget class="QMenu" name="devices">
     <property name="title">
-     <string>Устройства</string>
+     <string>Устройство</string>
     </property>
-    <addaction name="actionSearh"/>
+    <addaction name="actionDownload"/>
     <addaction name="actionSaved"/>
+    <addaction name="actionUpdate"/>
+    <addaction name="actionHistory"/>
+    <addaction name="actionAditional"/>
    </widget>
-   <widget class="QMenu" name="Settings">
+   <widget class="QMenu" name="menuSettings">
     <property name="title">
      <string>Настройки</string>
     </property>
+    <widget class="QMenu" name="menuLangs">
+     <property name="title">
+      <string>Язык</string>
+     </property>
+     <addaction name="actionRussian"/>
+     <addaction name="actionEnglish"/>
+    </widget>
+    <addaction name="menuLangs"/>
+    <addaction name="actionConfigure"/>
    </widget>
-   <widget class="QMenu" name="menu">
+   <widget class="QMenu" name="menu_2">
     <property name="title">
-     <string>Меню</string>
-    </property>
-    <addaction name="actionQuit"/>
-   </widget>
-   <widget class="QMenu" name="view_ui">
-    <property name="title">
-     <string>Вид</string>
+     <string>Помощь</string>
     </property>
    </widget>
-   <addaction name="menu"/>
    <addaction name="devices"/>
-   <addaction name="Settings"/>
-   <addaction name="view_ui"/>
+   <addaction name="menuSettings"/>
    <addaction name="about"/>
+   <addaction name="menu_2"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="toolBar">
@@ -196,20 +206,8 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionSearh"/>
-   <addaction name="actionSaved"/>
-   <addaction name="actionConfigure"/>
-   <addaction name="actionQuit"/>
+   <addaction name="actionCancel"/>
   </widget>
-  <action name="add">
-   <property name="text">
-    <string>Добавить</string>
-   </property>
-  </action>
-  <action name="view">
-   <property name="text">
-    <string>Посмотреть</string>
-   </property>
-  </action>
   <action name="actionSearh">
    <property name="icon">
     <iconset resource="res.qrc">
@@ -225,7 +223,7 @@
      <normaloff>:/PNG/images/save.png</normaloff>:/PNG/images/save.png</iconset>
    </property>
    <property name="text">
-    <string>Сохранить</string>
+    <string>Сохранить файл</string>
    </property>
   </action>
   <action name="actionCancel">
@@ -243,7 +241,7 @@
      <normaloff>:/PNG/images/settings.png</normaloff>:/PNG/images/settings.png</iconset>
    </property>
    <property name="text">
-    <string>&amp;Configure</string>
+    <string>Каналы связи</string>
    </property>
    <property name="toolTip">
     <string>Configure serial port</string>
@@ -262,6 +260,52 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="actionDownload">
+   <property name="icon">
+    <iconset resource="res.qrc">
+     <normaloff>:/PNG/images/download.png</normaloff>:/PNG/images/download.png</iconset>
+   </property>
+   <property name="text">
+    <string>Загрузить файл</string>
+   </property>
+  </action>
+  <action name="actionUpdate">
+   <property name="icon">
+    <iconset resource="res.qrc">
+     <normaloff>:/PNG/images/updateFiemware.png</normaloff>:/PNG/images/updateFiemware.png</iconset>
+   </property>
+   <property name="text">
+    <string>Обновить прошивку</string>
+   </property>
+  </action>
+  <action name="actionHistory">
+   <property name="icon">
+    <iconset resource="res.qrc">
+     <normaloff>:/PNG/images/History.png</normaloff>:/PNG/images/History.png</iconset>
+   </property>
+   <property name="text">
+    <string>История событий</string>
+   </property>
+  </action>
+  <action name="actionRussian">
+   <property name="text">
+    <string>Русский</string>
+   </property>
+  </action>
+  <action name="actionEnglish">
+   <property name="text">
+    <string>English</string>
+   </property>
+  </action>
+  <action name="actionAditional">
+   <property name="icon">
+    <iconset resource="res.qrc">
+     <normaloff>:/PNG/images/aditional.png</normaloff>:/PNG/images/aditional.png</iconset>
+   </property>
+   <property name="text">
+    <string>Дополнительно</string>
    </property>
   </action>
  </widget>

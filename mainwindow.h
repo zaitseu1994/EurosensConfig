@@ -33,10 +33,20 @@ QT_END_NAMESPACE
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
+
+    typedef struct struct_devices
+    {
+      union_tableRegsRead table;
+      struct_ComModbus com;
+      QString devicename;
+    }struct_devices;
+
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     void DevicesSearch();
+    void DevicesSearchDisable();
+
     void DevicesSaved();
     void DevicesRead();
 
@@ -55,6 +65,7 @@ public:
     void pollAdrModbus();
 
     void treeItemChange(QTreeWidgetItem * item, int column);
+    void treeItemPress(QTreeWidgetItem * item, int column);
 
     void prepareMenu( const QPoint & pos );
 
@@ -62,29 +73,46 @@ public:
     void ViewSettingsDevice();
 
    void setIduser(QString str);
-private:
-    void writeSettings();
+   void writeSettings();
 private:
     QDockWidget *tree_dock = nullptr;
     QDockWidget *browser_dock = nullptr;
     QDockWidget *list_dock = nullptr;
     QDockWidget *mdi_dock = nullptr;
-    QProgressBar ProgressPercent;
-    QLabel Progesslabel;
+    QLabel statbar_NameD;
+    QLabel statbar_Name;
+    QLabel statbar_TypeD;
+    QLabel statbar_Type;
+    QLabel statbar_SerialD;
+    QLabel statbar_Serial;
+    QLabel statbar_AppD;
+    QLabel statbar_App;
+    QLabel statbar_LogD;
+    QLabel statbar_Log;
+    QLabel statbar_ProtcD;
+    QLabel statbar_Protc;
+    QLabel statbar_AdrD;
+    QLabel statbar_Adr;
+    QLabel statbar_PortD;
+    QLabel statbar_Port;
+
+    int textCursor;
+    int numDevice;
     int CountRequestAdr;
     int CurentRequestAdr;
-    Login *login;
     QCommandLinkButton *butlogin = nullptr;
     QString idUser = "0";
 private:
     Ui::MainWindow *ui;
     DeviceLibs *libs = nullptr;
+    Login *login;
     QTimer *ModbusTimer = nullptr;
+private:
     QVector<struct_ComModbus> vectorModbusDevice;
     int intcomModBusDevice;
     int endcomModBusDevice;
     QVector<struct_listSavedDevices> tablListSavedDevices;
-    QVector<struct_listSavedDevices> tablListFindDevices;
+    QVector<struct_devices>  tableDevices;
     QList<QString> strListSavedDevices;
 };
 #endif // MAINWINDOW_H
