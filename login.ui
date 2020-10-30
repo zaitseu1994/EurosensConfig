@@ -3,7 +3,7 @@
  <class>Login</class>
  <widget class="QWidget" name="Login">
   <property name="windowModality">
-   <enum>Qt::NonModal</enum>
+   <enum>Qt::ApplicationModal</enum>
   </property>
   <property name="geometry">
    <rect>

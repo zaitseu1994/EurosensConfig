@@ -18,5 +18,9 @@
         <file>images/updateFiemware.png</file>
         <file>images/History.png</file>
         <file>images/aditional.png</file>
+        <file>images/button1.png</file>
+        <file>images/button_connect.png</file>
+        <file>images/button_disconnect.png</file>
+        <file>images/button2.png</file>
     </qresource>
 </RCC>

@@ -659,6 +659,9 @@
            </item>
            <item row="2" column="1">
             <widget class="QPushButton" name="button_savefactory">
+             <property name="styleSheet">
+              <string notr="true"/>
+             </property>
              <property name="text">
               <string>Сохранить</string>
              </property>
@@ -770,8 +773,14 @@
      </item>
      <item row="1" column="1">
       <widget class="QPushButton" name="button_Update">
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
        <property name="text">
         <string>Обновить</string>
+       </property>
+       <property name="flat">
+        <bool>false</bool>
        </property>
       </widget>
      </item>
@@ -779,6 +788,15 @@
       <widget class="QPushButton" name="button_Accept">
        <property name="text">
         <string>Применить</string>
+       </property>
+       <property name="autoDefault">
+        <bool>false</bool>
+       </property>
+       <property name="default">
+        <bool>false</bool>
+       </property>
+       <property name="flat">
+        <bool>false</bool>
        </property>
       </widget>
      </item>

@@ -95,7 +95,7 @@ bool DeviceLibs:: LibOpen(QString str,QMdiArea *mdiArea,QModbusClient *modbus)
     infidialog.str = str;
     infidialog.mdiArea = mdiArea;
     vectorDialogs << infidialog;
-
+    stat =true;
     return  stat;
 }
 

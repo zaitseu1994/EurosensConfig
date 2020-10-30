@@ -71,12 +71,6 @@ MWS::MWS(QWidget *parent) :
 
     connect(ModbusRegsTimer,&QTimer::timeout,this,[=]
     {
-//        if ( updateAllSettingsTable(&LoclTableRecieve) || CurrentAction!=NO_ACTION ) // параметры изменили
-//        {
-//             sendRegs(0,MODBUS_COUNT_READ_ADR);
-//        }
-//        updateRegs(0,MODBUS_COUNT_READ_ADR);
-
         volatile static bool fastread = false;
         if(!firstRequest)
         if ( !isCurrentAction() )
@@ -943,8 +937,7 @@ void MWS::addLinear(double maxX,double minX)
 
 void MWS::addAmplitude(double distanse)
 {
-    static QVector<double> graph_amplitudeX{1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
-    static QVector<double> graph_amplitudeY{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+
     std::rotate ( graph_amplitudeY.begin() , graph_amplitudeY.begin()+1, graph_amplitudeY.end() ) ;
     graph_amplitudeY[19] = distanse;
 
@@ -954,24 +947,7 @@ void MWS::addAmplitude(double distanse)
     barGraph->setPen(Qt::NoPen);
     barGraph->setBrush(QColor(10, 140, 70, 160));
 
-    // set some pens, brushes and backgrounds:
-//    ui->graph_distanse->xAxis->setBasePen(QPen(Qt::white, 1));
-//    ui->graph_distanse->yAxis->setBasePen(QPen(Qt::white, 1));
 
-//    ui->graph_distanse->xAxis->setTickPen(QPen(Qt::white, 1));
-//    ui->graph_distanse->yAxis->setTickPen(QPen(Qt::white, 1));
-
-//    ui->graph_distanse->xAxis->setSubTickPen(QPen(Qt::white, 1));
-//    ui->graph_distanse->yAxis->setSubTickPen(QPen(Qt::white, 1));
-
-//    ui->graph_distanse->xAxis->setTickLabelColor(Qt::white);
-//    ui->graph_distanse->yAxis->setTickLabelColor(Qt::white);
-
-//    ui->graph_distanse->xAxis->grid()->setPen(QPen(QColor(140, 140, 140), 1, Qt::DotLine));
-//    ui->graph_distanse->yAxis->grid()->setPen(QPen(QColor(140, 140, 140), 1, Qt::DotLine));
-
-//    ui->graph_distanse->xAxis->grid()->setSubGridPen(QPen(QColor(80, 80, 80), 1, Qt::DotLine));
-//    ui->graph_distanse->yAxis->grid()->setSubGridPen(QPen(QColor(80, 80, 80), 1, Qt::DotLine));
 
     ui->graph_distanse->xAxis->grid()->setSubGridVisible(false);
     ui->graph_distanse->yAxis->grid()->setSubGridVisible(false);
@@ -980,25 +956,10 @@ void MWS::addAmplitude(double distanse)
     ui->graph_distanse->yAxis->grid()->setVisible(false);
 
     ui->graph_distanse->xAxis->setVisible(false);
-//    ui->graph_distanse->xAxis->grid()->setZeroLinePen(Qt::NoPen);
-//    ui->graph_distanse->yAxis->grid()->setZeroLinePen(Qt::NoPen);
 
     ui->graph_distanse->xAxis->setUpperEnding(QCPLineEnding::esSpikeArrow);
     ui->graph_distanse->yAxis->setUpperEnding(QCPLineEnding::esSpikeArrow);
 
-//    QLinearGradient plotGradient;
-//    plotGradient.setStart(0, 0);
-//    plotGradient.setFinalStop(0, 350);
-//    plotGradient.setColorAt(0, QColor(80, 80, 80));
-//    plotGradient.setColorAt(1, QColor(50, 50, 50));
-//    ui->graph_distanse->setBackground(plotGradient);
-
-//    QLinearGradient axisRectGradient;
-//    axisRectGradient.setStart(0, 0);
-//    axisRectGradient.setFinalStop(0, 350);
-//    axisRectGradient.setColorAt(0, QColor(80, 80, 80));
-//    axisRectGradient.setColorAt(1, QColor(30, 30, 30));
-//    ui->graph_distanse->axisRect()->setBackground(axisRectGradient);
 
     ui->graph_distanse->rescaleAxes();
     ui->graph_distanse->replot();

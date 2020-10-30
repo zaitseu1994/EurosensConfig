@@ -76,7 +76,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->menuSettings->addMenu(menu_view);
 
     connect(ui->actionSearh,&QAction::triggered,this,&MainWindow::DevicesSearch);
-    connect(ui->actionSaved,&QAction::triggered,this,&MainWindow::DevicesSaved);
+    //connect(ui->actionSaved,&QAction::triggered,this,&MainWindow::DevicesSaved);
     connect(ui->actionCancel,&QAction::triggered,this,&MainWindow::DevicesSearchDisable);
 
     connect(ui->actionQuit,&QAction::triggered,this,[=]
@@ -85,7 +85,7 @@ MainWindow::MainWindow(QWidget *parent)
     });
 
     ui->treeWidget->setHeaderLabel(" ");
-   // ui->treeWidget->headerItem()->setHidden(true);
+    ui->treeWidget->setSelectionMode(QAbstractItemView::ExtendedSelection);
     ui->treeWidget->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->treeWidget,&QTreeWidget::customContextMenuRequested,this,&MainWindow::prepareMenu);
 
@@ -174,6 +174,11 @@ MainWindow::MainWindow(QWidget *parent)
        login->show();
      });
      ui->toolBar->addWidget(butlogin);
+
+     ui->devices->setEnabled(false);
+     connect(ui->actionHistory,&QAction::triggered,this,&MainWindow::ViewSettingsDevice);
+     connect(ui->actionAditional,&QAction::triggered,this,&MainWindow::additionalChange);
+     connect(ui->actionSaved,&QAction::triggered,this,&MainWindow::actionSaved);
 }
 
 MainWindow::~MainWindow()
@@ -245,6 +250,8 @@ void MainWindow::DevicesSearch()
  statbar_Adr.setText(" ");
  statbar_Port.setText(" ");
 
+ ui->devices->setEnabled(false);
+
  tablListSavedDevices.clear();
  strListSavedDevices.clear();
  tableDevices.clear();
@@ -253,9 +260,9 @@ void MainWindow::DevicesSearch()
 
  const auto infos = QSerialPortInfo::availablePorts();
  QString avlPorts;
- for (const QSerialPortInfo &info : infos) {
-      avlPorts +=info.portName();
-      avlPorts +=";";
+ for ( const QSerialPortInfo &info : infos ) {
+       avlPorts +=info.portName();
+       avlPorts +=";";
  };
  if ( infos.count()>0  )
  {
@@ -474,16 +481,16 @@ QString MainWindow::findNameDevice(union_tableRegsRead table)
     return name;
 }
 
-void MainWindow::setNameDevice(struct_tableRegsRead table,QString name)
+void MainWindow::setNameDevice(QString name,int numdev)
 {
     bool nameBool = false;
     for ( int i=0;i<tablListSavedDevices.count();i++ )
     {
-          if ( (tablListSavedDevices[i].device.Regs.SerialNum == table.SerialNum) &&
+          if ( (tablListSavedDevices[i].device.Regs.SerialNum == tableDevices[numdev].table.Regs.SerialNum) &&
 
-               (tablListSavedDevices[i].device.Regs.TypeDevice == table.TypeDevice) &&
+               (tablListSavedDevices[i].device.Regs.TypeDevice == tableDevices[numdev].table.Regs.TypeDevice) &&
 
-               (tablListSavedDevices[i].device.Regs.VerApp == table.VerApp)  )
+               (tablListSavedDevices[i].device.Regs.VerApp == tableDevices[numdev].table.Regs.VerApp)  )
           {
                 tablListSavedDevices[i].devicename = name;
                 nameBool  = true;
@@ -493,68 +500,42 @@ void MainWindow::setNameDevice(struct_tableRegsRead table,QString name)
     if ( !nameBool )
     {
         struct_listSavedDevices newDev;
-        memcpy(&newDev.device,&table,sizeof(newDev.device));
+        memcpy(&newDev.device,&tableDevices[numdev].table.Regs,sizeof(newDev.device));
         newDev.devicename = name;
         tablListSavedDevices << newDev;
     }
+
+    for( int i = 0; i < ui->treeWidget->topLevelItemCount(); ++i )
+     {
+         QTreeWidgetItem *item = ui->treeWidget->topLevelItem(i);
+         auto strloc = item->data(0,Qt::UserRole);
+         if ( strloc.isValid() )
+         {
+          if ( strloc.type() == QVariant::String )
+          {
+               int num = strloc.toInt();
+
+               if ( num == numdev )
+               {
+                    QString str = QString::number(num+1)+") №: "+ QString::number(tableDevices[numdev].table.Regs.SerialNum)+" ; "+ name;
+                    item->setText(0,str);
+                    break;
+               }
+          }
+         }
+
+     }
 }
 
 void MainWindow::getDeviceModbus(union_tableRegsRead table, struct_ComModbus com,QString nameconnect)
 {
-   //disconnect(ui->treeWidget,&QTreeWidget::itemChanged,this,&MainWindow::treeItemChange);
    disconnect(ui->treeWidget,&QTreeWidget::itemPressed,this,&MainWindow::treeItemPress);
 
-   QString str =QString::number(numDevice+1)+") №: "+ QString::number(table.Regs.SerialNum)+" ; "+ nameconnect;
+   QString str = QString::number(numDevice+1)+") №: "+ QString::number(table.Regs.SerialNum)+" ; "+ nameconnect;
 
    QTreeWidgetItem *toplevel = new QTreeWidgetItem(ui->treeWidget);
-   QCheckBox *check_top = new QCheckBox();
-
-   QWidget *dualPushButtons = new QWidget();
-   QHBoxLayout *hLayout = new QHBoxLayout();
-   hLayout->addWidget(new QPushButton("Открыть"));
-   hLayout->addWidget(new QPushButton("Закрыть"));
-   dualPushButtons->setLayout(hLayout);
-
-   ui->treeWidget->setItemWidget(toplevel,1,dualPushButtons);
-   for (int col = 0; col < 2; ++col)
-   ui->treeWidget->resizeColumnToContents(col);
 
    toplevel->setText(0,str);
-
-//   QTreeWidgetItem *itemName=new QTreeWidgetItem(toplevel);
-//   QTreeWidgetItem *itemType=new QTreeWidgetItem(toplevel);
-//   QTreeWidgetItem *itemSerial=new QTreeWidgetItem(toplevel);
-//   QTreeWidgetItem *itemApp=new QTreeWidgetItem(toplevel);
-//   QTreeWidgetItem *itemDateConnect=new QTreeWidgetItem(toplevel);
-//   QTreeWidgetItem *itemLog=new QTreeWidgetItem(toplevel);
-//   QTreeWidgetItem *Protocol=new QTreeWidgetItem(toplevel);
-//   QTreeWidgetItem *FisicalPort=new QTreeWidgetItem(toplevel);
-
-//   itemName->setText(0,"Имя: "+nameconnect);
-//   itemName->setFlags(Qt::ItemIsEditable|Qt::ItemIsEnabled);
-
-//   itemType->setText(0,"Тип: "+QString::number(table.Regs.TypeDevice));
-//   itemSerial->setText(0,"Серийный №: "+QString::number(table.Regs.SerialNum));
-//   itemApp->setText(0,"Аппаратная версия: "+QString::number(table.Regs.VerApp));
-
-//   itemDateConnect->setText(0,"Дата связи: "+QDateTime::fromTime_t(table.Regs.timeconnect).toString("yyyy-MM-dd  HH:mm:ss"));
-//   itemLog->setText(0,"Лог ошибок: "+QString::number(table.Regs.LogError));
-
-//   Protocol->setText(0,"Протокол");
-//   QTreeWidgetItem *protc1=new QTreeWidgetItem(Protocol);
-//   QTreeWidgetItem *protc2=new QTreeWidgetItem(Protocol);
-//   protc1->setText(0,"Тип: MODBUS");
-//   protc2->setText(0,"Адрес: "+QString::number(com.currentAdr));
-
-//   FisicalPort->setText(0,"Порт/канал связи: "+com.nameCom);
-//   QTreeWidgetItem *comp1=new QTreeWidgetItem(FisicalPort);
-//   QTreeWidgetItem *comp2=new QTreeWidgetItem(FisicalPort);
-//   QTreeWidgetItem *comp3=new QTreeWidgetItem(FisicalPort);
-//   QTreeWidgetItem *comp4=new QTreeWidgetItem(FisicalPort);
-//   comp1->setText(0,"Описание: " + com.description);
-//   comp2->setText(0,"Производитель: " + com.manufacturer);
-//   comp3->setText(0,"ProdID: " + QString::number(com.productIdentifier));
-//   comp4->setText(0,"VendID: " + QString::number(com.vendorIdentifier));
 
    struct_devices inDevice;
    memcpy(&inDevice.com,&com,sizeof(inDevice.com));
@@ -564,7 +545,6 @@ void MainWindow::getDeviceModbus(union_tableRegsRead table, struct_ComModbus com
    toplevel->setData(0,Qt::UserRole,QString::number(numDevice));
    numDevice++;
 
-   //connect(ui->treeWidget,&QTreeWidget::itemChanged,this,&MainWindow::treeItemChange);
    connect(ui->treeWidget,&QTreeWidget::itemPressed,this,&MainWindow::treeItemPress);
 }
 
@@ -580,6 +560,25 @@ void MainWindow::treeItemPress(QTreeWidgetItem * item, int column)
              int numDev = strloc.toInt();
              if ( tableDevices.count()>= numDev )
              {
+                 ui->devices->setEnabled(true);
+                 selectedDevices.clear();
+                 for( int i = 0; i < ui->treeWidget->topLevelItemCount(); ++i )
+                 {
+                    QTreeWidgetItem *it = ui->treeWidget->topLevelItem( i );
+                    if( it->isSelected()  )
+                    {
+                        auto strl = it->data(column,Qt::UserRole);
+                        if ( strl.isValid() )
+                        {
+                             if ( strl.type() == QVariant::String )
+                             {
+                                  int num = strl.toInt();
+                                  selectedDevices << num;
+                             }
+                        }
+                    }
+                 }
+
                  statbar_Name.setText(tableDevices[numDev].devicename);
                  statbar_Type.setText(QString::number(tableDevices[numDev].table.Regs.TypeDevice));
                  statbar_Serial.setText(QString::number(tableDevices[numDev].table.Regs.SerialNum));
@@ -594,31 +593,150 @@ void MainWindow::treeItemPress(QTreeWidgetItem * item, int column)
     }
 }
 
-void MainWindow::treeItemChange(QTreeWidgetItem * item, int column)
+void MainWindow::additionalChange()
 {
- if( item->parent()!=NULL)
- {
-    auto strloc = item->parent()->data(column,Qt::UserRole);
-    if (strloc.isValid())
+    QDialog *dialog = new QDialog(ui->mdiArea);
+
+    QComboBox *devcombo = new QComboBox();
+
+    for(int i=0;i<selectedDevices.count();i++)
     {
-     if ( strloc.type() == QVariant::String)
-     {
-          QString str = QString("%1").arg(strloc.toString());
-          struct_listSavedDevices table = stringToTable(str);
-          QStringList newName = item->text(column).replace(" ","").split(":",Qt::SkipEmptyParts);
-          if ( newName.count()==1 )
-          {
-               table.devicename = newName[0];
-          }
-          else
-          {
-               table.devicename = newName[1];
-          }
-          setNameDevice(table.device.Regs,table.devicename);
-          ui->treeWidget->setHeaderLabel("Найденные устройства ( не сохранены )");
-     }
+        devcombo->addItem(QString::number(selectedDevices[i]+1)+") Serial: "+QString::number(tableDevices[i].table.Regs.SerialNum)+"; Имя: "+tableDevices[i].devicename);
     }
-  }
+    devcombo->setCurrentIndex(0);
+
+    QLabel *labname = new QLabel("Изменить имя");
+    QLineEdit *linname = new QLineEdit();
+    QPushButton *butname = new QPushButton("Сменить");
+    connect(butname,&QPushButton::clicked,this,[=]
+    {
+       if( linname->text().length()>=1 )
+       {
+           QStringList strli = devcombo->currentText().split(") Serial:",Qt::SkipEmptyParts);
+           int devnum = strli[0].toInt()-1;
+           tableDevices[devnum].devicename = linname->text();
+           setNameDevice(linname->text(),devnum);
+
+           devcombo->setItemText(devcombo->currentIndex(),QString::number(devnum+1)+") Serial: "+QString::number(tableDevices[devnum].table.Regs.SerialNum)+"; Имя: "+tableDevices[devnum].devicename);
+           linname->clear();
+
+           DevicesSaved();
+       }
+    });
+
+    QGroupBox * groupinterf = new QGroupBox();
+    QListWidget *listinterf = new QListWidget();
+
+    listinterf->setMinimumSize(QSize(1, 1));
+
+    QVBoxLayout *vboxI = new QVBoxLayout();
+
+    vboxI->addWidget(listinterf);
+
+    groupinterf->setLayout(vboxI);
+    groupinterf->setTitle("Интерфейс");
+
+    QGridLayout * grid = new QGridLayout(dialog);
+    grid->addWidget(devcombo,0,0);
+    grid->addWidget(labname,0,1);
+    grid->addWidget(linname,0,2);
+    grid->addWidget(butname,0,3);
+
+    grid->addWidget(groupinterf,1,0,1,4);
+
+    for( int i=0;i<selectedDevices.count();i++ )
+    {
+         int row = selectedDevices[i];
+         QListWidgetItem *item = new QListWidgetItem();
+         item->setText("Device: "+QString::number(tableDevices[row].table.Regs.SerialNum)+":");
+         item->setForeground(Qt::red);
+         item->setBackground(Qt::cyan);
+         listinterf->addItem(item);
+
+         listinterf->addItem(" - Serial port: "+tableDevices[row].com.nameCom);
+         listinterf->addItem(" - Description: "+tableDevices[row].com.description);
+         listinterf->addItem(" - Manufacturer: "+tableDevices[row].com.manufacturer);
+         listinterf->addItem(" - ProdId: "+QString::number(tableDevices[row].com.productIdentifier));
+         listinterf->addItem(" - VendId: "+QString::number(tableDevices[row].com.vendorIdentifier));
+
+    }
+    listinterf->setMinimumWidth(listinterf->sizeHintForColumn(0));
+
+    dialog->setBaseSize(dialog->width(),dialog->height()/2);
+    dialog->show();
+}
+
+void MainWindow::actionSaved()
+{
+      QDialog *dialog = new QDialog(ui->mdiArea);
+
+      QTableWidget *tableWidget = new QTableWidget(dialog);
+
+      int rowCount = selectedDevices.count();
+      int columnCount = 6;
+
+      QTableWidgetItem *itemHead1 = new QTableWidgetItem("Серийный");
+      QTableWidgetItem *itemHead2 = new QTableWidgetItem("Тип");
+      QTableWidgetItem *itemHead3 = new QTableWidgetItem("Версия");
+      QTableWidgetItem *itemHead4 = new QTableWidgetItem("Дата сохранения");
+      QTableWidgetItem *itemHead5 = new QTableWidgetItem("Id пользователя");
+      QTableWidgetItem *itemHead6 = new QTableWidgetItem("Действие");
+
+      tableWidget->setColumnCount(columnCount);
+      tableWidget->setRowCount(rowCount);
+
+      tableWidget->setHorizontalHeaderItem(0,itemHead1);
+      tableWidget->setHorizontalHeaderItem(1,itemHead2);
+      tableWidget->setHorizontalHeaderItem(2,itemHead3);
+      tableWidget->setHorizontalHeaderItem(3,itemHead4);
+      tableWidget->setHorizontalHeaderItem(4,itemHead5);
+      tableWidget->setHorizontalHeaderItem(5,itemHead6);
+
+      for(int kol=0; kol!=tableWidget->rowCount(); ++kol){
+          QTableWidgetItem *newItem[columnCount];
+          for( int i=0;i<columnCount-1;i++ )
+          {
+               newItem[i] = new QTableWidgetItem();
+          }
+          int numdev = selectedDevices[kol];
+
+          newItem[0]->setText(QString::number(tableDevices[numdev].table.Regs.SerialNum));
+          newItem[1]->setText(QString::number(tableDevices[numdev].table.Regs.TypeDevice));
+          newItem[2]->setText(QString::number(tableDevices[numdev].table.Regs.VerApp));
+
+          QDateTime actualTime = QDateTime::currentDateTime();
+          newItem[3]->setText(actualTime.toString("yyyy-MM-dd"));
+
+          newItem[4]->setText(idUser);
+
+          QPushButton *but = new QPushButton("Сохранить");
+
+          for( int i=0;i<columnCount-1;i++ )
+          {
+               tableWidget->setItem(kol, i, newItem[i]);
+          }
+          tableWidget->setCellWidget(kol,columnCount-1,but);
+      }
+
+      tableWidget->horizontalHeader()->setStretchLastSection(true);
+      tableWidget->resizeColumnsToContents();
+
+      QGridLayout * grid = new QGridLayout(dialog);
+      grid->addWidget(tableWidget,0,0);
+
+
+      QPoint poz = this->pos();
+      QSize mainsize= ui->mdiArea->size();
+      QSize mainui= this->size();
+      dialog->setFixedWidth(mainsize.width()/2);
+      QSize logsize= dialog->size();
+
+      poz.setX(poz.x()+mainui.width()/2 - logsize.width()/2);
+      poz.setY(poz.y()+mainsize.height()/2 - logsize.height()/2);
+      dialog->move(poz);
+
+      //dialog->setBaseSize(ui->mdiArea->width()/2,dialog->height()/2);
+      dialog->show();
 }
 
 
@@ -724,19 +842,18 @@ QTreeWidgetItem *item = tree->itemAt( pos );
             newdisconnect->setIcon(icon2);
             newdisconnect->setEnabled(false);
 
-            QAction *newsave = new QAction("Сохранить");
-            QAction *newSetting = new QAction("Свойства");
             QMenu menu(this);
             newconnect->setData(strloc);
             connect(newconnect,&QAction::triggered,this,&MainWindow::LoadLibDevice);
-            newSetting->setData(strloc);
-            connect(newSetting,&QAction::triggered,this,&MainWindow::ViewSettingsDevice);
 
             menu.addAction(newconnect);
             menu.addAction(newdisconnect);
-            menu.addAction(newsave);
+            menu.addAction(ui->actionDownload);
+            menu.addAction(ui->actionSaved);
+            menu.addAction(ui->actionUpdate);
+            menu.addAction(ui->actionAditional);
             menu.addSection("new");
-            menu.addAction(newSetting);
+            menu.addAction(ui->actionHistory);
             menu.exec( tree->mapToGlobal(pos) );        
         }
        }
@@ -769,7 +886,7 @@ void MainWindow::LoadLibDevice()
                       libs->setIdUser( idUser );
                       if ( libs->LibOpen(string,ui->mdiArea,tableDevices[numDev].com.modbusDev) )
                       {
-
+                           tableDevices[numDev].isOpen = true;
                       }
                   }
              }
@@ -779,75 +896,103 @@ void MainWindow::LoadLibDevice()
 
 void MainWindow::ViewSettingsDevice()
 {
-     QAction* open = qobject_cast< QAction* >( sender() );
      QDialog *dialog = new QDialog(ui->mdiArea);
-     QLabel *dataconect = new QLabel(dialog);
-     QLabel *datachange = new QLabel(dialog);
-     QLabel *idchange = new QLabel(dialog);
-     QLabel *datafactory = new QLabel(dialog);
-     QLabel *idfactory = new QLabel(dialog);
-     QLabel *additFil = new QLabel(dialog);
-     additFil->setText("Доп.поле:");
-     QLineEdit *additLin = new QLineEdit(dialog);
-     additLin->setEnabled(false);
-     QGridLayout * grid = new QGridLayout(dialog);
-     grid->addWidget(dataconect,0,0);
-     grid->addWidget(datachange,1,0);
-     grid->addWidget(idchange,2,0);
-     grid->addWidget(datafactory,3,0);
-     grid->addWidget(idfactory,4,0);
-     grid->addWidget(additFil,5,0);
-     grid->addWidget(additLin,6,0);
 
-     auto data = open->data();
-     if ( data.isValid() )
-     {
-         if ( data.type()==QVariant::String )
-         {
-              QString str = QString("%1").arg(data.toString());
-              int numDev = str.toInt();
-              if ( tableDevices.count()>= numDev )
-              {
-                  QString strfield;
-                  if( tableDevices[numDev].table.Regs.timeconnect<UINT64_MAX && tableDevices[numDev].table.Regs.timeconnect>0)
-                     strfield = QDateTime::fromTime_t(tableDevices[numDev].table.Regs.timeconnect).toString("yyyy-MM-dd  HH:mm:ss");
-                  dataconect->setText("Дата связи: "+strfield);
-                  strfield.clear();
-                  if(tableDevices[numDev].table.Regs.timechange<UINT64_MAX)
-                     strfield = QDateTime::fromTime_t(tableDevices[numDev].table.Regs.timechange).toString("yyyy-MM-dd  HH:mm:ss");
-                  datachange->setText("Дата изменения настроек: "+strfield);
-                  strfield.clear();
-                  if(tableDevices[numDev].table.Regs.idchange<UINT32_MAX)
-                      strfield = QString::number(tableDevices[numDev].table.Regs.idchange);
-                  idchange->setText("Id изменившего: "+strfield);
-                  strfield.clear();
-                  if(tableDevices[numDev].table.Regs.timedefault<UINT64_MAX)
-                      strfield = QDateTime::fromTime_t(tableDevices[numDev].table.Regs.timedefault).toString("yyyy-MM-dd  HH:mm:ss");
-                  datafactory->setText("Дата установки: "+strfield);
-                  strfield.clear();
-                  if(tableDevices[numDev].table.Regs.iddefault<UINT32_MAX)
-                      strfield = QString::number(tableDevices[numDev].table.Regs.iddefault);
-                  idfactory->setText("Id изменившего: "+strfield);
-                  strfield.clear();
+          QLabel *dateFrom = new QLabel(dialog);
+          dateFrom->setText("Период с:");
+          QLabel *dateTo = new QLabel(dialog);
+          dateTo->setText("Период по:");
+          QDateTimeEdit *dateFromWidget = new QDateTimeEdit(dialog);
+          QDateTimeEdit *dateToWidget = new QDateTimeEdit(dialog);
+          QTableWidget *tableWidget = new QTableWidget(dialog);
+
+          int rowCount = selectedDevices.count();
+          int columnCount = 7;
+
+          QTableWidgetItem *itemHead1 = new QTableWidgetItem("Serial");
+          QTableWidgetItem *itemHead2 = new QTableWidgetItem("Время соединения");
+          QTableWidgetItem *itemHead3 = new QTableWidgetItem("Время настройки");
+          QTableWidgetItem *itemHead4 = new QTableWidgetItem("Id пользователя");
+          QTableWidgetItem *itemHead5 = new QTableWidgetItem("Время основных настроек");
+          QTableWidgetItem *itemHead6 = new QTableWidgetItem("Id пользователя");
+          QTableWidgetItem *itemHead7 = new QTableWidgetItem("Доп поле");
+
+          tableWidget->setColumnCount(columnCount);
+          tableWidget->setRowCount(rowCount);
+
+          tableWidget->setHorizontalHeaderItem(0,itemHead1);
+          tableWidget->setHorizontalHeaderItem(1,itemHead2);
+          tableWidget->setHorizontalHeaderItem(2,itemHead3);
+          tableWidget->setHorizontalHeaderItem(3,itemHead4);
+          tableWidget->setHorizontalHeaderItem(4,itemHead5);
+          tableWidget->setHorizontalHeaderItem(5,itemHead6);
+          tableWidget->setHorizontalHeaderItem(6,itemHead7);
+
+          for(int kol=0; kol!=tableWidget->rowCount(); ++kol){
+                  QTableWidgetItem *newItem[columnCount];
+                  for( int i=0;i<columnCount;i++ )
+                  {
+                       newItem[i] = new QTableWidgetItem();
+                  }
+                  int row = selectedDevices[kol];
+                  newItem[0]->setText(QString::number(tableDevices[row].table.Regs.SerialNum));
+
+                  if( tableDevices[row].table.Regs.timeconnect<UINT64_MAX && tableDevices[row].table.Regs.timeconnect>0)
+                  newItem[1]->setText(QDateTime::fromTime_t(tableDevices[row].table.Regs.timeconnect).toString("yyyy-MM-dd  HH:mm:ss"));
+
+                  if(tableDevices[row].table.Regs.timechange<UINT64_MAX)
+                  newItem[2]->setText(QDateTime::fromTime_t(tableDevices[row].table.Regs.timechange).toString("yyyy-MM-dd  HH:mm:ss"));
+
+                  if(tableDevices[row].table.Regs.idchange<UINT32_MAX)
+                  newItem[3]->setText(QString::number(tableDevices[row].table.Regs.idchange));
+
+                  if(tableDevices[row].table.Regs.timedefault<UINT64_MAX)
+                  newItem[4]->setText(QDateTime::fromTime_t(tableDevices[row].table.Regs.timedefault).toString("yyyy-MM-dd  HH:mm:ss"));
+
+                  if(tableDevices[row].table.Regs.iddefault<UINT32_MAX)
+                  newItem[5]->setText(QString::number(tableDevices[row].table.Regs.iddefault));
 
                   QString str;
                   QByteArray aray;
-                  for (int i = 0; i < static_cast<int>(sizeof(tableDevices[numDev].table.Regs.mas)); ++i)
+                  for (int i = 0; i < static_cast<int>(sizeof(tableDevices[row].table.Regs.mas)); ++i)
                   {
-                      aray.append((const char*)(tableDevices[numDev].table.Regs.mas + i), sizeof(uint16_t));
+                        aray.append((const char*)(tableDevices[row].table.Regs.mas + i), sizeof(uint16_t));
                   }
-                  for ( int i=0;i<static_cast<int>(sizeof(tableDevices[numDev].table.Regs.mas));i++ )
+                  for ( int i=0;i<static_cast<int>(sizeof(tableDevices[row].table.Regs.mas));i++ )
                   {
                         if(aray[i].operator!=(0xFF))
                         {
                             str = QString::fromLocal8Bit(aray);
-                            additLin->setText(str);
+                            newItem[6]->setText(str);
                             break;
                         }
                   }
 
-              }
-         }
-     }
+                  for( int i=0;i<columnCount;i++ )
+                  {
+                       tableWidget->setItem(kol, i, newItem[i]);
+                  }
+          }
+
+          QGridLayout * grid = new QGridLayout(dialog);
+          grid->addWidget(dateFrom,0,0);
+          grid->addWidget(dateFromWidget,0,1);
+          grid->addWidget(dateTo,0,2);
+          grid->addWidget(dateToWidget,0,3);
+          grid->addWidget(tableWidget,1,0,1,4);
+
+          tableWidget->horizontalHeader()->setStretchLastSection(true);
+          tableWidget->resizeColumnsToContents();
+
+          QPoint poz = this->pos();
+          QSize mainsize= ui->mdiArea->size();
+          QSize mainui= this->size();
+          dialog->setFixedWidth(mainsize.width());
+          QSize logsize= dialog->size();
+
+          poz.setX(poz.x()+mainui.width()/2 - logsize.width()/2);
+          poz.setY(poz.y()+mainsize.height()/2 - logsize.height()/2);
+          dialog->move(poz);
+
      dialog->show();
 }

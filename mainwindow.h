@@ -39,6 +39,7 @@ class MainWindow : public QMainWindow
       union_tableRegsRead table;
       struct_ComModbus com;
       QString devicename;
+      bool isOpen;
     }struct_devices;
 
 public:
@@ -53,7 +54,7 @@ public:
     void searchModbusDevice(QList<QSerialPortInfo> listport);
     void getDeviceModbus(union_tableRegsRead table,struct_ComModbus com,QString nameconnect);
     QString findNameDevice(union_tableRegsRead table);
-    void setNameDevice(struct_tableRegsRead table,QString name);
+    void setNameDevice(QString name,int numdev);
 
     QString tableToString(struct_listSavedDevices table_point);
     struct_listSavedDevices stringToTable(QString str);
@@ -64,7 +65,10 @@ public:
     void pollModbus();
     void pollAdrModbus();
 
-    void treeItemChange(QTreeWidgetItem * item, int column);
+    void additionalChange();
+
+    void actionSaved();
+
     void treeItemPress(QTreeWidgetItem * item, int column);
 
     void prepareMenu( const QPoint & pos );
@@ -113,6 +117,7 @@ private:
     int endcomModBusDevice;
     QVector<struct_listSavedDevices> tablListSavedDevices;
     QVector<struct_devices>  tableDevices;
+    QVector<int> selectedDevices;
     QList<QString> strListSavedDevices;
 };
 #endif // MAINWINDOW_H
