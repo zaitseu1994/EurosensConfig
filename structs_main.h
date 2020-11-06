@@ -32,7 +32,4 @@ typedef struct struct_listSavedDevices
     QString              modbusadr;
 }struct_listSavedDevices;
 
-
-
-
 #endif // STRUCTS_MAIN_H

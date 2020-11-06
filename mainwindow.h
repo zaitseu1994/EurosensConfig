@@ -56,6 +56,9 @@ public:
     QString findNameDevice(union_tableRegsRead table);
     void setNameDevice(QString name,int numdev);
 
+    void butSave(int numdev);
+    void butLoad(int numdev);
+
     QString tableToString(struct_listSavedDevices table_point);
     struct_listSavedDevices stringToTable(QString str);
     void strListTotableList();
@@ -83,22 +86,22 @@ private:
     QDockWidget *browser_dock = nullptr;
     QDockWidget *list_dock = nullptr;
     QDockWidget *mdi_dock = nullptr;
-    QLabel statbar_NameD;
-    QLabel statbar_Name;
-    QLabel statbar_TypeD;
-    QLabel statbar_Type;
-    QLabel statbar_SerialD;
-    QLabel statbar_Serial;
-    QLabel statbar_AppD;
-    QLabel statbar_App;
-    QLabel statbar_LogD;
-    QLabel statbar_Log;
-    QLabel statbar_ProtcD;
-    QLabel statbar_Protc;
-    QLabel statbar_AdrD;
-    QLabel statbar_Adr;
-    QLabel statbar_PortD;
-    QLabel statbar_Port;
+    QLabel *statbar_NameD;
+    QLabel *statbar_Name;
+    QLabel *statbar_TypeD;
+    QLabel *statbar_Type;
+    QLabel *statbar_SerialD;
+    QLabel *statbar_Serial;
+    QLabel *statbar_AppD;
+    QLabel *statbar_App;
+    QLabel *statbar_LogD;
+    QLabel *statbar_Log;
+    QLabel *statbar_ProtcD;
+    QLabel *statbar_Protc;
+    QLabel *statbar_AdrD;
+    QLabel *statbar_Adr;
+    QLabel *statbar_PortD;
+    QLabel *statbar_Port;
 
     int textCursor;
     int numDevice;

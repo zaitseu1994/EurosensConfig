@@ -31,7 +31,7 @@
         </property>
         <widget class="QTabWidget" name="tabWidget">
          <property name="currentIndex">
-          <number>3</number>
+          <number>2</number>
          </property>
          <widget class="QWidget" name="settings">
           <attribute name="title">
@@ -528,6 +528,13 @@
              </item>
              <item>
               <widget class="QSpinBox" name="spin_CountPoint"/>
+             </item>
+             <item>
+              <widget class="QPushButton" name="button_ChangePoints">
+               <property name="text">
+                <string>Изменить</string>
+               </property>
+              </widget>
              </item>
             </layout>
            </item>

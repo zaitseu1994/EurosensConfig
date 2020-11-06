@@ -20,7 +20,7 @@
 #define MODBUS_COUNT_READ_ADR COUNT_REGSWRITE
 
 #define MODBUS_INTERVAL_ALL 400
-#define MODBUS_INTERVAL_FAST 50
+#define MODBUS_INTERVAL_FAST 60
 
 QStringList STypeApproximation = {"кусочно линейный","полином Лангранжа"};
 QStringList STypeAverage = {"экспоненциальный","бегущее среднее"};
@@ -87,16 +87,38 @@ MWS::MWS(QWidget *parent) :
                      fastread = true;
                  }
              }else
-             if ( fastread )
              {
-                  fastread =false;
-                  ModbusRegsTimer->stop();
-                  ModbusRegsTimer->setInterval(MODBUS_INTERVAL_ALL);
-                  ModbusRegsTimer->start();
+                 if ( fastread )
+                 {
+                      fastread =false;
+                      ModbusRegsTimer->stop();
+                      ModbusRegsTimer->setInterval(MODBUS_INTERVAL_ALL);
+                      ModbusRegsTimer->start();
+
+                 }
+                 if(!(this->isEnabled()))
+                 {
+                     this->setEnabled(true);
+                 }
              }
         }
 
         type_send type = ONLY_MEASURE;
+        if( ( CurrentAction == SEND_TO_UPDATE_CONFIG ) || ( CurrentAction == SEND_TO_SAVE_CONFIG ) || ( CurrentAction == SEND_TO_CHECK_PASSWORD ) )
+        {
+              type = ANOTHER_ACTIONS;
+        }
+        if ( CurrentAction == UPDATE_ADDREGS )
+        {
+             type = ADD_TABLE;
+        }
+        if ( CurrentAction == WRITE_TABLE || ( CurrentAction == READ_TABLE )
+             || ( CurrentAction == SEND_TO_SAVE_FACTORY ) || (CurrentAction == SEND_DATA_CONNECT) )
+        {
+             type = RW_TABLE;
+        }
+
+        if( type == ONLY_MEASURE )
         if ( updateAllSettingsTable(&LoclTableRecieve) )
         {
              type = UPDATE_SETTINGS;
@@ -111,19 +133,6 @@ MWS::MWS(QWidget *parent) :
                  LoclTableRecieve.Regs.timechange = device.device.Regs.timechange;
                  LoclTableRecieve.Regs.idchange = device.device.Regs.idchange;
              }
-        }
-        if( ( CurrentAction == SEND_TO_UPDATE_CONFIG ) || ( CurrentAction == SEND_TO_SAVE_CONFIG ) || ( CurrentAction == SEND_TO_CHECK_PASSWORD ) )
-        {
-              type = ANOTHER_ACTIONS;
-        }
-        if ( CurrentAction == UPDATE_ADDREGS )
-        {
-             type = ADD_TABLE;
-        }
-        if ( CurrentAction == WRITE_TABLE || ( CurrentAction == READ_TABLE )
-             || ( CurrentAction == SEND_TO_SAVE_FACTORY ) || (CurrentAction == SEND_DATA_CONNECT) )
-        {
-             type = RW_TABLE;
         }
 
         if(!firstRequest)
@@ -180,9 +189,6 @@ MWS::MWS(QWidget *parent) :
     connect(ui->button_savefactory,&QPushButton::clicked,this,[=]
     {
             ui->tabWidget->removeTab(3);
-//            LoclTableRecieve.Regs.timeconnect = startTime.toTime_t();
-//            LoclTableRecieve.Regs.timechange = device.device.Regs.timechange;
-//            LoclTableRecieve.Regs.idchange = device.device.Regs.idchange;
 
             QDateTime datefactory;
             datefactory.setDate(QDate::currentDate());
@@ -243,25 +249,35 @@ MWS::MWS(QWidget *parent) :
        ui->slid_RunningAverage->setValue(static_cast<int>(ui->spin_RunningAverage->value()*100));
     });
 
-    connect(ui->spin_CountPoint,QOverload<int>::of(&QSpinBox::valueChanged),this,&MWS::updateTableWidget);
+//    connect(ui->spin_CountPoint,QOverload<int>::of(&QSpinBox::valueChanged),this,&MWS::updateTableWidget);
+    connect(ui->button_ChangePoints,&QPushButton::clicked,this,[=]
+    {
+           int countPoint =  ui->spin_CountPoint->value();
+           updateTableWidget(countPoint);
+           updatePlotWidget(0,0);
+    });
 
     connect(ui->button_SendTable,&QPushButton::clicked,this,[=]
     {
+        ModbusRegsTimer->stop();
         readTableWidget();
         currentPointTableCalibration = 0;
         queueAction.enqueue(WRITE_TABLE);
         ui->button_SendTable->setEnabled(false);
         ui->button_ReseiveTable->setEnabled(false);
+        ModbusRegsTimer->start();
     });
 
    connect(ui->button_ReseiveTable,&QPushButton::clicked,this,[=]
    {
+       ModbusRegsTimer->stop();
        TableCalibration.clear();
        queueAction.enqueue(READ_TABLE);
-
        ui->button_ReseiveTable->setEnabled(false);
        ui->button_SendTable->setEnabled(false);
+       ModbusRegsTimer->start();
    });
+
    connect(ui->button_Accept,&QPushButton::clicked,this,[=]
    {
       queueAction.enqueue(UPDATE_ADDREGS);
@@ -338,14 +354,95 @@ void MWS::startView()
     ui->comb_Profile->addItems(SProfile);
 }
 
-void MWS::getStr(QString str)
+
+bool MWS::setSetting(QJsonObject json)
 {
-    strWindow = str;
-    struct_listSavedDevices table = stringToTable(str);
-    memcpy(&device.device,&table.device,sizeof(device.device));
-    device.devicename = table.devicename;
-    device.modbusadr = table.modbusadr;
-    device.portname = table.portname;
+  ModbusRegsTimer->stop();
+  this->setEnabled(false);
+  bool stat =false;
+
+  if( !json.isEmpty() )
+  {
+        LoclTableRecieve.Regs.SensorId = json.value("SensorId").toInt();
+        LoclTableRecieve.Regs.StartOfMeasure = json.value("StartOfMeasure").toVariant().toFloat();
+        LoclTableRecieve.Regs.LenghtOfMeasure = json.value("LenghtOfMeasure").toVariant().toFloat();
+        LoclTableRecieve.Regs.RepetitionMode = json.value("RepetitionMode").toVariant().toUInt();
+        LoclTableRecieve.Regs.PowerSaveMode = json.value("PowerSaveMode").toVariant().toUInt();
+        LoclTableRecieve.Regs.ReceiverGain = json.value("ReceiverGain").toVariant().toFloat();
+        LoclTableRecieve.Regs.TXDisable = json.value("TXDisable").toVariant().toUInt();
+        LoclTableRecieve.Regs.HWAAS = json.value("HWAAS").toInt();
+        LoclTableRecieve.Regs.Profile = json.value("Profile").toVariant().toUInt();
+        LoclTableRecieve.Regs.MaximizeSignal = json.value("MaximizeSignal").toVariant().toUInt();
+        LoclTableRecieve.Regs.AsynchMeasure = json.value("AsynchMeasure").toVariant().toUInt();
+        LoclTableRecieve.Regs.DownSampFactor = json.value("AsynchMeasure").toInt();
+        LoclTableRecieve.Regs.RunningAverage = json.value("RunningAverage").toVariant().toFloat();
+        LoclTableRecieve.Regs.NoiseLevel = json.value("NoiseLevel").toVariant().toUInt();
+        LoclTableRecieve.Regs.TypeApproxim = json.value("TypeApproxim").toVariant().toUInt();
+        LoclTableRecieve.Regs.TypeAverag = json.value("TypeAverag").toVariant().toUInt();
+        LoclTableRecieve.Regs.IntervalAverag = json.value("IntervalAverag").toVariant().toUInt();
+
+        TableCalibration.clear();
+        QJsonArray tableArray = json.value("Table").toArray();
+        for ( int i = 0; i < tableArray.count(); i++) {
+              QJsonObject subtree = tableArray.at(i).toObject();
+              struct_pointTableCalibration point;
+              point.pointDistanse =  subtree.value("Distance").toVariant().toUInt();
+              point.pointVolume = subtree.value("Volume").toVariant().toFloat();
+              TableCalibration << point;
+        }
+        writeTableWidget();
+        updatePlotWidget(0,0);
+
+        readTableWidget();
+        currentPointTableCalibration = 0;
+
+        queueAction.enqueue(WRITE_TABLE);
+        queueAction.enqueue(UPDATE_ADDREGS);
+        queueAction.enqueue(SEND_TO_SAVE_CONFIG);
+
+        ModbusRegsTimer->start();
+        stat = true;
+  }
+  return stat;
+}
+
+QJsonObject MWS::getSetting()
+{
+    QJsonObject json;
+    json["SensorId"]= LoclTableRecieve.Regs.SensorId;
+    json["StartOfMeasure"]= LoclTableRecieve.Regs.StartOfMeasure;
+    json["LenghtOfMeasure"]= LoclTableRecieve.Regs.LenghtOfMeasure;
+    json["RepetitionMode"]= LoclTableRecieve.Regs.RepetitionMode;
+    json["PowerSaveMode"]= LoclTableRecieve.Regs.PowerSaveMode;
+    json["ReceiverGain"]= LoclTableRecieve.Regs.ReceiverGain;
+    json["TXDisable"]= LoclTableRecieve.Regs.TXDisable;
+    json["HWAAS"]= LoclTableRecieve.Regs.HWAAS;
+    json["Profile"]= LoclTableRecieve.Regs.Profile;
+    json["MaximizeSignal"]= LoclTableRecieve.Regs.MaximizeSignal;
+    json["AsynchMeasure"]= LoclTableRecieve.Regs.AsynchMeasure;
+    json["DownSampFactor"]= LoclTableRecieve.Regs.DownSampFactor;
+    json["RunningAverage"]= LoclTableRecieve.Regs.RunningAverage;
+    json["NoiseLevel"]= LoclTableRecieve.Regs.NoiseLevel;
+
+    json["TypeApproxim"]= LoclTableRecieve.Regs.TypeApproxim;
+    json["TypeAverag"]= LoclTableRecieve.Regs.TypeAverag;
+    json["IntervalAverag"]= LoclTableRecieve.Regs.IntervalAverag;
+
+    QJsonArray tableArray;
+    for ( int i=0;i<TableCalibration.count();i++)
+    {
+         QJsonObject pointTable;
+         pointTable["Distance"] = TableCalibration[i].pointDistanse;
+         pointTable["Volume"] = TableCalibration[i].pointVolume;
+         tableArray.append(pointTable);
+    }
+    json["Table"] = tableArray;
+    return json;
+}
+
+void MWS::getTable(struct_listSavedDevices table)
+{
+    device = table;
 
     QDate cd = QDate::currentDate();
     QTime ct = QTime::currentTime();
@@ -395,7 +492,9 @@ void MWS::start(QModbusClient *modbusDev)
         LoclTableRecieve.Regs.timeconnect = startTime.toTime_t();
         queueAction.enqueue(UPDATE_ADDREGS);
         queueAction.enqueue(SEND_DATA_CONNECT);
+        queueAction.enqueue(READ_TABLE);
     }
+    this->setEnabled(false);
 }
 
 
@@ -440,7 +539,7 @@ void MWS::replyReceivedRead()
                 upperModbusCheck();
                 firstRequest=false;
         } else {
-            ui->edit_Password->setText("sdf");
+            emit DevDisconnect(device);
             ModbusRegsTimer->stop();
         }
         replyModbus->deleteLater();
@@ -480,9 +579,7 @@ void MWS::replyReceivedWrite()
     if ( !replyModbus )
     return;
         if (replyModbus->error() == QModbusDevice::NoError) {
-            //QModbusDataUnit unit = replyModbus->result();
         } else {
-            ui->edit_Password->setText("sdf");
             ModbusRegsTimer->stop();
         }
         replyModbus->deleteLater();

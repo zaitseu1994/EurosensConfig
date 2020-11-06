@@ -22,5 +22,6 @@
         <file>images/button_connect.png</file>
         <file>images/button_disconnect.png</file>
         <file>images/button2.png</file>
+        <file>images/Web.png</file>
     </qresource>
 </RCC>

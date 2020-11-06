@@ -36,6 +36,24 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 
     ModbusTimer = new QTimer;
+    statbar_NameD = new QLabel(this);
+    statbar_Name= new QLabel(this);
+    statbar_TypeD= new QLabel(this);
+    statbar_Type= new QLabel(this);
+    statbar_SerialD= new QLabel(this);
+    statbar_Serial= new QLabel(this);
+    statbar_AppD= new QLabel(this);
+    statbar_App= new QLabel(this);
+    statbar_LogD= new QLabel(this);
+    statbar_Log= new QLabel(this);
+    statbar_ProtcD= new QLabel(this);
+    statbar_Protc= new QLabel(this);
+    statbar_AdrD = new QLabel(this);
+    statbar_Adr = new QLabel(this);
+    statbar_PortD= new QLabel(this);
+    statbar_Port= new QLabel(this);
+
+
 
     connect(ModbusTimer,&QTimer::timeout,this,[this]()
             {
@@ -47,7 +65,21 @@ MainWindow::MainWindow(QWidget *parent)
                 QMessageBox::warning(this, comname,"Проверьте соединение с портом");
             });
 
-    libs = new DeviceLibs;
+    libs = new DeviceLibs();
+
+    connect(libs,&DeviceLibs::closed,this,[=](struct_listSavedDevices table)
+    {
+        for( int i=0;i<tableDevices.count();i++ )
+        {
+             if ( tableDevices[i].table.Regs.SerialNum == table.device.Regs.SerialNum &&
+                  tableDevices[i].table.Regs.TypeDevice == table.device.Regs.TypeDevice &&
+                  tableDevices[i].table.Regs.VerApp == table.device.Regs.VerApp )
+             {
+                  tableDevices[i].isOpen =false;
+             }
+        }
+
+    });
 
     QMenu *menu_view = new QMenu(this);
     menu_view->setTitle("Вид");
@@ -76,7 +108,6 @@ MainWindow::MainWindow(QWidget *parent)
     ui->menuSettings->addMenu(menu_view);
 
     connect(ui->actionSearh,&QAction::triggered,this,&MainWindow::DevicesSearch);
-    //connect(ui->actionSaved,&QAction::triggered,this,&MainWindow::DevicesSaved);
     connect(ui->actionCancel,&QAction::triggered,this,&MainWindow::DevicesSearchDisable);
 
     connect(ui->actionQuit,&QAction::triggered,this,[=]
@@ -89,49 +120,49 @@ MainWindow::MainWindow(QWidget *parent)
     ui->treeWidget->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->treeWidget,&QTreeWidget::customContextMenuRequested,this,&MainWindow::prepareMenu);
 
-    statbar_NameD.setText("Имя:");
-    statbar_TypeD.setText("Тип:");
-    statbar_SerialD.setText("Серийный:");
-    statbar_AppD.setText("Аппаратная версия:");
-    statbar_LogD.setText("Лог:");
-    statbar_ProtcD.setText("Протокол:");
-    statbar_AdrD.setText("Адрес:");
-    statbar_PortD.setText("Порт:");
+    statbar_NameD->setText("Имя:");
+    statbar_TypeD->setText("Тип:");
+    statbar_SerialD->setText("Серийный:");
+    statbar_AppD->setText("Аппаратная версия:");
+    statbar_LogD->setText("Лог:");
+    statbar_ProtcD->setText("Протокол:");
+    statbar_AdrD->setText("Адрес:");
+    statbar_PortD->setText("Порт:");
 
-    statbar_NameD.setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred));
-    statbar_TypeD.setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred));
-    statbar_SerialD.setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred));
-    statbar_AppD.setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred));
-    statbar_LogD.setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred));
-    statbar_ProtcD.setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred));
-    statbar_AdrD.setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred));
-    statbar_PortD.setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred));
+    statbar_NameD->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred));
+    statbar_TypeD->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred));
+    statbar_SerialD->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred));
+    statbar_AppD->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred));
+    statbar_LogD->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred));
+    statbar_ProtcD->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred));
+    statbar_AdrD->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred));
+    statbar_PortD->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred));
 
-    statbar_Name.setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred));
-    statbar_Type.setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred));
-    statbar_Serial.setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred));
-    statbar_App.setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred));
-    statbar_Log.setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred));
-    statbar_Protc.setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred));
-    statbar_Adr.setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred));
-    statbar_Port.setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred));
+    statbar_Name->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred));
+    statbar_Type->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred));
+    statbar_Serial->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred));
+    statbar_App->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred));
+    statbar_Log->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred));
+    statbar_Protc->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred));
+    statbar_Adr->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred));
+    statbar_Port->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred));
 
-    ui->statusbar->addWidget(&statbar_NameD);
-    ui->statusbar->addWidget(&statbar_Name);
-    ui->statusbar->addWidget(&statbar_TypeD);
-    ui->statusbar->addWidget(&statbar_Type);
-    ui->statusbar->addWidget(&statbar_SerialD);
-    ui->statusbar->addWidget(&statbar_Serial);
-    ui->statusbar->addWidget(&statbar_AppD);
-    ui->statusbar->addWidget(&statbar_App);
-    ui->statusbar->addWidget(&statbar_LogD);
-    ui->statusbar->addWidget(&statbar_Log);
-    ui->statusbar->addWidget(&statbar_ProtcD);
-    ui->statusbar->addWidget(&statbar_Protc);
-    ui->statusbar->addWidget(&statbar_AdrD);
-    ui->statusbar->addWidget(&statbar_Adr);
-    ui->statusbar->addWidget(&statbar_PortD);
-    ui->statusbar->addWidget(&statbar_Port);
+    ui->statusbar->addWidget(statbar_NameD);
+    ui->statusbar->addWidget(statbar_Name);
+    ui->statusbar->addWidget(statbar_TypeD);
+    ui->statusbar->addWidget(statbar_Type);
+    ui->statusbar->addWidget(statbar_SerialD);
+    ui->statusbar->addWidget(statbar_Serial);
+    ui->statusbar->addWidget(statbar_AppD);
+    ui->statusbar->addWidget(statbar_App);
+    ui->statusbar->addWidget(statbar_LogD);
+    ui->statusbar->addWidget(statbar_Log);
+    ui->statusbar->addWidget(statbar_ProtcD);
+    ui->statusbar->addWidget(statbar_Protc);
+    ui->statusbar->addWidget(statbar_AdrD);
+    ui->statusbar->addWidget(statbar_Adr);
+    ui->statusbar->addWidget(statbar_PortD);
+    ui->statusbar->addWidget(statbar_Port);
 
      login = new Login(this);
      butlogin = new QCommandLinkButton(this);
@@ -141,6 +172,7 @@ MainWindow::MainWindow(QWidget *parent)
      ui->actionSearh->setEnabled(false);
      ui->actionCancel->setEnabled(false);
      ui->actionConfigure->setEnabled(false);
+     ui->actionUpdate->setEnabled(false);
 
      login->setWindowFlags(Qt::FramelessWindowHint | Qt::Dialog);
      connect(login,&Login::closeLogin,this,[=]
@@ -241,14 +273,14 @@ void MainWindow::DevicesSearch()
      libs->CloseAll();
  }
 
- statbar_Name.setText(" ");
- statbar_Type.setText(" ");
- statbar_Serial.setText(" ");
- statbar_App.setText(" ");
- statbar_Log.setText(" ");
- statbar_Protc.setText(" ");
- statbar_Adr.setText(" ");
- statbar_Port.setText(" ");
+ statbar_Name->setText(" ");
+ statbar_Type->setText(" ");
+ statbar_Serial->setText(" ");
+ statbar_App->setText(" ");
+ statbar_Log->setText(" ");
+ statbar_Protc->setText(" ");
+ statbar_Adr->setText(" ");
+ statbar_Port->setText(" ");
 
  ui->devices->setEnabled(false);
 
@@ -285,7 +317,6 @@ void MainWindow::DevicesSearch()
  ModbusTimer->stop();
  ModbusTimer->setSingleShot(true);
  ModbusTimer->setInterval(infos.count()*(LAST_MODBUS_ADRESS*MODBUS_TIMEOUT_REPLY*(MODBUS_COUNT_REPEAT))*2.5);
-
  ModbusTimer->start();
 
  ui->treeWidget->setEnabled(false);
@@ -305,31 +336,36 @@ void MainWindow::searchModbusDevice(QList<QSerialPortInfo> listport)
     for (const QSerialPortInfo &info : listport) {
            struct_ComModbus newCh;
            newCh.modbusDev = new QModbusRtuSerialMaster();
-
-           connect(newCh.modbusDev, &QModbusClient::errorOccurred, [this](QModbusDevice::Error)
+           if( newCh.modbusDev!=nullptr )
            {
-                   QMessageBox::warning(this, "Модбас","Проверьте соединение с портом");
-           });
+               connect(newCh.modbusDev, &QModbusClient::errorOccurred, [this](QModbusDevice::Error)
+               {
+                       QMessageBox::warning(this, "Модбас","Проверьте соединение с портом");
+               });
 
-//           connect(newCh.modbusDev, &QModbusClient::stateChanged,this,[this](QModbusDevice::State)
-//           {
+               connect(newCh.modbusDev, &QModbusClient::stateChanged,this,[=](QModbusDevice::State)
+               {
 
-//           });
+               });
 
-           newCh.nameCom =   info.portName();
-           newCh.currentAdr = 0;
-           newCh.description = info.description();
-           newCh.manufacturer = info.manufacturer();
-           newCh.productIdentifier = info.productIdentifier();
-           newCh.vendorIdentifier = info.vendorIdentifier();
-           newCh.isFind =false;
-           vectorModbusDevice << newCh;
+               newCh.nameCom =   info.portName();
+               newCh.currentAdr = 0;
+               newCh.description = info.description();
+               newCh.manufacturer = info.manufacturer();
+               newCh.productIdentifier = info.productIdentifier();
+               newCh.vendorIdentifier = info.vendorIdentifier();
+               newCh.isFind =false;
+               vectorModbusDevice << newCh;
+
+           }else
+           {
+               QMessageBox::warning(this, "Модбас","Проблема heap");
+           }
     }
 }
 
 void MainWindow::pollModbus()
 {
-
     if(intcomModBusDevice<vectorModbusDevice.count())
     {
          vectorModbusDevice[intcomModBusDevice].modbusDev->setConnectionParameter(QModbusDevice::SerialPortNameParameter,vectorModbusDevice[intcomModBusDevice].nameCom);
@@ -349,19 +385,19 @@ void MainWindow::pollModbus()
               vectorModbusDevice[intcomModBusDevice].modbusDev->deleteLater();
 
               vectorModbusDevice.remove(intcomModBusDevice);
-
               pollModbus();
          } else
          {
               ui->textBrowser->append(tr("Соединение с портом ") + vectorModbusDevice[intcomModBusDevice].nameCom +" установленно...");
               pollAdrModbus();
          }
+
     }else
     {
       ui->treeWidget->setEnabled(true);
-      ui->actionSearh->setText("Поиск устройств");
       ui->actionSearh->setEnabled(true);
       ModbusTimer->stop();
+      ui->textBrowser->append(tr("Поиск завершен... "));
     }
 }
 
@@ -455,10 +491,13 @@ void MainWindow::DevicesSearchDisable()
              break;
          }
     }
-    if(flag)
-    for( int i=0;i<vectorModbusDevice.count();i++ )
+    if ( flag )
     {
-        vectorModbusDevice[i].currentAdr =  LAST_MODBUS_ADRESS;
+        for( int i=0;i<vectorModbusDevice.count();i++ )
+        {
+            vectorModbusDevice[i].currentAdr =  LAST_MODBUS_ADRESS;
+
+        }
         ui->textBrowser->append("Поиск прерван пользователем...");
     }
 }
@@ -538,7 +577,15 @@ void MainWindow::getDeviceModbus(union_tableRegsRead table, struct_ComModbus com
    toplevel->setText(0,str);
 
    struct_devices inDevice;
-   memcpy(&inDevice.com,&com,sizeof(inDevice.com));
+   inDevice.com.currentAdr = com.currentAdr;
+   inDevice.com.description = com.description;
+   inDevice.com.isFind = com.isFind;
+   inDevice.com.manufacturer = com.manufacturer;
+   inDevice.com.modbusDev = com.modbusDev;
+   inDevice.com.nameCom = com.nameCom;
+   inDevice.com.productIdentifier = com.productIdentifier;
+   inDevice.com.vendorIdentifier = com.vendorIdentifier;
+
    memcpy(&inDevice.table,&table,sizeof(inDevice.table));
    inDevice.devicename = nameconnect;
    tableDevices << inDevice;
@@ -579,14 +626,14 @@ void MainWindow::treeItemPress(QTreeWidgetItem * item, int column)
                     }
                  }
 
-                 statbar_Name.setText(tableDevices[numDev].devicename);
-                 statbar_Type.setText(QString::number(tableDevices[numDev].table.Regs.TypeDevice));
-                 statbar_Serial.setText(QString::number(tableDevices[numDev].table.Regs.SerialNum));
-                 statbar_App.setText(QString::number(tableDevices[numDev].table.Regs.VerApp));
-                 statbar_Log.setText(QString::number(tableDevices[numDev].table.Regs.LogError));
-                 statbar_Protc.setText("MODBUS");
-                 statbar_Adr.setText(QString::number(tableDevices[numDev].com.currentAdr));
-                 statbar_Port.setText(tableDevices[numDev].com.nameCom);
+                 statbar_Name->setText(tableDevices[numDev].devicename);
+                 statbar_Type->setText(QString::number(tableDevices[numDev].table.Regs.TypeDevice));
+                 statbar_Serial->setText(QString::number(tableDevices[numDev].table.Regs.SerialNum));
+                 statbar_App->setText(QString::number(tableDevices[numDev].table.Regs.VerApp));
+                 statbar_Log->setText(QString::number(tableDevices[numDev].table.Regs.LogError));
+                 statbar_Protc->setText("MODBUS");
+                 statbar_Adr->setText(QString::number(tableDevices[numDev].com.currentAdr));
+                 statbar_Port->setText(tableDevices[numDev].com.nameCom);
              }
         }
       }
@@ -673,24 +720,25 @@ void MainWindow::actionSaved()
       QTableWidget *tableWidget = new QTableWidget(dialog);
 
       int rowCount = selectedDevices.count();
-      int columnCount = 6;
+      int columnCount = 7;
 
-      QTableWidgetItem *itemHead1 = new QTableWidgetItem("Серийный");
-      QTableWidgetItem *itemHead2 = new QTableWidgetItem("Тип");
-      QTableWidgetItem *itemHead3 = new QTableWidgetItem("Версия");
-      QTableWidgetItem *itemHead4 = new QTableWidgetItem("Дата сохранения");
-      QTableWidgetItem *itemHead5 = new QTableWidgetItem("Id пользователя");
-      QTableWidgetItem *itemHead6 = new QTableWidgetItem("Действие");
+      QTableWidgetItem *itemHead[columnCount];
+
+      itemHead[0] = new QTableWidgetItem("Серийный");
+      itemHead[1] = new QTableWidgetItem("Тип");
+      itemHead[2] = new QTableWidgetItem("Версия");
+      itemHead[3] = new QTableWidgetItem("Дата сохранения");
+      itemHead[4] = new QTableWidgetItem("Id пользователя");
+      itemHead[5] = new QTableWidgetItem("Сохранить настройки");
+      itemHead[6] = new QTableWidgetItem("Загрузить настройки");
 
       tableWidget->setColumnCount(columnCount);
       tableWidget->setRowCount(rowCount);
 
-      tableWidget->setHorizontalHeaderItem(0,itemHead1);
-      tableWidget->setHorizontalHeaderItem(1,itemHead2);
-      tableWidget->setHorizontalHeaderItem(2,itemHead3);
-      tableWidget->setHorizontalHeaderItem(3,itemHead4);
-      tableWidget->setHorizontalHeaderItem(4,itemHead5);
-      tableWidget->setHorizontalHeaderItem(5,itemHead6);
+      for(int i=0;i<columnCount;i++)
+      {
+           tableWidget->setHorizontalHeaderItem(i,itemHead[i]);
+      }
 
       for(int kol=0; kol!=tableWidget->rowCount(); ++kol){
           QTableWidgetItem *newItem[columnCount];
@@ -709,13 +757,24 @@ void MainWindow::actionSaved()
 
           newItem[4]->setText(idUser);
 
-          QPushButton *but = new QPushButton("Сохранить");
+          QPushButton *buttonSave = new QPushButton("Сохранить");
+          connect(buttonSave,&QPushButton::clicked,this,[=]
+          {
+                  butSave(numdev);
+          });
+
+          QPushButton *buttonLoad = new QPushButton("Загрузить");
+          connect(buttonLoad,&QPushButton::clicked,this,[=]
+          {
+                  butLoad(numdev);
+          });
 
           for( int i=0;i<columnCount-1;i++ )
           {
                tableWidget->setItem(kol, i, newItem[i]);
           }
-          tableWidget->setCellWidget(kol,columnCount-1,but);
+          tableWidget->setCellWidget(kol,columnCount-2,buttonSave);
+          tableWidget->setCellWidget(kol,columnCount-1,buttonLoad);
       }
 
       tableWidget->horizontalHeader()->setStretchLastSection(true);
@@ -724,21 +783,134 @@ void MainWindow::actionSaved()
       QGridLayout * grid = new QGridLayout(dialog);
       grid->addWidget(tableWidget,0,0);
 
+      int wsize = 0;
+      for (int i=0;i<columnCount;i++)
+      {
+          wsize += tableWidget->columnWidth(i);
+      }
 
       QPoint poz = this->pos();
       QSize mainsize= ui->mdiArea->size();
       QSize mainui= this->size();
-      dialog->setFixedWidth(mainsize.width()/2);
+      dialog->setFixedWidth(wsize+40);
+
       QSize logsize= dialog->size();
 
       poz.setX(poz.x()+mainui.width()/2 - logsize.width()/2);
       poz.setY(poz.y()+mainsize.height()/2 - logsize.height()/2);
       dialog->move(poz);
 
-      //dialog->setBaseSize(ui->mdiArea->width()/2,dialog->height()/2);
       dialog->show();
 }
 
+void MainWindow::butSave(int numdev)
+{
+    if ( tableDevices[numdev].isOpen )
+    {
+         struct_listSavedDevices table;
+         memcpy(&table.device,&tableDevices[numdev].table,sizeof(table.device));
+         table.devicename = tableDevices[numdev].devicename;
+         table.modbusadr = QString::number(tableDevices[numdev].com.currentAdr);
+         table.portname = tableDevices[numdev].com.nameCom;
+
+         if ( libs->devStatus(table) == DeviceLibs::DEV_READY )
+         {
+              QString saveFileName = QFileDialog::getSaveFileName(this,
+                                                                tr("Сохранить"),
+                                                                QString(),
+                                                                tr("JSON (*.json)"));
+              QFileInfo fileInfo(saveFileName);
+              //QDir::setCurrent(fileInfo.path());
+              QFile jsonFile(saveFileName);
+              if (!jsonFile.open(QIODevice::WriteOnly))
+              {
+                return;
+              }else
+              {
+                QJsonObject textObject;
+                textObject["Serial"] = QString::number(tableDevices[numdev].table.Regs.SerialNum);
+                textObject["Type"] = QString::number(tableDevices[numdev].table.Regs.TypeDevice);
+                textObject["VerAp"] = QString::number(tableDevices[numdev].table.Regs.VerApp);
+                QDateTime actualTime = QDateTime::currentDateTime();
+                textObject["Date"] = actualTime.toString("yyyy-MM-dd");
+                textObject["Id"] = idUser;
+
+                textObject["Setting"] = libs->getSetting(table);
+                jsonFile.write(QJsonDocument(textObject).toJson(QJsonDocument::Indented));
+                jsonFile.close();
+              }
+         }else
+         {
+             QMessageBox::information(this, tableDevices[numdev].devicename,"Программа считывает настройки");
+         }
+    }else
+    {
+        QMessageBox::information(this, tableDevices[numdev].devicename,"Необходимо открыть устройство, программа считает настройки автоматически");
+    }
+}
+
+
+void MainWindow::butLoad(int numdev)
+{
+    if ( tableDevices[numdev].isOpen )
+    {
+         struct_listSavedDevices table;
+         memcpy(&table.device,&tableDevices[numdev].table,sizeof(table.device));
+         table.devicename = tableDevices[numdev].devicename;
+         table.modbusadr = QString::number(tableDevices[numdev].com.currentAdr);
+         table.portname = tableDevices[numdev].com.nameCom;
+
+         if ( libs->devStatus(table) == DeviceLibs::DEV_READY )
+         {
+              QString loadFileName = QFileDialog::getOpenFileName(this,
+                                                               tr("Открыть"),
+                                                               QString(),
+                                                               tr("JSON (*.json)"));
+
+              QFileInfo fileInfo(loadFileName);
+              //QDir::setCurrent(fileInfo.path());
+              QFile jsonFile(loadFileName);
+              if (!jsonFile.open(QIODevice::ReadOnly))
+              {
+                return;
+              }else
+              {
+                QJsonDocument document = QJsonDocument::fromJson(jsonFile.readAll());
+                QJsonObject textObject = document.object();
+
+                uint32_t SerialNum = textObject.value("Serial").toVariant().toUInt();
+                uint32_t TypeDevice = textObject.value("Type").toVariant().toUInt();
+                uint32_t VerApp = textObject.value("VerAp").toVariant().toUInt();
+
+                if ( SerialNum == tableDevices[numdev].table.Regs.SerialNum &&
+                     TypeDevice == tableDevices[numdev].table.Regs.TypeDevice &&
+                     VerApp == tableDevices[numdev].table.Regs.VerApp )
+                {
+
+                     QJsonObject jsonObject;
+                     jsonObject = textObject.value("Setting").toObject();
+                     if ( libs->setSetting(table,jsonObject) )
+                     {
+                          QMessageBox::information(this, tableDevices[numdev].devicename,"Настройки применены");
+                     }else
+                     {
+                        QMessageBox::information(this, tableDevices[numdev].devicename,"Ошибка с приминением настроек");
+                     }
+                }else
+                {
+                    QMessageBox::information(this, tableDevices[numdev].devicename,"Настройки не соответствуют датчику");
+                }
+              }
+
+         }else
+         {
+             QMessageBox::information(this, tableDevices[numdev].devicename,"Программа считывает настройки");
+         }
+    }else
+    {
+        QMessageBox::information(this, tableDevices[numdev].devicename,"Необходимо открыть устройство, чтоб загрузить настройки");
+    }
+}
 
 QString MainWindow::tableToString(struct_listSavedDevices table_point)
 {
@@ -832,6 +1004,8 @@ QTreeWidgetItem *item = tree->itemAt( pos );
        {
         if ( strloc.type() == QVariant::String )
         {
+            int numdev = strloc.toInt();
+
             QAction *newconnect = new QAction("Открыть");
             QIcon icon1;
             icon1.addFile(QString::fromUtf8(":/PNG/images/connect.png"), QSize(), QIcon::Normal, QIcon::Off);
@@ -840,15 +1014,33 @@ QTreeWidgetItem *item = tree->itemAt( pos );
             QIcon icon2;
             icon2.addFile(QString::fromUtf8(":/PNG/images/disconnect.png"), QSize(), QIcon::Normal, QIcon::Off);
             newdisconnect->setIcon(icon2);
-            newdisconnect->setEnabled(false);
+
+            if( tableDevices[numdev].isOpen )
+            {
+              newdisconnect->setEnabled(true);
+              newconnect->setEnabled(false);
+            }else
+            {
+                newdisconnect->setEnabled(false);
+                newconnect->setEnabled(true);
+            }
 
             QMenu menu(this);
             newconnect->setData(strloc);
+
             connect(newconnect,&QAction::triggered,this,&MainWindow::LoadLibDevice);
+            connect(newdisconnect,&QAction::triggered,this,[=]
+            {
+                    struct_listSavedDevices table;
+                    memcpy(&table.device,&tableDevices[numdev].table,sizeof(table.device));
+                    table.devicename = tableDevices[numdev].devicename;
+                    table.modbusadr = QString::number(tableDevices[numdev].com.currentAdr);
+                    table.portname = tableDevices[numdev].com.nameCom;
+                    libs->CloseDev(table);
+            });
 
             menu.addAction(newconnect);
             menu.addAction(newdisconnect);
-            menu.addAction(ui->actionDownload);
             menu.addAction(ui->actionSaved);
             menu.addAction(ui->actionUpdate);
             menu.addAction(ui->actionAditional);
@@ -879,14 +1071,15 @@ void MainWindow::LoadLibDevice()
                   table.modbusadr = QString::number(tableDevices[numDev].com.currentAdr);
                   table.portname = tableDevices[numDev].com.nameCom;
 
-                  QString string = tableToString(table);
-
                   if( tableDevices[numDev].com.modbusDev!=nullptr  )
                   {
-                      libs->setIdUser( idUser );
-                      if ( libs->LibOpen(string,ui->mdiArea,tableDevices[numDev].com.modbusDev) )
+                      if ( !tableDevices[numDev].isOpen )
                       {
-                           tableDevices[numDev].isOpen = true;
+                          libs->setIdUser( idUser );
+                          if ( libs->LibOpen(table,ui->mdiArea,tableDevices[numDev].com.modbusDev) )
+                          {
+                               tableDevices[numDev].isOpen = true;
+                          }
                       }
                   }
              }

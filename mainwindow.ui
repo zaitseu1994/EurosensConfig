@@ -153,7 +153,6 @@
     <property name="title">
      <string>Устройство</string>
     </property>
-    <addaction name="actionDownload"/>
     <addaction name="actionSaved"/>
     <addaction name="actionUpdate"/>
     <addaction name="actionHistory"/>
@@ -172,6 +171,7 @@
     </widget>
     <addaction name="menuLangs"/>
     <addaction name="actionConfigure"/>
+    <addaction name="actionWebSettings"/>
    </widget>
    <widget class="QMenu" name="menu_2">
     <property name="title">
@@ -218,7 +218,7 @@
      <normaloff>:/PNG/images/save.png</normaloff>:/PNG/images/save.png</iconset>
    </property>
    <property name="text">
-    <string>Сохранить файл</string>
+    <string>Сохранить/Загрузить файл</string>
    </property>
   </action>
   <action name="actionCancel">
@@ -257,13 +257,13 @@
     <string>Ctrl+Q</string>
    </property>
   </action>
-  <action name="actionDownload">
+  <action name="actionWebSettings">
    <property name="icon">
     <iconset resource="res.qrc">
-     <normaloff>:/PNG/images/download.png</normaloff>:/PNG/images/download.png</iconset>
+     <normaloff>:/PNG/images/Web.png</normaloff>:/PNG/images/Web.png</iconset>
    </property>
    <property name="text">
-    <string>Загрузить файл</string>
+    <string>Веб сервер</string>
    </property>
   </action>
   <action name="actionUpdate">

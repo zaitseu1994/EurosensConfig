@@ -21,22 +21,22 @@ public:
     explicit MyQMdiSubWindow(QMdiSubWindow *parent = nullptr);
     ~MyQMdiSubWindow();
 private:
-QString str = "0";
+struct_listSavedDevices tableStr ;
 QString idUser = "0";
 public:
 
-void setStr(QString st)
+void setStr(struct_listSavedDevices table)
 {
-     str = st;
+     tableStr = table;
 };
 public:
 
 signals:
-    void closed(QString str);
+    void closed(struct_listSavedDevices table);
 protected:
     void closeEvent( QCloseEvent * closeEvent )
     {
-        emit closed(str);
+        emit closed(tableStr);
         closeEvent->accept();
     }
 };
@@ -44,20 +44,37 @@ protected:
 class DeviceLibs : public QObject
 {
     Q_OBJECT
+
+public:
+    typedef enum{
+        DEV_READY,
+        DEV_BUSY,
+        DEV_DISCONNECT
+    }state_dev ;
+
 public:
     explicit DeviceLibs();
     ~DeviceLibs();
-    bool LibOpen(QString str,QMdiArea *mdiArea,QModbusClient *modbus);
+    bool LibOpen(struct_listSavedDevices table,QMdiArea *mdiArea,QModbusClient *modbus);
+    void devDisconnect(struct_listSavedDevices table);
+    state_dev devStatus(struct_listSavedDevices table);
+
     bool CloseAll();
+    bool CloseDev(struct_listSavedDevices table);
+    QJsonObject getSetting(struct_listSavedDevices table);
+    bool setSetting(struct_listSavedDevices table,QJsonObject json);
     void setIdUser(QString str)
     {
        idUser = str;
     };
+signals:
+    void closed(struct_listSavedDevices table);
 private:
     QString idUser = "0";
     typedef struct struct_DialofInfo
     {
-        QString str;
+        struct_listSavedDevices table;
+        state_dev StateConnect = DEV_DISCONNECT;
         QModbusClient *modbus;
         QMdiArea      *mdiArea;
         MWS           *dialog;

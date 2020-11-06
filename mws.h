@@ -25,11 +25,13 @@ public:
     explicit MWS(QWidget *parent = nullptr);
     ~MWS();
 public:
-    void getStr(QString str);
+    void getTable(struct_listSavedDevices table);
     void start(QModbusClient *modbusDev);
     void setId(QString str);
+    QJsonObject getSetting();
+    bool setSetting(QJsonObject json);
+
 private:
-    QString strWindow;
     QString idUser = "0";
     QDateTime startTime;
 private:
@@ -96,7 +98,8 @@ private:
         WRITE,
         READ
     }stat_readwrite;
-
+signals:
+    void DevDisconnect(struct_listSavedDevices device);
 private:
     Action CurrentAction = NO_ACTION;
     QQueue <Action> queueAction;
@@ -139,9 +142,6 @@ private:
 
     int currentPointTableCalibration = 0;
 private:
-    QVector<double> GraphsMainDistanse;
-    QVector<double> GraphsMainVolume;
-
     QVector<QPointF> graphTable;
 
     QVector<double> graph_amplitudeX{1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
