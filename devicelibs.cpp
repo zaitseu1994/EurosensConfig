@@ -35,7 +35,7 @@ DeviceLibs::~DeviceLibs()
     CloseAll();
 }
 
-bool DeviceLibs::setSetting(struct_listSavedDevices table,QJsonObject json)
+bool DeviceLibs::setSetting(struct_listSavedDevices table,QJsonObject json,QString idSet,QString timeset)
 {
   bool stat =false;
   for(int i=0;i<vectorDialogs.count();i++)
@@ -44,7 +44,7 @@ bool DeviceLibs::setSetting(struct_listSavedDevices table,QJsonObject json)
           vectorDialogs[i].table.device.Regs.TypeDevice == table.device.Regs.TypeDevice &&
           vectorDialogs[i].table.device.Regs.VerApp == table.device.Regs.VerApp)
       {
-          stat = vectorDialogs[i].dialog->setSetting(json);
+          stat = vectorDialogs[i].dialog->setSetting(json,idSet,timeset);
           break;
       }
   }
@@ -83,6 +83,34 @@ void DeviceLibs::devDisconnect(struct_listSavedDevices table)
   }
 }
 
+void DeviceLibs::devReady(struct_listSavedDevices table)
+{
+  for(int i=0;i<vectorDialogs.count();i++)
+  {
+      if( vectorDialogs[i].table.device.Regs.SerialNum == table.device.Regs.SerialNum &&
+          vectorDialogs[i].table.device.Regs.TypeDevice == table.device.Regs.TypeDevice &&
+          vectorDialogs[i].table.device.Regs.VerApp == table.device.Regs.VerApp)
+      {
+          vectorDialogs[i].StateConnect = DEV_READY;
+          break;
+      }
+  }
+}
+
+void DeviceLibs::devBusy(struct_listSavedDevices table)
+{
+  for(int i=0;i<vectorDialogs.count();i++)
+  {
+      if( vectorDialogs[i].table.device.Regs.SerialNum == table.device.Regs.SerialNum &&
+          vectorDialogs[i].table.device.Regs.TypeDevice == table.device.Regs.TypeDevice &&
+          vectorDialogs[i].table.device.Regs.VerApp == table.device.Regs.VerApp)
+      {
+          vectorDialogs[i].StateConnect = DEV_BUSY;
+          break;
+      }
+  }
+}
+
 DeviceLibs::state_dev DeviceLibs::devStatus(struct_listSavedDevices table)
 {
    state_dev stat = DEV_DISCONNECT;
@@ -90,18 +118,34 @@ DeviceLibs::state_dev DeviceLibs::devStatus(struct_listSavedDevices table)
    {
        if( vectorDialogs[i].table.device.Regs.SerialNum == table.device.Regs.SerialNum &&
            vectorDialogs[i].table.device.Regs.TypeDevice == table.device.Regs.TypeDevice &&
-           vectorDialogs[i].table.device.Regs.VerApp == table.device.Regs.VerApp)
+           vectorDialogs[i].table.device.Regs.VerApp == table.device.Regs.VerApp )
        {
            stat = vectorDialogs[i].StateConnect;
-           if ( !vectorDialogs[i].dialog->isEnabled() )
-           stat = DEV_BUSY;
-           else
-           stat = DEV_READY;
+//           if ( !vectorDialogs[i].dialog->isEnabled() )
+//           stat = DEV_BUSY;
+//           else
+//           stat = DEV_READY;
            break;
        }
    }
    return stat;
 }
+
+void DeviceLibs::devSettingsAccept(struct_listSavedDevices table,QJsonObject json)
+{
+  for(int i=0;i<vectorDialogs.count();i++)
+  {
+      if( vectorDialogs[i].table.device.Regs.SerialNum == table.device.Regs.SerialNum &&
+          vectorDialogs[i].table.device.Regs.TypeDevice == table.device.Regs.TypeDevice &&
+          vectorDialogs[i].table.device.Regs.VerApp == table.device.Regs.VerApp)
+      {
+          vectorDialogs[i].table = table;
+          emit SettingsAccept(table,json);
+          break;
+      }
+  }
+}
+
 
 bool DeviceLibs:: LibOpen(struct_listSavedDevices table,QMdiArea *mdiArea,QModbusClient *modbus)
 {
@@ -109,6 +153,9 @@ bool DeviceLibs:: LibOpen(struct_listSavedDevices table,QMdiArea *mdiArea,QModbu
     MWS *m_settings = new MWS();
 
     connect(m_settings,&MWS::DevDisconnect,this,&DeviceLibs::devDisconnect);
+    connect(m_settings,&MWS::DevReady,this,&DeviceLibs::devReady);
+    connect(m_settings,&MWS::DevBusy,this,&DeviceLibs::devBusy);
+    connect(m_settings,&MWS::DevSettingAccept,this,&DeviceLibs::devSettingsAccept);
 
     MyQMdiSubWindow *mysub = new MyQMdiSubWindow();
 

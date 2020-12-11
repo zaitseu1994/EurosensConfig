@@ -19,8 +19,9 @@
 
 #define MODBUS_COUNT_READ_ADR COUNT_REGSWRITE
 
-#define MODBUS_INTERVAL_ALL 400
-#define MODBUS_INTERVAL_FAST 60
+#define MODBUS_INTERVAL_ALL 600
+#define MODBUS_INTERVAL_FAST 100
+
 
 QStringList STypeApproximation = {"кусочно линейный","полином Лангранжа"};
 QStringList STypeAverage = {"экспоненциальный","бегущее среднее"};
@@ -99,6 +100,7 @@ MWS::MWS(QWidget *parent) :
                  if(!(this->isEnabled()))
                  {
                      this->setEnabled(true);
+                     emit DevReady(device);
                  }
              }
         }
@@ -124,14 +126,14 @@ MWS::MWS(QWidget *parent) :
              type = UPDATE_SETTINGS;
              if(!firstRequest)
              {
-                 QDateTime datechange;
-                 datechange.setDate(QDate::currentDate());
-                 datechange.setTime(QTime::currentTime());
-                 device.device.Regs.timechange = datechange.toTime_t();
-                 device.device.Regs.idchange  = idUser.toUInt();
+//                 LoclTableRecieve.Regs.timeconnect = startTime.toTime_t();
+//                 device.device.Regs.timeconnect = startTime.toTime_t();
 
-                 LoclTableRecieve.Regs.timechange = device.device.Regs.timechange;
-                 LoclTableRecieve.Regs.idchange = device.device.Regs.idchange;
+//                 device.device.Regs.idchange = idUser.toUInt();
+//                 LoclTableRecieve.Regs.idchange = idUser.toUInt();
+             }else
+             {
+
              }
         }
 
@@ -163,8 +165,6 @@ MWS::MWS(QWidget *parent) :
             break;
            case ADD_TABLE:
             {
-//                sendRegs(START_MINIMAL_ADR_R,COUNT_MINIMAL_REGS_R+COUNT_SENSOR_REGS+COUNT_DEV_REGS+COUNT_ADDDEV_REGS);
-//                updateRegs(START_MINIMAL_ADR_R,COUNT_MINIMAL_REGS_R+COUNT_SENSOR_REGS+COUNT_DEV_REGS+COUNT_ADDDEV_REGS);
                 sendRegs(START_ADDDEV_ADR,COUNT_ADDDEV_REGS);
                 updateRegs(START_ADDDEV_ADR,COUNT_ADDDEV_REGS);
                 CurrentAction = NO_ACTION;
@@ -190,24 +190,31 @@ MWS::MWS(QWidget *parent) :
     {
             ui->tabWidget->removeTab(3);
 
-            QDateTime datefactory;
-            datefactory.setDate(QDate::currentDate());
-            datefactory.setTime(QTime::currentTime());
-            LoclTableRecieve.Regs.timedefault = datefactory.toTime_t();
+            QDateTime datefactory = QDateTime::currentDateTime();
 
+            LoclTableRecieve.Regs.timedefault = datefactory.toUTC().toTime_t();
             LoclTableRecieve.Regs.iddefault = idUser.toUInt();
 
             LoclTableRecieve.Regs.TypeDevice = ui->lin_typedev->text().toUShort();
             LoclTableRecieve.Regs.SerialNum = ui->lin_serial->text().toUInt();
             LoclTableRecieve.Regs.VerApp = ui->lin_verapp->text().toUInt();
-            QByteArray aray = ui->lin_addit->text().toLocal8Bit();
-            int k=0;
-            memset(LoclTableRecieve.Regs.mas,0,sizeof(LoclTableRecieve.Regs.mas));
 
-            if(aray.length()<=20)
-            memcpy(LoclTableRecieve.Regs.mas,aray,aray.length());
+            device.device.Regs.TypeDevice = LoclTableRecieve.Regs.TypeDevice;
+            device.device.Regs.SerialNum = LoclTableRecieve.Regs.SerialNum;
+            device.device.Regs.VerApp = LoclTableRecieve.Regs.VerApp;
+
+            QByteArray aray = ui->lin_addit->text().toLocal8Bit();
+            memset(LoclTableRecieve.Regs.mas,0,sizeof(LoclTableRecieve.Regs.mas));
+            if(aray.length()<=static_cast<int>(sizeof(LoclTableRecieve.Regs.mas)))
+            {
+               memcpy(LoclTableRecieve.Regs.mas,aray,aray.length());
+               memcpy(device.device.Regs.mas,aray,aray.length());
+            }
             else
-            memcpy(LoclTableRecieve.Regs.mas,aray,20);
+            {
+               memcpy(LoclTableRecieve.Regs.mas,aray,sizeof(LoclTableRecieve.Regs.mas));
+               memcpy(device.device.Regs.mas,aray,sizeof(LoclTableRecieve.Regs.mas));
+            }
 
             queueAction.enqueue(UPDATE_ADDREGS);
             queueAction.enqueue(SEND_TO_SAVE_FACTORY);
@@ -280,11 +287,37 @@ MWS::MWS(QWidget *parent) :
 
    connect(ui->button_Accept,&QPushButton::clicked,this,[=]
    {
+      ModbusRegsTimer->stop();
+      device.device.Regs.idset = idUser.toUInt();
+      LoclTableRecieve.Regs.idset = idUser.toUInt();
+
+      QDateTime datechange = QDateTime::currentDateTime().toUTC();
+
+      device.device.Regs.timechange = datechange.toTime_t();
+      device.device.Regs.idchange  = idUser.toUInt();
+
+      LoclTableRecieve.Regs.timechange = device.device.Regs.timechange;
+      LoclTableRecieve.Regs.idchange = device.device.Regs.idchange;
+
+//      QString str =  QString::number(datechange.toTime_t())+" :: ";
+//      str+= QString::number(device.device.Regs.timechange);
+
+//      QString str = QDateTime::fromTime_t(device.device.Regs.timechange,Qt::UTC,0).toString("yyyy-MM-dd HH:mm:ss")+" :: ";
+//      str+= QString::number(device.device.Regs.timechange)+";";
+
+//      str+= datechange.toString("yyyy-MM-dd HH:mm:ss")+" :: ";
+//      str+=QString::number(datechange.toTime_t());
+
+//      ui->lin_addit->setText(str);
+
+
       queueAction.enqueue(UPDATE_ADDREGS);
       queueAction.enqueue(SEND_TO_SAVE_CONFIG);
       ui->button_Accept->setEnabled(false);
       ui->button_Update->setEnabled(false);
+      ModbusRegsTimer->start();
    });
+
    connect(ui->button_Update,&QPushButton::clicked,this,[=]
    {
        queueAction.enqueue(SEND_TO_UPDATE_CONFIG);
@@ -313,7 +346,7 @@ MWS::MWS(QWidget *parent) :
 
 void MWS::setId(QString str)
 {
-  idUser = str;
+   idUser = str;
 }
 
 MWS::~MWS()
@@ -355,10 +388,11 @@ void MWS::startView()
 }
 
 
-bool MWS::setSetting(QJsonObject json)
+bool MWS::setSetting(QJsonObject json,QString idset,QString timeset)
 {
   ModbusRegsTimer->stop();
   this->setEnabled(false);
+  emit DevBusy(device);
   bool stat =false;
 
   if( !json.isEmpty() )
@@ -380,6 +414,12 @@ bool MWS::setSetting(QJsonObject json)
         LoclTableRecieve.Regs.TypeApproxim = json.value("TypeApproxim").toVariant().toUInt();
         LoclTableRecieve.Regs.TypeAverag = json.value("TypeAverag").toVariant().toUInt();
         LoclTableRecieve.Regs.IntervalAverag = json.value("IntervalAverag").toVariant().toUInt();
+
+        LoclTableRecieve.Regs.timechange = timeset.toULongLong();
+        LoclTableRecieve.Regs.idset = idset.toUInt();
+
+        device.device.Regs.timechange = timeset.toULongLong();
+        device.device.Regs.idset = idset.toUInt();
 
         TableCalibration.clear();
         QJsonArray tableArray = json.value("Table").toArray();
@@ -444,10 +484,7 @@ void MWS::getTable(struct_listSavedDevices table)
 {
     device = table;
 
-    QDate cd = QDate::currentDate();
-    QTime ct = QTime::currentTime();
-    startTime.setDate(cd);
-    startTime.setTime(ct);
+    startTime = QDateTime::currentDateTime().toUTC();
 
     ui->lin_idchange->setText(idUser);
     ui->dat_lastconnect->setDateTime(startTime);
@@ -460,7 +497,7 @@ struct_listSavedDevices MWS::stringToTable(QString str)
 {
      QStringList name = str.split(";");
      struct_listSavedDevices table;
-     if( name.count()==4)
+     if( name.count()==4 )
      {
          QStringList tablstr  = name[3].split(",");
          table.devicename = name[0];
@@ -490,11 +527,17 @@ void MWS::start(QModbusClient *modbusDev)
         TableCalibration.clear();
 
         LoclTableRecieve.Regs.timeconnect = startTime.toTime_t();
+        device.device.Regs.timeconnect = startTime.toTime_t();
+
+        device.device.Regs.idchange = idUser.toUInt();
+        LoclTableRecieve.Regs.idchange = idUser.toUInt();
+
         queueAction.enqueue(UPDATE_ADDREGS);
         queueAction.enqueue(SEND_DATA_CONNECT);
         queueAction.enqueue(READ_TABLE);
     }
     this->setEnabled(false);
+    emit DevBusy(device);
 }
 
 
@@ -717,6 +760,11 @@ MWS::stat_readwrite MWS::ActionSaveConfig()
             ui->button_Accept->setEnabled(true);
             ui->button_Update->setEnabled(true);
             CurrentAction = NO_ACTION;
+
+            ui->dat_lastconnect->setDateTime(QDateTime::fromTime_t(device.device.Regs.timechange));
+
+            emit DevSettingAccept(device,getSetting());
+
             stat = NO;
             break;
         }
@@ -1181,13 +1229,13 @@ void MWS::updateAllSettingsView(union_tableRegsWrite Table)
 
      ui->spin_AdrModbus->setValue(Table.Regs.AdrModbus);
 
-     ui->spin_EndMeasure->setValue(Table.Regs.LenghtOfMeasure);
+     ui->spin_EndMeasure->setValue(static_cast<int>(Table.Regs.LenghtOfMeasure*1000));
      ui->spin_HWAAS->setValue(Table.Regs.HWAAS);
      ui->spin_IdSensor->setValue(Table.Regs.SensorId);
      ui->spin_IntAverage->setValue(Table.Regs.IntervalAverag);
      ui->spin_ReceiverGain->setValue(Table.Regs.ReceiverGain);
      ui->spin_RunningAverage->setValue(Table.Regs.RunningAverage);
-     ui->spin_StartMeasure->setValue(Table.Regs.StartOfMeasure);
+     ui->spin_StartMeasure->setValue(static_cast<int>(Table.Regs.StartOfMeasure*1000));
 
      ui->comb_AsynchMeasure->setCurrentIndex(Table.Regs.AsynchMeasure);
      ui->comb_DownSampFactor->setCurrentIndex(Table.Regs.DownSampFactor);
@@ -1206,17 +1254,28 @@ bool MWS::updateAllSettingsTable(union_tableRegsWrite *Table)
      bool stat = false;
      static union_tableRegsWrite TableCheck;
      Table->Regs.AdrModbus = ui->spin_AdrModbus->value();
-     Table->Regs.LenghtOfMeasure = ui->spin_EndMeasure->value();
+     Table->Regs.LenghtOfMeasure = static_cast<float>(ui->spin_EndMeasure->value())/1000;
      Table->Regs.HWAAS = ui->spin_HWAAS->value();
 
      Table->Regs.SensorId = ui->spin_IdSensor->value();
      Table->Regs.IntervalAverag = ui->spin_IntAverage->value();
      Table->Regs.ReceiverGain = ui->spin_ReceiverGain->value();
      Table->Regs.RunningAverage = ui->spin_RunningAverage->value();
-     Table->Regs.StartOfMeasure = ui->spin_StartMeasure->value();
+     Table->Regs.StartOfMeasure = static_cast<float>(ui->spin_StartMeasure->value())/1000;
+
 
      Table->Regs.TypeApproxim = ui->comb_TypeApproximation->currentIndex();
      Table->Regs.TypeAverag = ui->comb_TypeAverage->currentIndex();
+
+     Table->Regs.AsynchMeasure  = ui->comb_AsynchMeasure->currentIndex();
+     Table->Regs.DownSampFactor =  ui->comb_DownSampFactor->currentIndex();
+     Table->Regs.MaximizeSignal = ui->comb_MaximizeSignal->currentIndex();
+     Table->Regs.NoiseLevel = ui->comb_Noize->currentIndex();
+     Table->Regs.PowerSaveMode = ui->comb_PowerSaveMode->currentIndex();
+     Table->Regs.Profile = ui->comb_Profile->currentIndex();
+     Table->Regs.RepetitionMode = ui->comb_RepetitionMode->currentIndex();
+     Table->Regs.TXDisable = ui->comb_TXDisable->currentIndex();
+
 
      if( memcmp(&TableCheck.Adr[10],&(Table->Adr[10]),(COUNT_SENSOR_REGS+COUNT_DEV_REGS)*2))
      {

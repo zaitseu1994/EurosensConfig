@@ -57,18 +57,23 @@ public:
     ~DeviceLibs();
     bool LibOpen(struct_listSavedDevices table,QMdiArea *mdiArea,QModbusClient *modbus);
     void devDisconnect(struct_listSavedDevices table);
+    void devReady(struct_listSavedDevices table);
+    void devBusy(struct_listSavedDevices table);
     state_dev devStatus(struct_listSavedDevices table);
+
+    void devSettingsAccept(struct_listSavedDevices table,QJsonObject json);
 
     bool CloseAll();
     bool CloseDev(struct_listSavedDevices table);
     QJsonObject getSetting(struct_listSavedDevices table);
-    bool setSetting(struct_listSavedDevices table,QJsonObject json);
+    bool setSetting(struct_listSavedDevices table,QJsonObject json,QString idSet,QString timeset);
     void setIdUser(QString str)
     {
        idUser = str;
     };
 signals:
     void closed(struct_listSavedDevices table);
+    void SettingsAccept(struct_listSavedDevices table,QJsonObject json);
 private:
     QString idUser = "0";
     typedef struct struct_DialofInfo

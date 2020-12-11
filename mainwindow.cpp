@@ -29,6 +29,11 @@
 #include "libtype4.h"
 #include "mws.h"
 
+#define WEB_CONFIRM_GET "ANSWER_GET_CONFIRM"
+#define WEB_CONFIRM_SET "ANSWER_SET_CONFIRM"
+
+#define DEBUG_WEB
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -53,7 +58,7 @@ MainWindow::MainWindow(QWidget *parent)
     statbar_PortD= new QLabel(this);
     statbar_Port= new QLabel(this);
 
-
+    httpNetwork = new QNetworkAccessManager(this);
 
     connect(ModbusTimer,&QTimer::timeout,this,[this]()
             {
@@ -80,6 +85,8 @@ MainWindow::MainWindow(QWidget *parent)
         }
 
     });
+    connect(libs,&DeviceLibs::SettingsAccept,this,&MainWindow::sendSettingWeb);
+
 
     QMenu *menu_view = new QMenu(this);
     menu_view->setTitle("Вид");
@@ -366,7 +373,7 @@ void MainWindow::searchModbusDevice(QList<QSerialPortInfo> listport)
 
 void MainWindow::pollModbus()
 {
-    if(intcomModBusDevice<vectorModbusDevice.count())
+    if( intcomModBusDevice<vectorModbusDevice.count() )
     {
          vectorModbusDevice[intcomModBusDevice].modbusDev->setConnectionParameter(QModbusDevice::SerialPortNameParameter,vectorModbusDevice[intcomModBusDevice].nameCom);
          vectorModbusDevice[intcomModBusDevice].modbusDev->setConnectionParameter(QModbusDevice::SerialParityParameter,QSerialPort::NoParity);
@@ -576,6 +583,15 @@ void MainWindow::getDeviceModbus(union_tableRegsRead table, struct_ComModbus com
 
    toplevel->setText(0,str);
 
+   if( table.Regs.idset == MAXWORD )
+   {
+       table.Regs.idset = 0;
+   }
+   if(table.Regs.timechange == MAXDWORD)
+   {
+       table.Regs.timechange = 0;
+   }
+
    struct_devices inDevice;
    inDevice.com.currentAdr = com.currentAdr;
    inDevice.com.description = com.description;
@@ -589,6 +605,7 @@ void MainWindow::getDeviceModbus(union_tableRegsRead table, struct_ComModbus com
    memcpy(&inDevice.table,&table,sizeof(inDevice.table));
    inDevice.devicename = nameconnect;
    tableDevices << inDevice;
+   checkSettingWeb(numDevice);
    toplevel->setData(0,Qt::UserRole,QString::number(numDevice));
    numDevice++;
 
@@ -719,18 +736,19 @@ void MainWindow::actionSaved()
 
       QTableWidget *tableWidget = new QTableWidget(dialog);
 
-      int rowCount = selectedDevices.count();
-      int columnCount = 7;
+      int rowCount = selectedDevices.count()*3;
+      int columnCount = 8;
 
       QTableWidgetItem *itemHead[columnCount];
 
-      itemHead[0] = new QTableWidgetItem("Серийный");
-      itemHead[1] = new QTableWidgetItem("Тип");
-      itemHead[2] = new QTableWidgetItem("Версия");
-      itemHead[3] = new QTableWidgetItem("Дата сохранения");
-      itemHead[4] = new QTableWidgetItem("Id пользователя");
-      itemHead[5] = new QTableWidgetItem("Сохранить настройки");
-      itemHead[6] = new QTableWidgetItem("Загрузить настройки");
+      itemHead[0] = new QTableWidgetItem("Источник");
+      itemHead[1] = new QTableWidgetItem("Серийный");
+      itemHead[2] = new QTableWidgetItem("Тип");
+      itemHead[3] = new QTableWidgetItem("Версия");
+      itemHead[4] = new QTableWidgetItem("Дата сохранения");
+      itemHead[5] = new QTableWidgetItem("Id пользователя");
+      itemHead[6] = new QTableWidgetItem("Файл");
+      itemHead[7] = new QTableWidgetItem("Действие");
 
       tableWidget->setColumnCount(columnCount);
       tableWidget->setRowCount(rowCount);
@@ -740,45 +758,352 @@ void MainWindow::actionSaved()
            tableWidget->setHorizontalHeaderItem(i,itemHead[i]);
       }
 
-      for(int kol=0; kol!=tableWidget->rowCount(); ++kol){
-          QTableWidgetItem *newItem[columnCount];
+      for(int kol=0; kol!=selectedDevices.count(); ++kol){
+
+          QTableWidgetItem *saveItem[columnCount];
+          QTableWidgetItem *loadItem[columnCount];
+          QTableWidgetItem *webItem[columnCount];
+
           for( int i=0;i<columnCount-1;i++ )
           {
-               newItem[i] = new QTableWidgetItem();
+               saveItem[i] = new QTableWidgetItem();
+               loadItem[i] = new QTableWidgetItem();
+               webItem[i] = new QTableWidgetItem();
           }
           int numdev = selectedDevices[kol];
 
-          newItem[0]->setText(QString::number(tableDevices[numdev].table.Regs.SerialNum));
-          newItem[1]->setText(QString::number(tableDevices[numdev].table.Regs.TypeDevice));
-          newItem[2]->setText(QString::number(tableDevices[numdev].table.Regs.VerApp));
+          saveItem[0]->setText("Текущие настройки");
+          saveItem[1]->setText(QString::number(tableDevices[numdev].table.Regs.SerialNum));
+          saveItem[2]->setText(QString::number(tableDevices[numdev].table.Regs.TypeDevice));
+          saveItem[3]->setText(QString::number(tableDevices[numdev].table.Regs.VerApp));
 
-          QDateTime actualTime = QDateTime::currentDateTime();
-          newItem[3]->setText(actualTime.toString("yyyy-MM-dd"));
+          QDateTime actualTime = QDateTime::fromTime_t(tableDevices[numdev].table.Regs.timechange,Qt::UTC,0);
+          saveItem[4]->setText(actualTime.toString(timeformat));
 
-          newItem[4]->setText(idUser);
+          QString strSet = "Null";
+          if( tableDevices[numdev].table.Regs.idset!=0 )
+          strSet = QString::number(tableDevices[numdev].table.Regs.idset);
+          saveItem[5]->setText(strSet);
 
+          QTableWidgetItem *nameFile = saveItem[6];
           QPushButton *buttonSave = new QPushButton("Сохранить");
           connect(buttonSave,&QPushButton::clicked,this,[=]
           {
-                  butSave(numdev);
+                  QString str = butSave(numdev);
+                  if ( str.length()>=1 )
+                  {
+                       nameFile->setText(str);
+                  }
           });
 
-          QPushButton *buttonLoad = new QPushButton("Загрузить");
-          connect(buttonLoad,&QPushButton::clicked,this,[=]
+          loadItem[0]->setText("Из файла");
+
+          QPushButton *buttonLoad = new QPushButton("Загрузить файл");
+          QPushButton *buttonAccept = new QPushButton("Загрузить");
+          buttonAccept->setEnabled(false);
+          QWidget *widgetLoad = new QWidget(tableWidget);
+          QGridLayout * gridLoad = new QGridLayout(widgetLoad);
+          gridLoad->addWidget(buttonLoad,0,0);
+          gridLoad->addWidget(buttonAccept,0,1);
+          gridLoad->setSpacing(0);
+          gridLoad->setContentsMargins(0,0,0,0);
+
+          QTableWidgetItem *nameloadFile = loadItem[6];
+          QTableWidgetItem *idloadFile = loadItem[5];
+          QTableWidgetItem *dateloadFile = loadItem[4];
+          QTableWidgetItem *verloadFile = loadItem[3];
+          QTableWidgetItem *typeloadFile = loadItem[2];
+          QTableWidgetItem *serialloadFile = loadItem[1];
+
+          connect( buttonLoad,&QPushButton::clicked,this,[=]
           {
-                  butLoad(numdev);
+                 struct_filejsonload filejson = chooseFile(numdev,&fileJsonLoad);
+                 if(  filejson.filename>=1 )
+                 {
+                      nameloadFile->setText(filejson.filename);
+                      idloadFile->setText(QString::number(filejson.ID));
+                      dateloadFile->setText(filejson.actualTime.toString(timeformat));
+                      verloadFile->setText(QString::number(filejson.VerApp));
+                      typeloadFile->setText(QString::number(filejson.TypeDevice));
+                      serialloadFile->setText(QString::number(filejson.SerialNum));
+                      buttonAccept->setEnabled(true);
+                      tableWidget->resizeColumnsToContents();
+                      tableWidget->resizeRowsToContents();
+                      int wsize = 0;
+                      for ( int i=0;i<columnCount;i++ )
+                      {
+                           wsize += tableWidget->columnWidth(i);
+                      }
+                      dialog->setFixedWidth( wsize+40 );
+                 }
           });
+
+          connect(buttonAccept,&QPushButton::clicked,this,[=]
+          {
+              if ( tableDevices[numdev].isOpen )
+              {
+                       QJsonObject textObject = tableDevices[numdev].jsonFileDoc.object();
+                       QJsonObject jsonObject;
+                       jsonObject = textObject.value("Setting").toObject();
+
+                       struct_listSavedDevices table;
+                       memcpy(&table.device,&tableDevices[numdev].table,sizeof(table.device));
+                       table.devicename = tableDevices[numdev].devicename;
+                       table.modbusadr = QString::number(tableDevices[numdev].com.currentAdr);
+                       table.portname = tableDevices[numdev].com.nameCom;
+                       QString idset  = idloadFile->text();
+
+                       QDateTime ofsettime = QDateTime::fromString(dateloadFile->text(),timeformat);
+                       QString timeset = QString::number(ofsettime.addSecs(ofsettime.offsetFromUtc()).toTime_t());
+
+                       if ( libs->devStatus(table) == DeviceLibs::DEV_READY )
+                       {
+
+                           if ( libs->setSetting( table,jsonObject,idset,timeset ) )
+                           {
+                                QMessageBox::information(this, tableDevices[numdev].devicename,"Настройки применены");
+
+                                tableDevices[numdev].table.Regs.idset = idset.toUInt();
+                                tableDevices[numdev].table.Regs.timechange = timeset.toULongLong();
+
+                                nameloadFile->setText("");
+                                idloadFile->setText("");
+                                dateloadFile->setText("");
+                                verloadFile->setText("");
+                                typeloadFile->setText("");
+                                serialloadFile->setText("");
+                                buttonAccept->setEnabled(false);
+                                tableWidget->resizeColumnsToContents();
+                                tableWidget->resizeRowsToContents();
+                                int wsize = 0;
+                                for ( int i=0;i<columnCount;i++ )
+                                {
+                                     wsize += tableWidget->columnWidth(i);
+                                }
+                                dialog->setFixedWidth(wsize+40);
+                                dialog->close();
+                           }else
+                           {
+                              QMessageBox::information(this, tableDevices[numdev].devicename,"Ошибка с приминением настроек");
+                           }
+                       }else
+                       {
+                           QMessageBox::information(this, tableDevices[numdev].devicename,"Программа считывает настройки");
+                       }
+              }else
+              {
+                QMessageBox::information(this, tableDevices[numdev].devicename,"Необходимо открыть устройство");
+              }
+          });
+
+          webItem[0]->setText("Web сервер");
+
+          QPushButton *webLoad = new QPushButton("Проверить");
+          QPushButton *webAccept = new QPushButton("Загрузить");
+          webAccept->setEnabled(false);
+          QWidget *widgetWeb = new QWidget(tableWidget);
+          QGridLayout * gridWeb = new QGridLayout(widgetWeb);
+          gridWeb->addWidget(webLoad,0,0);
+          gridWeb->addWidget(webAccept,0,1);
+          gridWeb->setSpacing(0);
+          gridWeb->setContentsMargins(0,0,0,0);
+          widgetWeb->setContentsMargins(0,0,0,0);
+
+          QTableWidgetItem *namewebFile = webItem[6];
+          QTableWidgetItem *idwebFile = webItem[5];
+          QTableWidgetItem *datewebFile = webItem[4];
+          QTableWidgetItem *verwebFile = webItem[3];
+          QTableWidgetItem *typewebFile = webItem[2];
+          QTableWidgetItem *serialwebFile = webItem[1];
+
+          if( tableDevices[numdev].SetIsEnable )
+          {
+              struct_filejsonload webjson = verifyWebJson(WEB_CONFIRM_GET,&tableDevices[numdev].jsonWebDoc);
+
+              namewebFile->setText(webjson.filename);
+              idwebFile->setText(QString::number(webjson.ID));
+              datewebFile->setText(webjson.actualTime.toString(timeformat));
+              verwebFile->setText(QString::number(webjson.VerApp));
+              typewebFile->setText(QString::number(webjson.TypeDevice));
+              serialwebFile->setText(QString::number(webjson.SerialNum));
+
+              if ( webjson.SerialNum == tableDevices[numdev].table.Regs.SerialNum &&
+                   webjson.TypeDevice == tableDevices[numdev].table.Regs.TypeDevice &&
+                   webjson.VerApp == tableDevices[numdev].table.Regs.VerApp )
+              {
+                   webAccept->setEnabled(true);
+                   namewebFile->setText("Доступно!");
+              }else
+              {
+                   namewebFile->setText("Не найдено");
+              }
+              tableWidget->resizeColumnsToContents();
+              tableWidget->resizeRowsToContents();
+              int wsize = 0;
+              for (int i=0;i<columnCount;i++)
+              {
+                  wsize += tableWidget->columnWidth(i);
+              }
+              dialog->setFixedWidth(wsize+40);
+          }
+
+          connect(webLoad,&QPushButton::clicked,this,[=]
+          {
+              webLoad->setEnabled(false);
+              const QUrl url(webserver);
+              QNetworkRequest request(url);
+              request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+              QJsonObject obj;
+              obj["REQUEST"] = "GET";
+              obj["Serial"] = QString::number(tableDevices[numdev].table.Regs.SerialNum);
+              obj["Type"] = QString::number(tableDevices[numdev].table.Regs.TypeDevice);
+              obj["VerAp"] = QString::number(tableDevices[numdev].table.Regs.VerApp);
+              QDateTime actualTime = QDateTime::fromTime_t(tableDevices[numdev].table.Regs.timechange,Qt::UTC,0);
+              obj["Date"] = actualTime.toString(timeformat);
+              obj["Id"] = idUser;
+
+              QJsonDocument doc(obj);
+              QByteArray data = doc.toJson();
+
+              QNetworkReply *reply = httpNetwork->post(request, data);
+
+#ifdef DEBUG_WEB
+    ui->textBrowser->setTextColor("RED");
+    ui->textBrowser->append(data);
+    ui->textBrowser->setTextColor("BLACK");
+    ui->textBrowser->append("");
+#endif
+              connect(reply, &QNetworkReply::finished, [=](){
+                  if ( reply->error() == QNetworkReply::NoError ) {
+                        tableDevices[numdev].jsonWebDoc = QJsonDocument::fromJson(reply->readAll());
+                        struct_filejsonload webjson = verifyWebJson(WEB_CONFIRM_GET,&tableDevices[numdev].jsonWebDoc);
+
+
+                        namewebFile->setText(webjson.filename);
+                        idwebFile->setText(QString::number(webjson.ID));
+                        datewebFile->setText(webjson.actualTime.toString(timeformat));
+                        verwebFile->setText(QString::number(webjson.VerApp));
+                        typewebFile->setText(QString::number(webjson.TypeDevice));
+                        serialwebFile->setText(QString::number(webjson.SerialNum));
+
+                        if ( webjson.SerialNum == tableDevices[numdev].table.Regs.SerialNum &&
+                             webjson.TypeDevice == tableDevices[numdev].table.Regs.TypeDevice &&
+                             webjson.VerApp == tableDevices[numdev].table.Regs.VerApp )
+                        {
+                             webAccept->setEnabled(true);
+                             namewebFile->setText("Доступно!");
+                        }else
+                        {
+                             namewebFile->setText("Не найдено");
+                        }
+#ifdef DEBUG_WEB
+    ui->textBrowser->setTextColor("BLUE");
+    ui->textBrowser->append(tableDevices[numdev].jsonWebDoc.toJson());
+    ui->textBrowser->setTextColor("BLACK");
+    ui->textBrowser->append("");
+#endif
+                        tableWidget->resizeColumnsToContents();
+                        tableWidget->resizeRowsToContents();
+                        int wsize = 0;
+                        for (int i=0;i<columnCount;i++)
+                        {
+                            wsize += tableWidget->columnWidth(i);
+                        }
+                        dialog->setFixedWidth(wsize+40);
+                  }
+                  else
+                  {
+                      QString err = reply->errorString();
+                      ui->textBrowser->append("Web: "+err);
+                  }
+                  reply->deleteLater();
+                  webLoad->setEnabled(true);
+              });
+
+          });
+
+          connect(webAccept,&QPushButton::clicked,this,[=]
+          {
+              if ( tableDevices[numdev].isOpen )
+              {
+                  QJsonObject textObject = tableDevices[numdev].jsonWebDoc.object();
+                  QJsonObject jsonObject;
+                  jsonObject = textObject.value("Setting").toObject();
+
+                  struct_listSavedDevices table;
+                  memcpy(&table.device,&tableDevices[numdev].table,sizeof(table.device));
+                  table.devicename = tableDevices[numdev].devicename;
+                  table.modbusadr = QString::number(tableDevices[numdev].com.currentAdr);
+                  table.portname = tableDevices[numdev].com.nameCom;
+
+                  QString idset  = idwebFile->text();
+                  QDateTime ofsettime = QDateTime::fromString(datewebFile->text(),timeformat);
+                  QString timeset = QString::number(ofsettime.addSecs(ofsettime.offsetFromUtc()).toTime_t());
+
+                  if ( libs->devStatus(table) == DeviceLibs::DEV_READY )
+                  {
+                      if ( libs->setSetting( table,jsonObject,idset,timeset ) )
+                      {
+                           QMessageBox::information(this, tableDevices[numdev].devicename,"Настройки применены");
+
+                           tableDevices[numdev].table.Regs.idset = idset.toUInt();
+                           tableDevices[numdev].table.Regs.timechange = timeset.toULongLong();
+
+                           namewebFile->setText("");
+                           idwebFile->setText("");
+                           datewebFile->setText("");
+                           verwebFile->setText("");
+                           typewebFile->setText("");
+                           serialwebFile->setText("");
+                           webAccept->setEnabled(false);
+                           tableWidget->resizeColumnsToContents();
+                           tableWidget->resizeRowsToContents();
+                           int wsize = 0;
+                           for ( int i=0;i<columnCount;i++ )
+                           {
+                                wsize += tableWidget->columnWidth(i);
+                           }
+                           dialog->setFixedWidth(wsize+40);
+                           dialog->close();
+                      }else
+                      {
+                         QMessageBox::information(this, tableDevices[numdev].devicename,"Ошибка с приминением настроек");
+                      }
+                  }else
+                  {
+                      QMessageBox::information(this, tableDevices[numdev].devicename,"Программа считывает настройки");
+                  }
+
+              } else
+              {
+                  QMessageBox::information(this, tableDevices[numdev].devicename,"Необходимо открыть устройство, программа считает настройки автоматически");
+              }
+
+          });
+
+          int pozItemSave = kol*3;
+          int pozItemLoad = pozItemSave+1;
+          int pozItemWeb =  pozItemSave+2;
 
           for( int i=0;i<columnCount-1;i++ )
           {
-               tableWidget->setItem(kol, i, newItem[i]);
+               tableWidget->setItem(pozItemSave, i, saveItem[i]);
+               tableWidget->setItem(pozItemLoad, i, loadItem[i]);
+               tableWidget->setItem(pozItemWeb, i, webItem[i]);
+               saveItem[i]->setFlags(Qt::NoItemFlags | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled | Qt::ItemIsEnabled | Qt::ItemIsAutoTristate);
+               loadItem[i]->setFlags(Qt::NoItemFlags | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled | Qt::ItemIsEnabled | Qt::ItemIsAutoTristate);
+               webItem[i]->setFlags(Qt::NoItemFlags | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled | Qt::ItemIsEnabled | Qt::ItemIsAutoTristate);
           }
-          tableWidget->setCellWidget(kol,columnCount-2,buttonSave);
-          tableWidget->setCellWidget(kol,columnCount-1,buttonLoad);
+
+          tableWidget->setCellWidget(pozItemSave,columnCount-1,buttonSave);
+          tableWidget->setCellWidget(pozItemLoad,columnCount-1,widgetLoad);
+          tableWidget->setCellWidget(pozItemWeb,columnCount-1,widgetWeb);
       }
 
       tableWidget->horizontalHeader()->setStretchLastSection(true);
       tableWidget->resizeColumnsToContents();
+      tableWidget->resizeRowsToContents();
 
       QGridLayout * grid = new QGridLayout(dialog);
       grid->addWidget(tableWidget,0,0);
@@ -803,8 +1128,217 @@ void MainWindow::actionSaved()
       dialog->show();
 }
 
-void MainWindow::butSave(int numdev)
+void MainWindow::sendSettingWeb(struct_listSavedDevices table,QJsonObject json)
 {
+        for(int i=0;i<tableDevices.count();i++)
+        {
+            if (  tableDevices[i].table.Regs.SerialNum == table.device.Regs.SerialNum &&
+                  tableDevices[i].table.Regs.TypeDevice == table.device.Regs.TypeDevice &&
+                  tableDevices[i].table.Regs.VerApp == table.device.Regs.VerApp )
+            {
+                  memcpy(&tableDevices[i].table,&table.device,sizeof(tableDevices[i].table));
+                  break;
+            }
+        }
+           QJsonObject textObject;
+           textObject["REQUEST"] = "SET";
+           textObject["Serial"] = QString::number(table.device.Regs.SerialNum);
+           textObject["Type"] = QString::number(table.device.Regs.TypeDevice);
+           textObject["VerAp"] = QString::number(table.device.Regs.VerApp);
+           QDateTime actualTime = QDateTime::fromTime_t(table.device.Regs.timechange,Qt::UTC,0);
+           textObject["Date"] = actualTime.toString(timeformat);
+           textObject["Id"] = idUser;
+           textObject["Setting"] = json;
+
+           const QUrl url(webserver);
+           QNetworkRequest request(url);
+           request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+           QByteArray data = QJsonDocument(textObject).toJson(QJsonDocument::Indented);
+
+           QNetworkReply *reply = httpNetwork->post(request, data);
+
+#ifdef DEBUG_WEB
+    ui->textBrowser->setTextColor("RED");
+    ui->textBrowser->append(data);
+    ui->textBrowser->setTextColor("BLACK");
+    ui->textBrowser->append("");
+#endif
+           connect(reply, &QNetworkReply::finished, [=](){
+               if ( reply->error() == QNetworkReply::NoError ) {
+                     QJsonDocument webAnswer = QJsonDocument::fromJson(reply->readAll());
+                     struct_filejsonload webjson = verifyWebJson(WEB_CONFIRM_SET,&webAnswer);
+                     if ( webjson.SerialNum == table.device.Regs.SerialNum )
+                     {
+
+                     }else
+                     {
+
+                     }
+#ifdef DEBUG_WEB
+    ui->textBrowser->setTextColor("BLUE");
+    ui->textBrowser->append(webAnswer.toJson());
+    ui->textBrowser->setTextColor("BLACK");
+    ui->textBrowser->append("");
+#endif
+               }
+               else
+               {
+                   QString err = reply->errorString();
+                   ui->textBrowser->append("Web: "+err);
+               }
+               reply->deleteLater();
+           });
+
+          // ui->textBrowser->append(QJsonDocument(textObject).toJson(QJsonDocument::Indented));
+}
+
+
+void MainWindow::checkSettingWeb(int numDev)
+{
+    const QUrl url(webserver);
+    QNetworkRequest request(url);
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+    QJsonObject obj;
+    obj["REQUEST"] = "GET";
+    obj["Serial"] = QString::number(tableDevices[numDev].table.Regs.SerialNum);
+    obj["Type"] = QString::number(tableDevices[numDev].table.Regs.TypeDevice);
+    obj["VerAp"] = QString::number(tableDevices[numDev].table.Regs.VerApp);
+    QDateTime actualTime = QDateTime::fromTime_t(tableDevices[numDev].table.Regs.timechange,Qt::UTC,0);
+    obj["Date"] = actualTime.toString(timeformat);
+    obj["Id"] = idUser;
+
+    QJsonDocument doc(obj);
+    QByteArray data = doc.toJson();
+
+    QNetworkReply *reply = httpNetwork->post(request, data);
+
+#ifdef DEBUG_WEB
+    ui->textBrowser->setTextColor("RED");
+    ui->textBrowser->append(data);
+    ui->textBrowser->setTextColor("BLACK");
+    ui->textBrowser->append("");
+#endif
+
+    connect(reply, &QNetworkReply::finished, [=](){
+        if ( reply->error() == QNetworkReply::NoError ) {
+              tableDevices[numDev].jsonWebDoc = QJsonDocument::fromJson(reply->readAll());
+              struct_filejsonload webjson = verifyWebJson(WEB_CONFIRM_GET,&tableDevices[numDev].jsonWebDoc);
+#ifdef DEBUG_WEB
+    ui->textBrowser->setTextColor("BLUE");
+    ui->textBrowser->append(tableDevices[numDev].jsonWebDoc.toJson());
+    ui->textBrowser->setTextColor("BLACK");
+    ui->textBrowser->append("");
+#endif
+              if ( webjson.SerialNum == tableDevices[numDev].table.Regs.SerialNum )
+              {
+                   tableDevices[numDev].SetIsEnable = true;
+                   ui->textBrowser->append(QString::number(tableDevices[numDev].table.Regs.SerialNum)+": Есть доступные настройки на сервере!");
+              }else
+              {
+                   ui->textBrowser->append(QString::number(tableDevices[numDev].table.Regs.SerialNum)+": обновление настроек не требуется");
+              }
+        }
+        else
+        {
+            QString err = reply->errorString();
+            ui->textBrowser->append("Web: "+err);
+        }
+        reply->deleteLater();
+    });
+}
+
+MainWindow::struct_filejsonload MainWindow::verifyWebJson(QString answStr,QJsonDocument* jsondoc)
+{
+    struct_filejsonload fileload;
+    fileload.ID =0;
+    fileload.SerialNum =0;
+    fileload.TypeDevice =0;
+    fileload.VerApp =0;
+      QJsonObject textObject = jsondoc->object();
+      if( !textObject.value("Serial").isNull() &&
+          !textObject.value("Type").isNull()   &&
+          !textObject.value("VerAp").isNull()  &&
+          !textObject.value("Id").isNull()     &&
+          !textObject.value("Date").isNull()      )
+      {
+          QString strj = textObject.value("REQUEST").toString();
+          if ( strj == answStr )
+          {
+              uint32_t SerialNum = textObject.value("Serial").toVariant().toUInt();
+              uint32_t TypeDevice = textObject.value("Type").toVariant().toUInt();
+              uint32_t VerApp = textObject.value("VerAp").toVariant().toUInt();
+              uint32_t ID = textObject.value("Id").toVariant().toUInt();
+              QString datetime = textObject.value("Date").toString();
+              QDateTime actualTime = QDateTime::fromString(datetime,timeformat);
+
+              fileload.SerialNum = SerialNum;
+              fileload.TypeDevice = TypeDevice;
+              fileload.VerApp = VerApp;
+              fileload.ID = ID;
+              fileload.actualTime = actualTime;
+          }
+      }
+  return fileload;
+}
+
+MainWindow::struct_filejsonload MainWindow::chooseFile(int numdev,QFile* file)
+{
+    struct_filejsonload fileload;
+
+             QString loadFileName = QFileDialog::getOpenFileName(this,
+                                                              tr("Открыть"),
+                                                              QString(),
+                                                              tr("JSON (*.json)"));
+              QFileInfo fileInfo(loadFileName);
+              file->setFileName(loadFileName);
+
+              if (!file->open(QIODevice::ReadOnly))
+              {
+
+              }else
+              {
+                tableDevices[numdev].jsonFileDoc = QJsonDocument::fromJson(file->readAll());
+                QJsonObject textObject =  tableDevices[numdev].jsonFileDoc.object();
+                if( !textObject.value("Serial").isNull() &&
+                    !textObject.value("Type").isNull()   &&
+                    !textObject.value("VerAp").isNull()  &&
+                    !textObject.value("Id").isNull()     &&
+                    !textObject.value("Date").isNull()      )
+                {
+                    uint32_t SerialNum = textObject.value("Serial").toVariant().toUInt();
+                    uint32_t TypeDevice = textObject.value("Type").toVariant().toUInt();
+                    uint32_t VerApp = textObject.value("VerAp").toVariant().toUInt();
+                    uint32_t ID = textObject.value("Id").toVariant().toUInt();
+                    QString datetime = textObject.value("Date").toString();
+                    QDateTime actualTime = QDateTime::fromString(datetime,timeformat);
+
+                    if ( SerialNum == tableDevices[numdev].table.Regs.SerialNum &&
+                         TypeDevice == tableDevices[numdev].table.Regs.TypeDevice &&
+                         VerApp == tableDevices[numdev].table.Regs.VerApp )
+                    {
+
+                        fileload.SerialNum = SerialNum;
+                        fileload.TypeDevice = TypeDevice;
+                        fileload.VerApp = VerApp;
+                        fileload.ID = ID;
+                        fileload.actualTime = actualTime;
+                        fileload.filename = fileInfo.baseName();
+                    }else
+                    {
+                        QMessageBox::information(this, tableDevices[numdev].devicename,"Настройки не соответствуют датчику");
+                    }
+                }
+               file->close();
+              }
+    return fileload;
+}
+
+
+QString MainWindow::butSave(int numdev)
+{
+    QString answer;
     if ( tableDevices[numdev].isOpen )
     {
          struct_listSavedDevices table;
@@ -820,24 +1354,25 @@ void MainWindow::butSave(int numdev)
                                                                 QString(),
                                                                 tr("JSON (*.json)"));
               QFileInfo fileInfo(saveFileName);
-              //QDir::setCurrent(fileInfo.path());
               QFile jsonFile(saveFileName);
+
               if (!jsonFile.open(QIODevice::WriteOnly))
               {
-                return;
+
               }else
               {
                 QJsonObject textObject;
                 textObject["Serial"] = QString::number(tableDevices[numdev].table.Regs.SerialNum);
                 textObject["Type"] = QString::number(tableDevices[numdev].table.Regs.TypeDevice);
                 textObject["VerAp"] = QString::number(tableDevices[numdev].table.Regs.VerApp);
-                QDateTime actualTime = QDateTime::currentDateTime();
-                textObject["Date"] = actualTime.toString("yyyy-MM-dd");
+                QDateTime actualTime = QDateTime::currentDateTimeUtc();
+                textObject["Date"] = actualTime.toString(timeformat);
                 textObject["Id"] = idUser;
 
                 textObject["Setting"] = libs->getSetting(table);
                 jsonFile.write(QJsonDocument(textObject).toJson(QJsonDocument::Indented));
                 jsonFile.close();
+                answer = fileInfo.baseName();
               }
          }else
          {
@@ -847,70 +1382,9 @@ void MainWindow::butSave(int numdev)
     {
         QMessageBox::information(this, tableDevices[numdev].devicename,"Необходимо открыть устройство, программа считает настройки автоматически");
     }
+    return answer;
 }
 
-
-void MainWindow::butLoad(int numdev)
-{
-    if ( tableDevices[numdev].isOpen )
-    {
-         struct_listSavedDevices table;
-         memcpy(&table.device,&tableDevices[numdev].table,sizeof(table.device));
-         table.devicename = tableDevices[numdev].devicename;
-         table.modbusadr = QString::number(tableDevices[numdev].com.currentAdr);
-         table.portname = tableDevices[numdev].com.nameCom;
-
-         if ( libs->devStatus(table) == DeviceLibs::DEV_READY )
-         {
-              QString loadFileName = QFileDialog::getOpenFileName(this,
-                                                               tr("Открыть"),
-                                                               QString(),
-                                                               tr("JSON (*.json)"));
-
-              QFileInfo fileInfo(loadFileName);
-              //QDir::setCurrent(fileInfo.path());
-              QFile jsonFile(loadFileName);
-              if (!jsonFile.open(QIODevice::ReadOnly))
-              {
-                return;
-              }else
-              {
-                QJsonDocument document = QJsonDocument::fromJson(jsonFile.readAll());
-                QJsonObject textObject = document.object();
-
-                uint32_t SerialNum = textObject.value("Serial").toVariant().toUInt();
-                uint32_t TypeDevice = textObject.value("Type").toVariant().toUInt();
-                uint32_t VerApp = textObject.value("VerAp").toVariant().toUInt();
-
-                if ( SerialNum == tableDevices[numdev].table.Regs.SerialNum &&
-                     TypeDevice == tableDevices[numdev].table.Regs.TypeDevice &&
-                     VerApp == tableDevices[numdev].table.Regs.VerApp )
-                {
-
-                     QJsonObject jsonObject;
-                     jsonObject = textObject.value("Setting").toObject();
-                     if ( libs->setSetting(table,jsonObject) )
-                     {
-                          QMessageBox::information(this, tableDevices[numdev].devicename,"Настройки применены");
-                     }else
-                     {
-                        QMessageBox::information(this, tableDevices[numdev].devicename,"Ошибка с приминением настроек");
-                     }
-                }else
-                {
-                    QMessageBox::information(this, tableDevices[numdev].devicename,"Настройки не соответствуют датчику");
-                }
-              }
-
-         }else
-         {
-             QMessageBox::information(this, tableDevices[numdev].devicename,"Программа считывает настройки");
-         }
-    }else
-    {
-        QMessageBox::information(this, tableDevices[numdev].devicename,"Необходимо открыть устройство, чтоб загрузить настройки");
-    }
-}
 
 QString MainWindow::tableToString(struct_listSavedDevices table_point)
 {
@@ -932,7 +1406,7 @@ struct_listSavedDevices MainWindow::stringToTable(QString str)
          table.devicename = name[0];
          table.portname = name[1];
          table.modbusadr = name[2];
-         if( tablstr.count()==4)
+         if( tablstr.count()==4 )
          {
              table.device.Regs.LogError = tablstr[0].toUInt();
              table.device.Regs.SerialNum = tablstr[1].toUInt();
@@ -1100,15 +1574,16 @@ void MainWindow::ViewSettingsDevice()
           QTableWidget *tableWidget = new QTableWidget(dialog);
 
           int rowCount = selectedDevices.count();
-          int columnCount = 7;
+          int columnCount = 8;
 
           QTableWidgetItem *itemHead1 = new QTableWidgetItem("Serial");
           QTableWidgetItem *itemHead2 = new QTableWidgetItem("Время соединения");
-          QTableWidgetItem *itemHead3 = new QTableWidgetItem("Время настройки");
-          QTableWidgetItem *itemHead4 = new QTableWidgetItem("Id пользователя");
-          QTableWidgetItem *itemHead5 = new QTableWidgetItem("Время основных настроек");
-          QTableWidgetItem *itemHead6 = new QTableWidgetItem("Id пользователя");
-          QTableWidgetItem *itemHead7 = new QTableWidgetItem("Доп поле");
+          QTableWidgetItem *itemHead3 = new QTableWidgetItem("Id пользователя");
+          QTableWidgetItem *itemHead4 = new QTableWidgetItem("Время настройки");
+          QTableWidgetItem *itemHead5 = new QTableWidgetItem("Id пользов. настроек");
+          QTableWidgetItem *itemHead6 = new QTableWidgetItem("Время основных настроек");
+          QTableWidgetItem *itemHead7 = new QTableWidgetItem("Id пользователя");
+          QTableWidgetItem *itemHead8 = new QTableWidgetItem("Доп поле");
 
           tableWidget->setColumnCount(columnCount);
           tableWidget->setRowCount(rowCount);
@@ -1120,6 +1595,7 @@ void MainWindow::ViewSettingsDevice()
           tableWidget->setHorizontalHeaderItem(4,itemHead5);
           tableWidget->setHorizontalHeaderItem(5,itemHead6);
           tableWidget->setHorizontalHeaderItem(6,itemHead7);
+          tableWidget->setHorizontalHeaderItem(7,itemHead8);
 
           for(int kol=0; kol!=tableWidget->rowCount(); ++kol){
                   QTableWidgetItem *newItem[columnCount];
@@ -1131,19 +1607,22 @@ void MainWindow::ViewSettingsDevice()
                   newItem[0]->setText(QString::number(tableDevices[row].table.Regs.SerialNum));
 
                   if( tableDevices[row].table.Regs.timeconnect<UINT64_MAX && tableDevices[row].table.Regs.timeconnect>0)
-                  newItem[1]->setText(QDateTime::fromTime_t(tableDevices[row].table.Regs.timeconnect).toString("yyyy-MM-dd  HH:mm:ss"));
-
-                  if(tableDevices[row].table.Regs.timechange<UINT64_MAX)
-                  newItem[2]->setText(QDateTime::fromTime_t(tableDevices[row].table.Regs.timechange).toString("yyyy-MM-dd  HH:mm:ss"));
+                  newItem[1]->setText(QDateTime::fromTime_t(tableDevices[row].table.Regs.timeconnect,Qt::UTC,0).toString(timeformat));
 
                   if(tableDevices[row].table.Regs.idchange<UINT32_MAX)
-                  newItem[3]->setText(QString::number(tableDevices[row].table.Regs.idchange));
+                  newItem[2]->setText(QString::number(tableDevices[row].table.Regs.idchange));
+
+                  if(tableDevices[row].table.Regs.timechange<UINT64_MAX)
+                  newItem[3]->setText(QDateTime::fromTime_t(tableDevices[row].table.Regs.timechange,Qt::UTC,0).toString(timeformat));
+
+                  if(tableDevices[row].table.Regs.idset<UINT32_MAX)
+                  newItem[4]->setText(QString::number(tableDevices[row].table.Regs.idset));
 
                   if(tableDevices[row].table.Regs.timedefault<UINT64_MAX)
-                  newItem[4]->setText(QDateTime::fromTime_t(tableDevices[row].table.Regs.timedefault).toString("yyyy-MM-dd  HH:mm:ss"));
+                  newItem[5]->setText(QDateTime::fromTime_t(tableDevices[row].table.Regs.timedefault,Qt::UTC,0).toString(timeformat));
 
                   if(tableDevices[row].table.Regs.iddefault<UINT32_MAX)
-                  newItem[5]->setText(QString::number(tableDevices[row].table.Regs.iddefault));
+                  newItem[6]->setText(QString::number(tableDevices[row].table.Regs.iddefault));
 
                   QString str;
                   QByteArray aray;
@@ -1156,7 +1635,7 @@ void MainWindow::ViewSettingsDevice()
                         if(aray[i].operator!=(0xFF))
                         {
                             str = QString::fromLocal8Bit(aray);
-                            newItem[6]->setText(str);
+                            newItem[7]->setText(str);
                             break;
                         }
                   }

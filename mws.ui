@@ -31,7 +31,7 @@
         </property>
         <widget class="QTabWidget" name="tabWidget">
          <property name="currentIndex">
-          <number>2</number>
+          <number>1</number>
          </property>
          <widget class="QWidget" name="settings">
           <attribute name="title">
@@ -145,16 +145,16 @@
                 </size>
                </property>
                <property name="minimum">
-                <number>-70</number>
+                <number>10</number>
                </property>
                <property name="maximum">
-                <number>700</number>
+                <number>4999</number>
                </property>
                <property name="singleStep">
                 <number>1</number>
                </property>
                <property name="value">
-                <number>-70</number>
+                <number>10</number>
                </property>
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
@@ -170,7 +170,7 @@
                 </size>
                </property>
                <property name="maximum">
-                <number>770</number>
+                <number>5000</number>
                </property>
               </widget>
              </item>
@@ -183,7 +183,7 @@
                 </size>
                </property>
                <property name="maximum">
-                <number>770</number>
+                <number>5000</number>
                </property>
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
@@ -291,10 +291,10 @@
                 </size>
                </property>
                <property name="minimum">
-                <number>-70</number>
+                <number>10</number>
                </property>
                <property name="maximum">
-                <number>700</number>
+                <number>4999</number>
                </property>
               </widget>
              </item>
@@ -644,7 +644,7 @@
            <item row="1" column="0">
             <widget class="QLabel" name="lab_addit">
              <property name="text">
-              <string>Доп.поле 20 символов макс:</string>
+              <string>Доп.поле 16 символов макс:</string>
              </property>
             </widget>
            </item>

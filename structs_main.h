@@ -4,7 +4,7 @@
 #include <QString>
 
 #pragma pack(push, 1)
-typedef struct struct_tableRegsRead
+typedef struct struc_tableRegsRead
 {
    uint32_t  LogError;         // лог ошибок
    uint64_t  timeconnect;      // Дата последней связи            // 8b
@@ -15,7 +15,8 @@ typedef struct struct_tableRegsRead
    uint16_t  TypeDevice;       // тип устройства 		          // 2b
    uint32_t  SerialNum;        // серийный номер устройства       // 4b
    uint32_t  VerApp;           // аппаратная версия устройства    // 4b
-   uint16_t  mas[10];          // доп резерв                      // 20b
+   uint32_t  idset;            // id пользователя создавший настройки //4b
+   uint16_t  mas[8];           // доп резерв                      // 20b
 }struct_tableRegsRead;
 #pragma pack(pop)
 

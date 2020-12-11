@@ -7,6 +7,9 @@
 
 #include <qtreewidget.h>
 
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+
 #include <QTimer>
 #include <QTime>
 #include <QProgressBar>
@@ -18,8 +21,8 @@
 
 #include "mws.h"
 
-#define LAST_MODBUS_ADRESS 50
-#define MODBUS_TIMEOUT_REPLY 75
+#define LAST_MODBUS_ADRESS 30
+#define MODBUS_TIMEOUT_REPLY 100
 #define MODBUS_COUNT_REPEAT  1
 
 class QModbusClient;
@@ -39,8 +42,22 @@ class MainWindow : public QMainWindow
       union_tableRegsRead table;
       struct_ComModbus com;
       QString devicename;
-      bool isOpen;
+      bool isOpen = false;
+      QJsonDocument jsonWebDoc;
+      QJsonDocument jsonFileDoc;
+      bool SetIsEnable = false;
     }struct_devices;
+
+    typedef struct struct_filejsonload
+    {
+        uint32_t SerialNum;
+        uint32_t TypeDevice;
+        uint32_t VerApp ;
+        uint32_t ID;
+        QString filename;
+        QDateTime actualTime;
+    }struct_filejsonload;
+
 
 public:
     MainWindow(QWidget *parent = nullptr);
@@ -56,8 +73,11 @@ public:
     QString findNameDevice(union_tableRegsRead table);
     void setNameDevice(QString name,int numdev);
 
-    void butSave(int numdev);
-    void butLoad(int numdev);
+    void sendSettingWeb(struct_listSavedDevices table,QJsonObject json);
+    void checkSettingWeb(int numDev);
+    struct_filejsonload verifyWebJson(QString answStr,QJsonDocument* jsondoc);
+    struct_filejsonload chooseFile(int numdev,QFile* file);
+    QString butSave(int numdev);
 
     QString tableToString(struct_listSavedDevices table_point);
     struct_listSavedDevices stringToTable(QString str);
@@ -109,6 +129,13 @@ private:
     int CurentRequestAdr;
     QCommandLinkButton *butlogin = nullptr;
     QString idUser = "0";
+
+    QFile fileJsonLoad;
+    QJsonDocument JsonFileDocument;
+
+    QNetworkAccessManager *httpNetwork = nullptr;
+    QString webserver  = "https://service.mechatronics.by/api/set";
+    QString timeformat = "yyyy-MM-dd HH:mm:ss";
 private:
     Ui::MainWindow *ui;
     DeviceLibs *libs = nullptr;

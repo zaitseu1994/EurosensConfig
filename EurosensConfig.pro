@@ -15,6 +15,7 @@ requires(qtConfig(combobox))
 qtConfig(modbus-serialport): QT += serialport
 
 QT += widgets printsupport
+QT += network
 
 SOURCES += \
     devicelibs.cpp \

@@ -61,10 +61,11 @@ typedef struct struct_tableRegsWrite
     uint32_t  idchange;         // id пользователя внес изменения  // 4b
     uint64_t  timedefault;      // Дата изменения заводских        // 8b
     uint32_t  iddefault;        // id пользователя внес заводские  // 4b
-    uint16_t  TypeDevice;        // тип устройства 		           // 2b
-    uint32_t  SerialNum;         // серийный номер устройства       // 4b
-    uint32_t  VerApp;            // аппаратная версия устройства    // 4b
-    uint16_t  mas[10];           // доп резерв                      // 20b 144b <- 62 adr
+    uint16_t  TypeDevice;       // тип устройства 		           // 2b
+    uint32_t  SerialNum;        // серийный номер устройства       // 4b
+    uint32_t  VerApp;           // аппаратная версия устройства    // 4b
+    uint32_t  idset;            // id пользователя создавший настройки //4b
+    uint16_t  mas[8];           // доп резерв                      // 16b 144b <- 62 adr
 }struct_tableRegsWrite;
 #pragma pack(pop)
 

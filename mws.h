@@ -6,6 +6,7 @@
 #include "structs_main.h"
 #include <QModbusClient>
 #include <QDialog>
+#include <QDateTime>
 
 #include <QPointF>
 
@@ -29,7 +30,7 @@ public:
     void start(QModbusClient *modbusDev);
     void setId(QString str);
     QJsonObject getSetting();
-    bool setSetting(QJsonObject json);
+    bool setSetting(QJsonObject json, QString idset,QString timeset);
 
 private:
     QString idUser = "0";
@@ -100,6 +101,9 @@ private:
     }stat_readwrite;
 signals:
     void DevDisconnect(struct_listSavedDevices device);
+    void DevReady(struct_listSavedDevices device);
+    void DevBusy(struct_listSavedDevices device);
+    void DevSettingAccept(struct_listSavedDevices device,QJsonObject json);
 private:
     Action CurrentAction = NO_ACTION;
     QQueue <Action> queueAction;
@@ -136,6 +140,8 @@ private:
 
     qreal Lagranj (double X);
     qreal Linear (double X);
+private:
+    QQueue <QString> queueSignal;
 private:
     union_tableRegsWrite LoclTableRecieve;
     QVector<struct_pointTableCalibration> TableCalibration;
