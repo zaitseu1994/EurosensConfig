@@ -23,5 +23,7 @@
         <file>images/button_disconnect.png</file>
         <file>images/button2.png</file>
         <file>images/Web.png</file>
+        <file>images/langEN.png</file>
+        <file>images/langRU.png</file>
     </qresource>
 </RCC>

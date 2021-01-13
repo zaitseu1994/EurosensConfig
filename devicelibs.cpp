@@ -157,6 +157,17 @@ bool DeviceLibs:: LibOpen(struct_listSavedDevices table,QMdiArea *mdiArea,QModbu
     connect(m_settings,&MWS::DevBusy,this,&DeviceLibs::devBusy);
     connect(m_settings,&MWS::DevSettingAccept,this,&DeviceLibs::devSettingsAccept);
 
+    connect(m_settings,&MWS::MWSMouseEvent,this,[=](QString str)
+    {
+        emit DeviceToolTip(str);
+    });
+
+    connect(m_settings,&MWS::MWSErrorString,this,[=](QString str)
+    {
+        emit DeviceErrorString(str);
+    });
+
+
     MyQMdiSubWindow *mysub = new MyQMdiSubWindow();
 
     mysub->setStr(table);

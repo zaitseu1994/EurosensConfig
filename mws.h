@@ -4,6 +4,7 @@
 #include <QWidget>
 #include "structs_lib.h"
 #include "structs_main.h"
+#include "mouseenter.h"
 #include <QModbusClient>
 #include <QDialog>
 #include <QDateTime>
@@ -14,6 +15,7 @@
 #include <QDateTime>
 
 #include <qcustomplot.h>
+
 
 namespace Ui {
 class MWS;
@@ -28,6 +30,7 @@ public:
 public:
     void getTable(struct_listSavedDevices table);
     void start(QModbusClient *modbusDev);
+    void setToolTips();
     void setId(QString str);
     QJsonObject getSetting();
     bool setSetting(QJsonObject json, QString idset,QString timeset);
@@ -104,6 +107,8 @@ signals:
     void DevReady(struct_listSavedDevices device);
     void DevBusy(struct_listSavedDevices device);
     void DevSettingAccept(struct_listSavedDevices device,QJsonObject json);
+    void MWSMouseEvent(QString str);
+    void MWSErrorString(QString str);
 private:
     Action CurrentAction = NO_ACTION;
     QQueue <Action> queueAction;
@@ -134,7 +139,8 @@ private:
     void addPointMeasure(double distatanse,double volume);
     void updatePlotWidget(int s,int k);
     void updateTableWidget(int countPoints);
-    void updateAllSettingsView( union_tableRegsWrite Table);
+    void updateFirstSettingsView(union_tableRegsWrite* Table);
+    void updateAllSettingsView( union_tableRegsWrite* Table);
     bool updateAllSettingsTable( union_tableRegsWrite *Table);
     void startView();
 
@@ -160,6 +166,7 @@ private:
     struct_listSavedDevices device;
     QModbusClient *modbusDevice = nullptr;
     bool firstRequest = true;
+    Mouseenter *MouseEvent =nullptr;
 };
 
 #endif // MWS_H

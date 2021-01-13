@@ -10,6 +10,9 @@
 #include <QPushButton>
 #include <QCommandLinkButton>
 
+#include <QDesktopServices>
+#include <QUrl>
+
 #include "structs_ui.h"
 #include "structs_main.h"
 
@@ -32,7 +35,8 @@
 #define WEB_CONFIRM_GET "ANSWER_GET_CONFIRM"
 #define WEB_CONFIRM_SET "ANSWER_SET_CONFIRM"
 
-#define DEBUG_WEB
+//#define DEBUG_WEB
+#define DEBUG_MWS
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -67,7 +71,7 @@ MainWindow::MainWindow(QWidget *parent)
                 ui->treeWidget->clear();
                 ui->treeWidget->setEnabled(true);
                 QString comname = vectorModbusDevice[intcomModBusDevice].nameCom;
-                QMessageBox::warning(this, comname,"Проверьте соединение с портом");
+                QMessageBox::warning(this, comname,tr("Проверьте соединение с портом"));
             });
 
     libs = new DeviceLibs();
@@ -87,9 +91,21 @@ MainWindow::MainWindow(QWidget *parent)
     });
     connect(libs,&DeviceLibs::SettingsAccept,this,&MainWindow::sendSettingWeb);
 
+    connect(libs,&DeviceLibs::DeviceToolTip,this,[=](QString str)
+    {
+            ui->listInfo->clear();
+            ui->listInfo->append(str);
+    });
+
+#ifdef DEBUG_MWS
+    connect(libs,&DeviceLibs::DeviceErrorString,this,[=](QString str)
+    {
+         ui->textBrowser->append(str);
+    });
+#endif
 
     QMenu *menu_view = new QMenu(this);
-    menu_view->setTitle("Вид");
+    menu_view->setTitle(tr("Вид"));
 
     tree_dock = new QDockWidget(tr("Устройства"), this);
     tree_dock->setObjectName("tree");
@@ -117,9 +133,16 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->actionSearh,&QAction::triggered,this,&MainWindow::DevicesSearch);
     connect(ui->actionCancel,&QAction::triggered,this,&MainWindow::DevicesSearchDisable);
 
-    connect(ui->actionQuit,&QAction::triggered,this,[=]
+    connect(ui->actionMechatronics_help,&QAction::triggered,this,[=]
     {
-        this->close();
+        QString link="https://ru.eurosenstelematics.com";
+        QDesktopServices::openUrl(QUrl(link));
+    });
+
+    connect(ui->actionContacts,&QAction::triggered,this,[=]
+    {
+        QString link="mailto:zaitseu1994@gmail.com";
+        QDesktopServices::openUrl(QUrl(link));
     });
 
     ui->treeWidget->setHeaderLabel(" ");
@@ -127,14 +150,14 @@ MainWindow::MainWindow(QWidget *parent)
     ui->treeWidget->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->treeWidget,&QTreeWidget::customContextMenuRequested,this,&MainWindow::prepareMenu);
 
-    statbar_NameD->setText("Имя:");
-    statbar_TypeD->setText("Тип:");
-    statbar_SerialD->setText("Серийный:");
-    statbar_AppD->setText("Аппаратная версия:");
-    statbar_LogD->setText("Лог:");
-    statbar_ProtcD->setText("Протокол:");
-    statbar_AdrD->setText("Адрес:");
-    statbar_PortD->setText("Порт:");
+    statbar_NameD->setText(tr("Имя:"));
+    statbar_TypeD->setText(tr("Тип:"));
+    statbar_SerialD->setText(tr("Серийный:"));
+    statbar_AppD->setText(tr("Аппаратная версия:"));
+    statbar_LogD->setText(tr("Лог:"));
+    statbar_ProtcD->setText(tr("Протокол:"));
+    statbar_AdrD->setText(tr("Адрес:"));
+    statbar_PortD->setText(tr("Порт:"));
 
     statbar_NameD->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred));
     statbar_TypeD->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred));
@@ -173,7 +196,7 @@ MainWindow::MainWindow(QWidget *parent)
 
      login = new Login(this);
      butlogin = new QCommandLinkButton(this);
-     butlogin->setText("Нажмите чтоб войти");
+     butlogin->setText(tr("Нажмите чтоб войти"));
 
      ui->devices->setEnabled(false);
      ui->actionSearh->setEnabled(false);
@@ -192,7 +215,7 @@ MainWindow::MainWindow(QWidget *parent)
          if( str.length()>0)
          {
              setIduser(str);
-             butlogin->setText("Сменить пользователя( ID "+idUser+" )");
+             butlogin->setText(tr("Сменить пользователя")+ "( ID "+idUser+" )");
              login->close();
              ui->devices->setEnabled(true);
              ui->actionSearh->setEnabled(true);
@@ -218,10 +241,46 @@ MainWindow::MainWindow(QWidget *parent)
      connect(ui->actionHistory,&QAction::triggered,this,&MainWindow::ViewSettingsDevice);
      connect(ui->actionAditional,&QAction::triggered,this,&MainWindow::additionalChange);
      connect(ui->actionSaved,&QAction::triggered,this,&MainWindow::actionSaved);
+     connect(ui->actionWebSettings,&QAction::triggered,this,&MainWindow::webSettingsChange);
+
+     connect(ui->actionlangEN,&QAction::triggered,this,&MainWindow::SetLanguage);
+     connect(ui->actionlangRU,&QAction::triggered,this,&MainWindow::SetLanguage);
+
+     restoreLanguage();
+}
+
+void MainWindow::changeEvent(QEvent *event)
+{
+    if (event->type() == QEvent::LanguageChange) {
+        ui->retranslateUi(this);    // переведём окно заново
+    }
+}
+
+void MainWindow::SetLanguage()
+{
+     QIcon icon1;
+     QAction* actionlang = qobject_cast< QAction* >( sender() );
+     QString lang = actionlang->text();
+     if( lang == "RU"  )
+     {
+         qtLanguageTranslator.load(QString("QtLanguage_") + QString("ru_RU"));
+         qApp->installTranslator(&qtLanguageTranslator);
+         icon1.addFile(QString::fromUtf8(":/PNG/images/langRU.png"), QSize(), QIcon::Normal, QIcon::Off);
+         curLang = "RU";
+     }
+     if( lang == "EN"  )
+     {
+         qtLanguageTranslator.load(QString("QtLanguage_") + QString("en_US"));
+         qApp->installTranslator(&qtLanguageTranslator);
+         icon1.addFile(QString::fromUtf8(":/PNG/images/langEN.png"), QSize(), QIcon::Normal, QIcon::Off);
+         curLang = "EN";
+     }
+     ui->actionCurlang->setIcon(icon1);
 }
 
 MainWindow::~MainWindow()
 {
+    saveLanguage();
     writeSettings();
     delete tree_dock;
     delete browser_dock;
@@ -265,12 +324,50 @@ void MainWindow::writeSettings()
     }
 }
 
+void MainWindow::saveLanguage()
+{
+    static const char* const FILE_NAME = "language.bin";
+    QFile file( FILE_NAME );
+    QDataStream stream( &file );
+    QByteArray window = curLang.toLocal8Bit();
+    file.open( QIODevice::WriteOnly );
+    if (file.isOpen())
+    {
+        stream << window;
+        file.close();
+    }
+}
+
+void MainWindow::restoreLanguage()
+{
+    static const char* const FILE_NAME = "language.bin";
+    QFile file( FILE_NAME );
+    QDataStream stream( &file );
+    QByteArray window;
+    file.open( QIODevice::ReadOnly );
+    if (file.isOpen())
+    {
+        stream >> window;
+        file.close();
+    }
+    QString str = QString::fromLocal8Bit(window);
+    if( str == "RU" )
+    {
+        ui->actionlangRU->trigger();
+    }
+    if ( str == "EN" )
+    {
+        ui->actionlangEN->trigger();
+    }
+}
+
+
 void MainWindow::DevicesSearch()
 {
  ui->textBrowser->clear();
  ui->treeWidget->clear();
 
- ui->actionSearh->setText("Идет поиск...");
+ ui->actionSearh->setText(tr("Идет поиск..."));
  ui->actionSearh->setDisabled(true);
 
  QList<QMdiSubWindow *> list = ui->mdiArea->subWindowList(QMdiArea::CreationOrder);
@@ -305,14 +402,14 @@ void MainWindow::DevicesSearch()
  };
  if ( infos.count()>0  )
  {
-     ui->treeWidget->setHeaderLabel("Найденные устройства...");
+     ui->treeWidget->setHeaderLabel(tr("Найденные устройства")+"...");
      textCursor = ui->textBrowser->textCursor().position();
      ui->textBrowser->append(infos[0].portName()+":...");
-     ui->textBrowser->append("Найденые порты: "+avlPorts);
+     ui->textBrowser->append(tr("Найденые порты")+": "+avlPorts);
  } else
  {
      ui->treeWidget->setHeaderLabel(" ");
-     ui->textBrowser->append("Портов не найдено..."+avlPorts);
+     ui->textBrowser->append(tr("Портов не найдено")+"..."+avlPorts);
  }
 
  endcomModBusDevice = infos.count();
@@ -347,7 +444,7 @@ void MainWindow::searchModbusDevice(QList<QSerialPortInfo> listport)
            {
                connect(newCh.modbusDev, &QModbusClient::errorOccurred, [this](QModbusDevice::Error)
                {
-                       QMessageBox::warning(this, "Модбас","Проверьте соединение с портом");
+                       QMessageBox::warning(this, tr("Модбас"),tr("Проверьте соединение с портом"));
                });
 
                connect(newCh.modbusDev, &QModbusClient::stateChanged,this,[=](QModbusDevice::State)
@@ -366,7 +463,7 @@ void MainWindow::searchModbusDevice(QList<QSerialPortInfo> listport)
 
            }else
            {
-               QMessageBox::warning(this, "Модбас","Проблема heap");
+               QMessageBox::warning(this, tr("Модбас"),tr("Проблема heap"));
            }
     }
 }
@@ -395,7 +492,7 @@ void MainWindow::pollModbus()
               pollModbus();
          } else
          {
-              ui->textBrowser->append(tr("Соединение с портом ") + vectorModbusDevice[intcomModBusDevice].nameCom +" установленно...");
+              ui->textBrowser->append(tr("Соединение с портом ") + vectorModbusDevice[intcomModBusDevice].nameCom +tr(" установленно..."));
               pollAdrModbus();
          }
 
@@ -426,7 +523,7 @@ void MainWindow::pollAdrModbus()
         cur.select(QTextCursor::LineUnderCursor);
         cur.removeSelectedText();
         cur.setPosition(textCursor);
-        cur.insertText(vectorModbusDevice[intcomModBusDevice].nameCom+": Адрес:"+QString::number(vectorModbusDevice[intcomModBusDevice].currentAdr) +
+        cur.insertText(vectorModbusDevice[intcomModBusDevice].nameCom+tr(": Адрес:")+QString::number(vectorModbusDevice[intcomModBusDevice].currentAdr) +
                        " ..."+ QString::number(CurentRequestAdr*100/CountRequestAdr)+"%");
 
         if (auto *reply =  vectorModbusDevice[intcomModBusDevice].modbusDev->sendReadRequest(request,  vectorModbusDevice[intcomModBusDevice].currentAdr)) {
@@ -437,8 +534,8 @@ void MainWindow::pollAdrModbus()
             else
                 delete reply; // broadcast replies return immediately
         } else {
-            ui->textBrowser->append("Read error: " + vectorModbusDevice[intcomModBusDevice].modbusDev->errorString());
-            ui->textBrowser->append("Проблема соединения");
+            ui->textBrowser->append(tr("Ошибка чтения")+": " + vectorModbusDevice[intcomModBusDevice].modbusDev->errorString());
+            ui->textBrowser->append(tr("Проблема соединения"));
         }
     }
     else
@@ -466,7 +563,7 @@ void MainWindow::pollReplyModbus()
             const QModbusDataUnit unit = replyModbus->result();
             if ( int(unit.valueCount()) == sizeof(struct_tableRegsRead)/2 )
             {
-                ui->textBrowser->append("Найдено устройство; Протокол: MODBUS-rtu; Адрес: "+ QString::number(replyModbus->serverAddress()));
+                ui->textBrowser->append(tr("Найдено устройство")+"; "+tr("Протокол")+": "+tr("MODBUS-rtu")+"; "+tr("Адрес")+":"+ QString::number(replyModbus->serverAddress()));
                 union_tableRegsRead LoclTable;
                 for(int i = unit.startAddress(), total  = int(unit.valueCount()); i < total ;i++) // переписываем ответ в локальную таблицу регистров
                 {
@@ -479,7 +576,7 @@ void MainWindow::pollReplyModbus()
         } else {
             if ( replyModbus->serverAddress() == LAST_MODBUS_ADRESS )
             {
-                 ui->textBrowser->append("Закончен опрос порта: "+ vectorModbusDevice[intcomModBusDevice].nameCom);
+                 ui->textBrowser->append(tr("Закончен опрос порта")+": "+ vectorModbusDevice[intcomModBusDevice].nameCom);
             }
         }
         replyModbus->deleteLater();
@@ -505,7 +602,7 @@ void MainWindow::DevicesSearchDisable()
             vectorModbusDevice[i].currentAdr =  LAST_MODBUS_ADRESS;
 
         }
-        ui->textBrowser->append("Поиск прерван пользователем...");
+        ui->textBrowser->append(tr("Поиск прерван пользователем")+"...");
     }
 }
 
@@ -657,6 +754,41 @@ void MainWindow::treeItemPress(QTreeWidgetItem * item, int column)
     }
 }
 
+
+void MainWindow::webSettingsChange()
+{
+    QDialog *dialog = new QDialog(ui->mdiArea);
+
+    QLabel *lab_WebLinkNameCurAdr = new QLabel(tr("Текущий адрес:"));
+    QLabel *lab_WebLinkAdrCur = new QLabel(webserver);
+
+    QLabel *lab_WebChangeNameAdr = new QLabel(tr("Новый:"));
+    QLineEdit *lin_WebChangeAdr = new QLineEdit();
+    QPushButton *butChange = new QPushButton("Сменить");
+
+    connect(butChange,&QPushButton::clicked,this,[=]
+    {
+       if( lin_WebChangeAdr->text().length()>=1 )
+       {
+           webserver = lin_WebChangeAdr->text();
+           lab_WebLinkAdrCur->setText(lin_WebChangeAdr->text());
+           lin_WebChangeAdr->clear();
+           dialog->close();
+       }
+    });
+
+    QGridLayout * grid = new QGridLayout(dialog);
+
+    grid->addWidget(lab_WebLinkNameCurAdr,0,1);
+    grid->addWidget(lab_WebLinkAdrCur,0,2);
+    grid->addWidget(lab_WebChangeNameAdr,1,1);
+    grid->addWidget(lin_WebChangeAdr,1,2);
+    grid->addWidget(butChange,1,3);
+
+    dialog->setBaseSize(dialog->width(),dialog->height()/2);
+    dialog->show();
+}
+
 void MainWindow::additionalChange()
 {
     QDialog *dialog = new QDialog(ui->mdiArea);
@@ -665,13 +797,13 @@ void MainWindow::additionalChange()
 
     for(int i=0;i<selectedDevices.count();i++)
     {
-        devcombo->addItem(QString::number(selectedDevices[i]+1)+") Serial: "+QString::number(tableDevices[i].table.Regs.SerialNum)+"; Имя: "+tableDevices[i].devicename);
+        devcombo->addItem(QString::number(selectedDevices[i]+1)+") Serial: "+QString::number(tableDevices[i].table.Regs.SerialNum)+"; "+tr("Имя")+": "+tableDevices[i].devicename);
     }
     devcombo->setCurrentIndex(0);
 
-    QLabel *labname = new QLabel("Изменить имя");
+    QLabel *labname = new QLabel(tr("Изменить имя"));
     QLineEdit *linname = new QLineEdit();
-    QPushButton *butname = new QPushButton("Сменить");
+    QPushButton *butname = new QPushButton(tr("Сменить"));
     connect(butname,&QPushButton::clicked,this,[=]
     {
        if( linname->text().length()>=1 )
@@ -681,7 +813,7 @@ void MainWindow::additionalChange()
            tableDevices[devnum].devicename = linname->text();
            setNameDevice(linname->text(),devnum);
 
-           devcombo->setItemText(devcombo->currentIndex(),QString::number(devnum+1)+") Serial: "+QString::number(tableDevices[devnum].table.Regs.SerialNum)+"; Имя: "+tableDevices[devnum].devicename);
+           devcombo->setItemText(devcombo->currentIndex(),QString::number(devnum+1)+") Serial: "+QString::number(tableDevices[devnum].table.Regs.SerialNum)+"; "+tr("Имя")+": "+tableDevices[devnum].devicename);
            linname->clear();
 
            DevicesSaved();
@@ -698,7 +830,7 @@ void MainWindow::additionalChange()
     vboxI->addWidget(listinterf);
 
     groupinterf->setLayout(vboxI);
-    groupinterf->setTitle("Интерфейс");
+    groupinterf->setTitle(tr("Интерфейс"));
 
     QGridLayout * grid = new QGridLayout(dialog);
     grid->addWidget(devcombo,0,0);
@@ -741,14 +873,14 @@ void MainWindow::actionSaved()
 
       QTableWidgetItem *itemHead[columnCount];
 
-      itemHead[0] = new QTableWidgetItem("Источник");
-      itemHead[1] = new QTableWidgetItem("Серийный");
-      itemHead[2] = new QTableWidgetItem("Тип");
-      itemHead[3] = new QTableWidgetItem("Версия");
-      itemHead[4] = new QTableWidgetItem("Дата сохранения");
-      itemHead[5] = new QTableWidgetItem("Id пользователя");
-      itemHead[6] = new QTableWidgetItem("Файл");
-      itemHead[7] = new QTableWidgetItem("Действие");
+      itemHead[0] = new QTableWidgetItem(tr("Источник"));
+      itemHead[1] = new QTableWidgetItem(tr("Серийный"));
+      itemHead[2] = new QTableWidgetItem(tr("Тип"));
+      itemHead[3] = new QTableWidgetItem(tr("Версия"));
+      itemHead[4] = new QTableWidgetItem(tr("Дата сохранения"));
+      itemHead[5] = new QTableWidgetItem(tr("Id пользователя"));
+      itemHead[6] = new QTableWidgetItem(tr("Файл"));
+      itemHead[7] = new QTableWidgetItem(tr("Действие"));
 
       tableWidget->setColumnCount(columnCount);
       tableWidget->setRowCount(rowCount);
@@ -772,7 +904,7 @@ void MainWindow::actionSaved()
           }
           int numdev = selectedDevices[kol];
 
-          saveItem[0]->setText("Текущие настройки");
+          saveItem[0]->setText(tr("Текущие настройки"));
           saveItem[1]->setText(QString::number(tableDevices[numdev].table.Regs.SerialNum));
           saveItem[2]->setText(QString::number(tableDevices[numdev].table.Regs.TypeDevice));
           saveItem[3]->setText(QString::number(tableDevices[numdev].table.Regs.VerApp));
@@ -786,7 +918,7 @@ void MainWindow::actionSaved()
           saveItem[5]->setText(strSet);
 
           QTableWidgetItem *nameFile = saveItem[6];
-          QPushButton *buttonSave = new QPushButton("Сохранить");
+          QPushButton *buttonSave = new QPushButton(tr("Сохранить"));
           connect(buttonSave,&QPushButton::clicked,this,[=]
           {
                   QString str = butSave(numdev);
@@ -796,10 +928,10 @@ void MainWindow::actionSaved()
                   }
           });
 
-          loadItem[0]->setText("Из файла");
+          loadItem[0]->setText(tr("Из файла"));
 
-          QPushButton *buttonLoad = new QPushButton("Загрузить файл");
-          QPushButton *buttonAccept = new QPushButton("Загрузить");
+          QPushButton *buttonLoad = new QPushButton(tr("Загрузить файл"));
+          QPushButton *buttonAccept = new QPushButton(tr("Загрузить"));
           buttonAccept->setEnabled(false);
           QWidget *widgetLoad = new QWidget(tableWidget);
           QGridLayout * gridLoad = new QGridLayout(widgetLoad);
@@ -861,7 +993,7 @@ void MainWindow::actionSaved()
 
                            if ( libs->setSetting( table,jsonObject,idset,timeset ) )
                            {
-                                QMessageBox::information(this, tableDevices[numdev].devicename,"Настройки применены");
+                                QMessageBox::information(this, tableDevices[numdev].devicename,tr("Настройки применены"));
 
                                 tableDevices[numdev].table.Regs.idset = idset.toUInt();
                                 tableDevices[numdev].table.Regs.timechange = timeset.toULongLong();
@@ -884,22 +1016,22 @@ void MainWindow::actionSaved()
                                 dialog->close();
                            }else
                            {
-                              QMessageBox::information(this, tableDevices[numdev].devicename,"Ошибка с приминением настроек");
+                              QMessageBox::information(this, tableDevices[numdev].devicename,tr("Ошибка с приминением настроек"));
                            }
                        }else
                        {
-                           QMessageBox::information(this, tableDevices[numdev].devicename,"Программа считывает настройки");
+                           QMessageBox::information(this, tableDevices[numdev].devicename,tr("Программа считывает настройки"));
                        }
               }else
               {
-                QMessageBox::information(this, tableDevices[numdev].devicename,"Необходимо открыть устройство");
+                QMessageBox::information(this, tableDevices[numdev].devicename,tr("Необходимо открыть устройство"));
               }
           });
 
-          webItem[0]->setText("Web сервер");
+          webItem[0]->setText(tr("Веб сервер"));
 
-          QPushButton *webLoad = new QPushButton("Проверить");
-          QPushButton *webAccept = new QPushButton("Загрузить");
+          QPushButton *webLoad = new QPushButton(tr("Проверить"));
+          QPushButton *webAccept = new QPushButton(tr("Загрузить"));
           webAccept->setEnabled(false);
           QWidget *widgetWeb = new QWidget(tableWidget);
           QGridLayout * gridWeb = new QGridLayout(widgetWeb);
@@ -932,10 +1064,10 @@ void MainWindow::actionSaved()
                    webjson.VerApp == tableDevices[numdev].table.Regs.VerApp )
               {
                    webAccept->setEnabled(true);
-                   namewebFile->setText("Доступно!");
+                   namewebFile->setText(tr("Доступно")+"!");
               }else
               {
-                   namewebFile->setText("Не найдено");
+                   namewebFile->setText(tr("Не найдено"));
               }
               tableWidget->resizeColumnsToContents();
               tableWidget->resizeRowsToContents();
@@ -992,10 +1124,10 @@ void MainWindow::actionSaved()
                              webjson.VerApp == tableDevices[numdev].table.Regs.VerApp )
                         {
                              webAccept->setEnabled(true);
-                             namewebFile->setText("Доступно!");
+                             namewebFile->setText(tr("Доступно")+"!");
                         }else
                         {
-                             namewebFile->setText("Не найдено");
+                             namewebFile->setText(tr("Не найдено"));
                         }
 #ifdef DEBUG_WEB
     ui->textBrowser->setTextColor("BLUE");
@@ -1045,7 +1177,7 @@ void MainWindow::actionSaved()
                   {
                       if ( libs->setSetting( table,jsonObject,idset,timeset ) )
                       {
-                           QMessageBox::information(this, tableDevices[numdev].devicename,"Настройки применены");
+                           QMessageBox::information(this, tableDevices[numdev].devicename,tr("Настройки применены"));
 
                            tableDevices[numdev].table.Regs.idset = idset.toUInt();
                            tableDevices[numdev].table.Regs.timechange = timeset.toULongLong();
@@ -1068,16 +1200,16 @@ void MainWindow::actionSaved()
                            dialog->close();
                       }else
                       {
-                         QMessageBox::information(this, tableDevices[numdev].devicename,"Ошибка с приминением настроек");
+                         QMessageBox::information(this, tableDevices[numdev].devicename,tr("Ошибка с приминением настроек"));
                       }
                   }else
                   {
-                      QMessageBox::information(this, tableDevices[numdev].devicename,"Программа считывает настройки");
+                      QMessageBox::information(this, tableDevices[numdev].devicename,tr("Программа считывает настройки"));
                   }
 
               } else
               {
-                  QMessageBox::information(this, tableDevices[numdev].devicename,"Необходимо открыть устройство, программа считает настройки автоматически");
+                  QMessageBox::information(this, tableDevices[numdev].devicename,tr("Необходимо открыть устройство, программа считает настройки автоматически"));
               }
 
           });
@@ -1234,10 +1366,10 @@ void MainWindow::checkSettingWeb(int numDev)
               if ( webjson.SerialNum == tableDevices[numDev].table.Regs.SerialNum )
               {
                    tableDevices[numDev].SetIsEnable = true;
-                   ui->textBrowser->append(QString::number(tableDevices[numDev].table.Regs.SerialNum)+": Есть доступные настройки на сервере!");
+                   ui->textBrowser->append(QString::number(tableDevices[numDev].table.Regs.SerialNum)+": "+tr("Есть доступные настройки на сервере")+"!");
               }else
               {
-                   ui->textBrowser->append(QString::number(tableDevices[numDev].table.Regs.SerialNum)+": обновление настроек не требуется");
+                   ui->textBrowser->append(QString::number(tableDevices[numDev].table.Regs.SerialNum)+": "+tr("бновление настроек не требуется"));
               }
         }
         else
@@ -1290,7 +1422,7 @@ MainWindow::struct_filejsonload MainWindow::chooseFile(int numdev,QFile* file)
              QString loadFileName = QFileDialog::getOpenFileName(this,
                                                               tr("Открыть"),
                                                               QString(),
-                                                              tr("JSON (*.json)"));
+                                                              "JSON (*.json)");
               QFileInfo fileInfo(loadFileName);
               file->setFileName(loadFileName);
 
@@ -1327,7 +1459,7 @@ MainWindow::struct_filejsonload MainWindow::chooseFile(int numdev,QFile* file)
                         fileload.filename = fileInfo.baseName();
                     }else
                     {
-                        QMessageBox::information(this, tableDevices[numdev].devicename,"Настройки не соответствуют датчику");
+                        QMessageBox::information(this, tableDevices[numdev].devicename,tr("Настройки не соответствуют датчику"));
                     }
                 }
                file->close();
@@ -1376,11 +1508,11 @@ QString MainWindow::butSave(int numdev)
               }
          }else
          {
-             QMessageBox::information(this, tableDevices[numdev].devicename,"Программа считывает настройки");
+             QMessageBox::information(this, tableDevices[numdev].devicename,tr("Программа считывает настройки"));
          }
     }else
     {
-        QMessageBox::information(this, tableDevices[numdev].devicename,"Необходимо открыть устройство, программа считает настройки автоматически");
+        QMessageBox::information(this, tableDevices[numdev].devicename,tr("Необходимо открыть устройство, программа считает настройки автоматически"));
     }
     return answer;
 }
@@ -1448,7 +1580,7 @@ void MainWindow::DevicesSaved()
     {
         stream << QList<QString> (strListSavedDevices);
         file.close();
-        ui->treeWidget->setHeaderLabel("Найденные устройства...");
+        ui->treeWidget->setHeaderLabel(tr("Найденные устройства")+"...");
     }
 }
 
@@ -1480,11 +1612,11 @@ QTreeWidgetItem *item = tree->itemAt( pos );
         {
             int numdev = strloc.toInt();
 
-            QAction *newconnect = new QAction("Открыть");
+            QAction *newconnect = new QAction(tr("Открыть"));
             QIcon icon1;
             icon1.addFile(QString::fromUtf8(":/PNG/images/connect.png"), QSize(), QIcon::Normal, QIcon::Off);
             newconnect->setIcon(icon1);
-            QAction *newdisconnect = new QAction("Закрыть");
+            QAction *newdisconnect = new QAction(tr("Закрыть"));
             QIcon icon2;
             icon2.addFile(QString::fromUtf8(":/PNG/images/disconnect.png"), QSize(), QIcon::Normal, QIcon::Off);
             newdisconnect->setIcon(icon2);
@@ -1566,9 +1698,9 @@ void MainWindow::ViewSettingsDevice()
      QDialog *dialog = new QDialog(ui->mdiArea);
 
           QLabel *dateFrom = new QLabel(dialog);
-          dateFrom->setText("Период с:");
+          dateFrom->setText(tr("Период с")+":");
           QLabel *dateTo = new QLabel(dialog);
-          dateTo->setText("Период по:");
+          dateTo->setText(tr("Период по")+":");
           QDateTimeEdit *dateFromWidget = new QDateTimeEdit(dialog);
           QDateTimeEdit *dateToWidget = new QDateTimeEdit(dialog);
           QTableWidget *tableWidget = new QTableWidget(dialog);
@@ -1576,14 +1708,14 @@ void MainWindow::ViewSettingsDevice()
           int rowCount = selectedDevices.count();
           int columnCount = 8;
 
-          QTableWidgetItem *itemHead1 = new QTableWidgetItem("Serial");
-          QTableWidgetItem *itemHead2 = new QTableWidgetItem("Время соединения");
-          QTableWidgetItem *itemHead3 = new QTableWidgetItem("Id пользователя");
-          QTableWidgetItem *itemHead4 = new QTableWidgetItem("Время настройки");
-          QTableWidgetItem *itemHead5 = new QTableWidgetItem("Id пользов. настроек");
-          QTableWidgetItem *itemHead6 = new QTableWidgetItem("Время основных настроек");
-          QTableWidgetItem *itemHead7 = new QTableWidgetItem("Id пользователя");
-          QTableWidgetItem *itemHead8 = new QTableWidgetItem("Доп поле");
+          QTableWidgetItem *itemHead1 = new QTableWidgetItem(tr("Серийный"));
+          QTableWidgetItem *itemHead2 = new QTableWidgetItem(tr("Время соединения"));
+          QTableWidgetItem *itemHead3 = new QTableWidgetItem(tr("Id пользователя"));
+          QTableWidgetItem *itemHead4 = new QTableWidgetItem(tr("Время настройки"));
+          QTableWidgetItem *itemHead5 = new QTableWidgetItem(tr("Id пользов. настроек"));
+          QTableWidgetItem *itemHead6 = new QTableWidgetItem(tr("Время основных настроек"));
+          QTableWidgetItem *itemHead7 = new QTableWidgetItem(tr("Id пользователя"));
+          QTableWidgetItem *itemHead8 = new QTableWidgetItem(tr("Доп поле"));
 
           tableWidget->setColumnCount(columnCount);
           tableWidget->setRowCount(rowCount);

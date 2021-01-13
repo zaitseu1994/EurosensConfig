@@ -7,6 +7,8 @@
 
 #include <qtreewidget.h>
 
+#include <QTranslator>
+
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 
@@ -22,7 +24,7 @@
 #include "mws.h"
 
 #define LAST_MODBUS_ADRESS 30
-#define MODBUS_TIMEOUT_REPLY 100
+#define MODBUS_TIMEOUT_REPLY 120
 #define MODBUS_COUNT_REPEAT  1
 
 class QModbusClient;
@@ -88,6 +90,8 @@ public:
     void pollModbus();
     void pollAdrModbus();
 
+    void webSettingsChange();
+
     void additionalChange();
 
     void actionSaved();
@@ -99,8 +103,17 @@ public:
     void LoadLibDevice();
     void ViewSettingsDevice();
 
+    void SetLanguage();
+
    void setIduser(QString str);
    void writeSettings();
+   void saveLanguage();
+   void restoreLanguage();
+
+protected:
+    void changeEvent(QEvent * event) override;
+private:
+    QTranslator qtLanguageTranslator;
 private:
     QDockWidget *tree_dock = nullptr;
     QDockWidget *browser_dock = nullptr;
@@ -129,7 +142,7 @@ private:
     int CurentRequestAdr;
     QCommandLinkButton *butlogin = nullptr;
     QString idUser = "0";
-
+    QString curLang = "RU";
     QFile fileJsonLoad;
     QJsonDocument JsonFileDocument;
 

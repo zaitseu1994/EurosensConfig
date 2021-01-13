@@ -74,6 +74,8 @@ public:
 signals:
     void closed(struct_listSavedDevices table);
     void SettingsAccept(struct_listSavedDevices table,QJsonObject json);
+    void DeviceToolTip(QString str);
+    void DeviceErrorString(QString str);
 private:
     QString idUser = "0";
     typedef struct struct_DialofInfo

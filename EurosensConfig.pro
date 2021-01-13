@@ -17,11 +17,14 @@ qtConfig(modbus-serialport): QT += serialport
 QT += widgets printsupport
 QT += network
 
+TRANSLATIONS += QtLanguage_en_US.ts
+
 SOURCES += \
     devicelibs.cpp \
     login.cpp \
     main.cpp \
     mainwindow.cpp \
+    mouseenter.cpp \
     mws.cpp \
     qcustomplot.cpp
 
@@ -29,6 +32,7 @@ HEADERS += \
     devicelibs.h \
     login.h \
     mainwindow.h \
+    mouseenter.h \
     mws.h \
     qcustomplot.h \
     structs_lib.h \

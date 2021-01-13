@@ -4,12 +4,16 @@
 #include <QApplication>
 #include <QFile>
 
+
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+
+//    QTranslator qtLanguageTranslator;
+//    qtLanguageTranslator.load(QString("QtLanguage_") + QString("en_US"));
+//    qApp->installTranslator(&qtLanguageTranslator);
+
     MainWindow w;
-//    const QRect availableGeometry = w.screen()->availableGeometry();
-//    w.resize(availableGeometry.width() / 1.5, availableGeometry.height() / 1.5);
     static const char* const FILE_NAME = "settings.bin";
     QFile file( FILE_NAME );
     QDataStream stream( &file );
@@ -23,11 +27,8 @@ int main(int argc, char *argv[])
         file.close();
         w.restoreGeometry(window);
         w.restoreState(state);
-    }
+    }    
    w.show();
-   // v.setWindowFlags(Qt::FramelessWindowHint | Qt::Dialog);
-   // v.setStyleSheet("border-image: url(:/PNG/images/baclogo.png)");
-   // v.show();
-    return a.exec();
+   return a.exec();
 }
 

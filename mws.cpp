@@ -9,30 +9,20 @@
 #include <QSerialPort>
 #include <QSpinBox>
 
+#include <QTranslator>
+
 #include <QPointF>
 
 #include "structs_lib.h"
 #include "math.h"
 
-#define MODBUS_TIMEOUT_PACKET 200
+#define MODBUS_TIMEOUT_PACKET 150
 #define MODBUS_COUNT_REPAET   1
 
 #define MODBUS_COUNT_READ_ADR COUNT_REGSWRITE
 
-#define MODBUS_INTERVAL_ALL 600
-#define MODBUS_INTERVAL_FAST 100
-
-
-QStringList STypeApproximation = {"кусочно линейный","полином Лангранжа"};
-QStringList STypeAverage = {"экспоненциальный","бегущее среднее"};
-QStringList SNoize = {"да","нет"};
-QStringList SDownSampFactor = {"1","2","4"};
-QStringList SMaximizeSignal = {"да","нет"};
-QStringList SPowerSaveMode = {"выключен","сон","готовность","активный","гибернация"};
-QStringList SAsynchMeasure = {"да","нет"};
-QStringList SRepetitionMode = {"внешнее управление","управление сенсором"};
-QStringList STXDisable = {"да","нет"};
-QStringList SProfile = {"1","2","3","4","5"};
+#define MODBUS_INTERVAL_ALL 500
+#define MODBUS_INTERVAL_FAST 150
 
 MWS::MWS(QWidget *parent) :
     QWidget(parent),
@@ -43,6 +33,21 @@ MWS::MWS(QWidget *parent) :
     ui->dat_lastconnect->setEnabled(false);
     ui->lin_idchange->setEnabled(false);
     ui->tabWidget->removeTab(3);
+
+    MouseEvent = new Mouseenter();
+    setToolTips();
+
+    connect(MouseEvent,&Mouseenter::signalMouseHoverEnter,this,[=](QLabel* lab)
+    {
+        QString str =  lab->toolTip();
+        emit MWSMouseEvent(str);
+    });
+
+    connect(MouseEvent,&Mouseenter::signalMouseHoverLeave,this,[=]()
+    {
+        QString str = tr("Наведите курсор чтоб получить информацию...");
+        emit MWSMouseEvent(str);
+    });
 
     memset(&LoclTableRecieve,0,sizeof(LoclTableRecieve));
 
@@ -69,6 +74,23 @@ MWS::MWS(QWidget *parent) :
     ModbusRegsTimer->stop();
     ModbusRegsTimer->setSingleShot(false);
     ModbusRegsTimer->setInterval(MODBUS_INTERVAL_ALL);
+
+
+    if( !ui->check_AddParam->isChecked() )
+    {
+        ui->widget_AddParam->hide();
+    }
+
+    connect(ui->check_AddParam,&QCheckBox::stateChanged,this,[=]
+    {
+        if( !ui->check_AddParam->isChecked() )
+        {
+            ui->widget_AddParam->hide();
+        } else
+        {
+            ui->widget_AddParam->show();
+        }
+    });
 
     connect(ModbusRegsTimer,&QTimer::timeout,this,[=]
     {
@@ -120,23 +142,6 @@ MWS::MWS(QWidget *parent) :
              type = RW_TABLE;
         }
 
-        if( type == ONLY_MEASURE )
-        if ( updateAllSettingsTable(&LoclTableRecieve) )
-        {
-             type = UPDATE_SETTINGS;
-             if(!firstRequest)
-             {
-//                 LoclTableRecieve.Regs.timeconnect = startTime.toTime_t();
-//                 device.device.Regs.timeconnect = startTime.toTime_t();
-
-//                 device.device.Regs.idchange = idUser.toUInt();
-//                 LoclTableRecieve.Regs.idchange = idUser.toUInt();
-             }else
-             {
-
-             }
-        }
-
         if(!firstRequest)
         switch(type)
         {
@@ -182,7 +187,7 @@ MWS::MWS(QWidget *parent) :
         if ( str == "1111" )
         {
             QWidget* tab = ui->tabWidget->findChild<QWidget*>("addit",Qt::FindChildrenRecursively);
-            ui->tabWidget->insertTab(3,tab,"Заводские");
+            ui->tabWidget->insertTab(3,tab,tr("Заводские"));
         }
     });
 
@@ -220,41 +225,6 @@ MWS::MWS(QWidget *parent) :
             queueAction.enqueue(SEND_TO_SAVE_FACTORY);
     });
 
-    connect(ui->slid_AdrModbus,&QSlider::valueChanged,ui->spin_AdrModbus,&QSpinBox::setValue);
-    connect(ui->spin_AdrModbus,QOverload<int>::of(&QSpinBox::valueChanged),ui->slid_AdrModbus,&QSlider::setValue);
-
-    connect(ui->slid_IntAverage,&QSlider::valueChanged,ui->spin_IntAverage,&QSpinBox::setValue);
-    connect(ui->spin_IntAverage,QOverload<int>::of(&QSpinBox::valueChanged),ui->slid_IntAverage,&QSlider::setValue);
-
-    connect(ui->slid_IdSensor,&QSlider::valueChanged,ui->spin_IdSensor,&QSpinBox::setValue);
-    connect(ui->spin_IdSensor,QOverload<int>::of(&QSpinBox::valueChanged),ui->slid_IdSensor,&QSlider::setValue);
-
-    connect(ui->slid_HWAAS,&QSlider::valueChanged,ui->spin_HWAAS,&QSpinBox::setValue);
-    connect(ui->spin_HWAAS,QOverload<int>::of(&QSpinBox::valueChanged),ui->slid_HWAAS,&QSlider::setValue);
-
-    connect(ui->slid_StartMeasure,&QSlider::valueChanged,ui->spin_StartMeasure,&QSpinBox::setValue);
-    connect(ui->spin_StartMeasure,QOverload<int>::of(&QSpinBox::valueChanged),ui->slid_StartMeasure,&QSlider::setValue);
-
-    connect(ui->slid_EndMeasure,&QSlider::valueChanged,ui->spin_EndMeasure,&QSpinBox::setValue);
-    connect(ui->spin_EndMeasure,QOverload<int>::of(&QSpinBox::valueChanged),ui->slid_EndMeasure,&QSlider::setValue);
-
-    connect(ui->slid_ReceiverGain,&QSlider::valueChanged,this,[=]
-    {
-       ui->spin_ReceiverGain->setValue((static_cast<double>(ui->slid_ReceiverGain->value()))/100);
-    });
-    connect(ui->spin_ReceiverGain,QOverload<double>::of(&QDoubleSpinBox::valueChanged),this,[=]
-    {
-       ui->slid_ReceiverGain->setValue(static_cast<int>(ui->spin_ReceiverGain->value()*100));
-    });
-
-    connect(ui->slid_RunningAverage,&QSlider::valueChanged,this,[=]
-    {
-        ui->spin_RunningAverage->setValue((static_cast<double>(ui->slid_RunningAverage->value()))/100);
-    });
-    connect(ui->spin_RunningAverage,QOverload<double>::of(&QDoubleSpinBox::valueChanged),this,[=]
-    {
-       ui->slid_RunningAverage->setValue(static_cast<int>(ui->spin_RunningAverage->value()*100));
-    });
 
 //    connect(ui->spin_CountPoint,QOverload<int>::of(&QSpinBox::valueChanged),this,&MWS::updateTableWidget);
     connect(ui->button_ChangePoints,&QPushButton::clicked,this,[=]
@@ -288,6 +258,8 @@ MWS::MWS(QWidget *parent) :
    connect(ui->button_Accept,&QPushButton::clicked,this,[=]
    {
       ModbusRegsTimer->stop();
+      updateAllSettingsTable(&LoclTableRecieve);
+
       device.device.Regs.idset = idUser.toUInt();
       LoclTableRecieve.Regs.idset = idUser.toUInt();
 
@@ -309,7 +281,6 @@ MWS::MWS(QWidget *parent) :
 //      str+=QString::number(datechange.toTime_t());
 
 //      ui->lin_addit->setText(str);
-
 
       queueAction.enqueue(UPDATE_ADDREGS);
       queueAction.enqueue(SEND_TO_SAVE_CONFIG);
@@ -369,22 +340,22 @@ MWS::~MWS()
         file.close();
     }
     barGraph->deleteLater();
+    delete MouseEvent;
     delete ModbusRegsTimer;
     delete ui;
 }
 
 void MWS::startView()
 {
-    ui->comb_TypeApproximation->addItems(STypeApproximation);
-    ui->comb_TypeAverage->addItems(STypeAverage);
-    ui->comb_Noize->addItems(SNoize);
-    ui->comb_DownSampFactor->addItems(SDownSampFactor);
-    ui->comb_MaximizeSignal->addItems(SMaximizeSignal);
-    ui->comb_PowerSaveMode->addItems(SPowerSaveMode);
-    ui->comb_AsynchMeasure->addItems(SAsynchMeasure);
-    ui->comb_RepetitionMode->addItems(SRepetitionMode);
-    ui->comb_TXDisable->addItems(STXDisable);
-    ui->comb_Profile->addItems(SProfile);
+    ui->comb_TypeApproximation->addItems(QStringList() << tr("Кусочно линейный") << tr("Полином Лангранжа"));
+    ui->comb_TypeAverage->addItems(QStringList() << tr("Экспоненциальный") << tr("Арифметический"));
+    ui->comb_Noize->addItems(QStringList() << tr("Да") << tr("Нет"));
+    ui->comb_DownSampFactor->addItems(QStringList() << "1" << "2"<< "4");
+    ui->comb_MaximizeSignal->addItems(QStringList() << tr("Да") << tr("Нет"));
+    ui->comb_PowerSaveMode->addItems(QStringList() << tr("Выключен") << tr("Сон")<< tr("Готовность")<< tr("Активный")<< tr("Гибернация"));
+    ui->comb_AsynchMeasure->addItems(QStringList() << tr("Да") << tr("Нет"));
+    ui->comb_RepetitionMode->addItems(QStringList() << tr("Внешнее управление") << tr("Управление сенсором"));
+    ui->comb_Profile->addItems(QStringList() <<"1"<<"2"<<"3"<<"4"<<"5");
 }
 
 
@@ -440,9 +411,9 @@ bool MWS::setSetting(QJsonObject json,QString idset,QString timeset)
         queueAction.enqueue(UPDATE_ADDREGS);
         queueAction.enqueue(SEND_TO_SAVE_CONFIG);
 
-        ModbusRegsTimer->start();
         stat = true;
   }
+  ModbusRegsTimer->start();
   return stat;
 }
 
@@ -514,6 +485,47 @@ struct_listSavedDevices MWS::stringToTable(QString str)
      return table;
 }
 
+
+void MWS::setToolTips()
+{
+   ui->lab_StartMeasure->setToolTip( tr("Расстояние от начала измерения. Рекомендуется ставить от 5 см для профиля 1, от 12 см для профилей 2-5 "));
+   ui->lab_EndMeasure->setToolTip(tr("Диапазон измерений.Датчик измеряет амплитуды отраженных сигналов сенсора и преобразуя их в расстояние в диапазоне от начала измерения до начала измерения + расстояние установленное этим параметром"));
+   ui->lab_ReceiverGain->setToolTip(tr("Коэффициент усиления приемника, используемый в датчике. Если усиление слишком низкое, объекты могут быть не видны или это может привести к плохому качеству сигнала из-за ошибок квантования. Если усиление слишком велико, сильные отражения могут привести к искажению данных. Рекомендуется не устанавливать усиление выше, чем необходимо, из соображений качества сигнала"));
+   ui->lab_HWAAS->setToolTip(tr("Количество измерений на одну точку измерения амплитуды сигнала, по которому ведется усредненение уонечного результата. Время измерения пропорционально значению HWAAS. Не влияет на количество данных в развертке сигнала"));
+   ui->lab_RunningAverage->setToolTip(tr("Чтобы стабилизировать сигнал и увеличить SNR, развертки в Envelope Service можно фильтровать по времени. Это можно настроить, установив коэффициент бегущего среднего от 0 до 1, где большое число указывает на усиление фильтрации. Фильтрация представляет собой стандартный фильтр экспоненциального сглаживания со значением по умолчанию 0,7."));
+   ui->lab_Profile->setToolTip(tr("Основная конфигурация всех сервисов - это профили, пронумерованные от 1 до 5. Разница между профилями заключается в длине радиолокационного импульса и в способе дискретизации входящего импульса. Профили с низкими номерами используют короткие импульсы, в то время как более высокие профили используют более длинные импульсы \r\n  Профиль 1 рекомендуется для: \r\n - измерение сильных отражений \r\n  - работа на близком расстоянии (<20 см) \r\n Профиль 2 и 3 рекомендуется для: \r\n - работа на средних расстояниях (от 20 см до 1 м) \r\n Профиль 4 и 5 рекомендован для: \r\n - работа на больших расстояниях (> 1 м) "));
+   ui->lab_Noize->setToolTip(tr("Настройка влияет на какие амплитуды сигналов в развертке будут использоваться, абсолютные или нормализованные относительно усиления датчика и аппаратного усреднения"));
+   ui->lab_DownSampFactor->setToolTip(tr("Этот показатель влияет на частоту дискретизации сигнала, большее значение меньшее потребление энергии, памяти большая скорость работы, меньшее значение большая точность"));
+   ui->lab_MaximizeSignal->setToolTip(tr("Настройка позволяет минимизировать насыщение приемника. Не рекомендуется использовать эту настройку при нормальной работе"));
+   ui->lab_PowerSaveMode->setToolTip(tr("Конфигурация режима энергосбережения устанавливает, в каком состоянии датчик находится между измерениями. Режим потребления «АКТИВНЫЙ» дает самый быстрый отклик, а режим наименьшего потребления энергии «ВЫКЛ» дает самый медленный ответ. Режим «HIBERNATE» означает, что сенсор датчика все еще находится под напряжением, но внутренний генератор выключен"));
+   ui->lab_AsynchMeasure->setToolTip(tr("Различие между режимами заключается в том, что в асинхронном режиме микроконтроллер датчика может работать, пока сенсор завершает работу. Поскольку датчик и хост могут работать параллельно, скорость обновления системы будет выше в асинхронном режиме. В асинхронном режиме данные полученые от сенсора являются данными предыдущей итерации"));
+   ui->lab_RepetitionMode->setToolTip(tr("Определяет условия считывания данных из сенсора: По запросу от микроконтроллера либо по готовности через установленный интервал от сенсора"));
+   ui->lab_IntAverage->setToolTip(tr("Значение относится к типу усреднения, определяет за какой промежуток времени будут усреднятся данные"));
+   ui->lab_TypeAverage->setToolTip(tr("Определяет тип усреднения. Арифметическое усреднение работает на выбранном промежутке и следует из 2 измерений в секунду. Экспоненциальный работает с фильтром с адаптивным коэфициентом к скачам показаний сенсора"));
+   ui->lab_TypeApproximation->setToolTip(tr("Определяет каким образом будут расчитаны промежуточные значения между точками тарировочной таблицы"));
+
+
+   MouseEvent->attach(ui->lab_StartMeasure);
+   MouseEvent->attach(ui->lab_EndMeasure);
+   MouseEvent->attach(ui->lab_ReceiverGain);
+   MouseEvent->attach(ui->lab_HWAAS);
+   MouseEvent->attach(ui->lab_RunningAverage);
+   MouseEvent->attach(ui->lab_Profile);
+   MouseEvent->attach(ui->lab_Noize);
+   MouseEvent->attach(ui->lab_DownSampFactor);
+   MouseEvent->attach(ui->lab_MaximizeSignal);
+   MouseEvent->attach(ui->lab_PowerSaveMode);
+   MouseEvent->attach(ui->lab_AsynchMeasure);
+   MouseEvent->attach(ui->lab_RepetitionMode);
+
+   MouseEvent->attach(ui->lab_IntAverage);
+   MouseEvent->attach(ui->lab_TypeAverage);
+   MouseEvent->attach(ui->lab_TypeApproximation);
+
+}
+
+
+
 void MWS::start(QModbusClient *modbusDev)
 {
     modbusDevice = modbusDev;
@@ -556,12 +568,14 @@ void MWS::updateRegs(int startAdr, int countregs)
             else
                 delete reply; // broadcast replies return immediately
         } else {
-                 ui->lcd_Distance->setText("хрень");
+
         }
 
     } else
     {
        ModbusRegsTimer->stop();
+       emit MWSErrorString(tr("Утеряно соединение с портом!"));
+       emit DevDisconnect(device);
     }
 }
 
@@ -577,11 +591,18 @@ void MWS::replyReceivedRead()
                 {
                    LoclTableRecieve.Adr[i+unit.startAddress()] = unit.value(i);
                 }
-                updateAllSettingsView(LoclTableRecieve);
+                updateAllSettingsView(&LoclTableRecieve);
                 addPointMeasure(LoclTableRecieve.Regs.CurrentDistanse,LoclTableRecieve.Regs.CurrentVolume);
                 upperModbusCheck();
-                firstRequest=false;
+
+                if (firstRequest)
+                {
+                   updateFirstSettingsView(&LoclTableRecieve);
+                   firstRequest=false;
+                }
+
         } else {
+            emit MWSErrorString(tr("Ошибка канала связи ")+"replyReceivedRead "+replyModbus->errorString());
             emit DevDisconnect(device);
             ModbusRegsTimer->stop();
         }
@@ -608,11 +629,13 @@ void MWS::sendRegs(int startAdr, int countregs)
             else
                 delete reply; // broadcast replies return immediately
         } else {
-                ui->lcd_Distance->setText("хрень");
+
         }
     } else
     {
        ModbusRegsTimer->stop();
+       emit MWSErrorString(tr("Утеряно соединение с портом!"));
+       emit DevDisconnect(device);
     }
 }
 
@@ -623,7 +646,7 @@ void MWS::replyReceivedWrite()
     return;
         if (replyModbus->error() == QModbusDevice::NoError) {
         } else {
-            ModbusRegsTimer->stop();
+            emit MWSErrorString(tr("Ошибка канала связи ")+ "replyReceivedWrite "+ replyModbus->errorString());
         }
         replyModbus->deleteLater();
 }
@@ -946,8 +969,8 @@ void MWS::updateTableWidget(int countPoints)
 {
     QTableWidget *tableWidget = ui->tableWidget;
     tableWidget->setColumnCount(2);
-    QTableWidgetItem *itemHead1 = new QTableWidgetItem("Расстояние, мм");
-    QTableWidgetItem *itemHead2 = new QTableWidgetItem("Обьем, л");
+    QTableWidgetItem *itemHead1 = new QTableWidgetItem(tr("Расстояние, мм"));
+    QTableWidgetItem *itemHead2 = new QTableWidgetItem(tr("Обьем, л"));
     tableWidget->setHorizontalHeaderItem(0,itemHead1);
     tableWidget->setHorizontalHeaderItem(1,itemHead2);
     int rowCount = tableWidget->rowCount();
@@ -957,7 +980,7 @@ void MWS::updateTableWidget(int countPoints)
     {
         for(int row=rowCount; row!=tableWidget->rowCount(); ++row){
             for(int column = 0; column!=tableWidget->columnCount(); ++column) {
-                QTableWidgetItem *newItem = new QTableWidgetItem("Введите число..");
+                QTableWidgetItem *newItem = new QTableWidgetItem(tr("Введите число.."));
                 tableWidget->setItem(row, column, newItem);
             }
         }
@@ -995,8 +1018,8 @@ void MWS::writeTableWidget()
 {
     QTableWidget *tableWidget = ui->tableWidget;
     tableWidget->setColumnCount(2);
-    QTableWidgetItem *itemHead1 = new QTableWidgetItem("Расстояние, мм");
-    QTableWidgetItem *itemHead2 = new QTableWidgetItem("Обьем, л");
+    QTableWidgetItem *itemHead1 = new QTableWidgetItem(tr("Расстояние, мм"));
+    QTableWidgetItem *itemHead2 = new QTableWidgetItem(tr("Обьем, л"));
     tableWidget->setHorizontalHeaderItem(0,itemHead1);
     tableWidget->setHorizontalHeaderItem(1,itemHead2);
     tableWidget->setRowCount(TableCalibration.count());
@@ -1190,8 +1213,8 @@ void MWS::updatePlotWidget(int s,int k)
     ui->graph_table->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(Qt::black, 1.5), QBrush(Qt::white), 9));
 
     //Подписываем оси Ox и Oy
-    ui->graph_table->xAxis->setLabel("Расстояние");
-    ui->graph_table->yAxis->setLabel("Обьем");
+    ui->graph_table->xAxis->setLabel(tr("Расстояние"));
+    ui->graph_table->yAxis->setLabel(tr("Обьем"));
 
     if ( volumeY.count()> 0 && distanceX.count() > 0 )
     {
@@ -1222,31 +1245,69 @@ void MWS::updatePlotWidget(int s,int k)
     ui->graph_table->replot();
 }
 
-void MWS::updateAllSettingsView(union_tableRegsWrite Table)
+
+void MWS::updateFirstSettingsView(union_tableRegsWrite* Table)
 {
-     ui->lcd_Distance->setText(QString::number(Table.Regs.CurrentDistanse));
-     ui->lcd_Volume->setText(QString::number(Table.Regs.CurrentVolume));
 
-     ui->spin_AdrModbus->setValue(Table.Regs.AdrModbus);
+ui->spin_AdrModbus->setValue(Table->Regs.AdrModbus);
+ui->spin_IntAverage->setValue(Table->Regs.IntervalAverag);
 
-     ui->spin_EndMeasure->setValue(static_cast<int>(Table.Regs.LenghtOfMeasure*1000));
-     ui->spin_HWAAS->setValue(Table.Regs.HWAAS);
-     ui->spin_IdSensor->setValue(Table.Regs.SensorId);
-     ui->spin_IntAverage->setValue(Table.Regs.IntervalAverag);
-     ui->spin_ReceiverGain->setValue(Table.Regs.ReceiverGain);
-     ui->spin_RunningAverage->setValue(Table.Regs.RunningAverage);
-     ui->spin_StartMeasure->setValue(static_cast<int>(Table.Regs.StartOfMeasure*1000));
+ui->comb_TypeApproximation->setCurrentIndex(Table->Regs.TypeApproxim);
+ui->comb_TypeAverage->setCurrentIndex(Table->Regs.TypeAverag);
 
-     ui->comb_AsynchMeasure->setCurrentIndex(Table.Regs.AsynchMeasure);
-     ui->comb_DownSampFactor->setCurrentIndex(Table.Regs.DownSampFactor);
-     ui->comb_MaximizeSignal->setCurrentIndex(Table.Regs.MaximizeSignal);
-     ui->comb_Noize->setCurrentIndex(Table.Regs.NoiseLevel);
-     ui->comb_PowerSaveMode->setCurrentIndex(Table.Regs.PowerSaveMode);
-     ui->comb_Profile->setCurrentIndex(Table.Regs.Profile);
-     ui->comb_RepetitionMode->setCurrentIndex(Table.Regs.RepetitionMode);
-     ui->comb_TXDisable->setCurrentIndex(Table.Regs.TXDisable);
-     ui->comb_TypeApproximation->setCurrentIndex(Table.Regs.TypeApproxim);
-     ui->comb_TypeAverage->setCurrentIndex(Table.Regs.TypeAverag);
+ ui->spin_EndMeasure->setValue(static_cast<int>(Table->Regs.LenghtOfMeasure*1000));
+ ui->spin_HWAAS->setValue(Table->Regs.HWAAS);
+ ui->spin_IntAverage->setValue(Table->Regs.IntervalAverag);
+ ui->spin_ReceiverGain->setValue(Table->Regs.ReceiverGain);
+ ui->spin_RunningAverage->setValue(Table->Regs.RunningAverage);
+ ui->spin_StartMeasure->setValue(static_cast<int>(Table->Regs.StartOfMeasure*1000));
+
+ ui->comb_AsynchMeasure->setCurrentIndex(Table->Regs.AsynchMeasure);
+ ui->comb_DownSampFactor->setCurrentIndex(Table->Regs.DownSampFactor);
+ ui->comb_MaximizeSignal->setCurrentIndex(Table->Regs.MaximizeSignal);
+ ui->comb_Noize->setCurrentIndex(Table->Regs.NoiseLevel);
+ ui->comb_PowerSaveMode->setCurrentIndex(Table->Regs.PowerSaveMode);
+ ui->comb_Profile->setCurrentIndex(Table->Regs.Profile);
+ ui->comb_RepetitionMode->setCurrentIndex(Table->Regs.RepetitionMode);
+ ui->comb_TypeApproximation->setCurrentIndex(Table->Regs.TypeApproxim);
+ ui->comb_TypeAverage->setCurrentIndex(Table->Regs.TypeAverag);
+
+ ui->check_res_CAN->setChecked(Table->Regs.Reslift & 0x0f00 ? true :false);
+ ui->check_res_RS485->setChecked(Table->Regs.Reslift & 0x000f ? true :false);
+ ui->check_pow_CAN->setChecked(Table->Regs.Reslift & 0xf000 ? true :false);
+ ui->check_pow_RS485->setChecked(Table->Regs.Reslift & 0x00f0 ? true :false);
+}
+
+
+void MWS::updateAllSettingsView(union_tableRegsWrite* Table)
+{
+     ui->lcd_Distance->setText(QString::number(Table->Regs.CurrentDistanse));
+     ui->lcd_Volume->setText(QString::number(Table->Regs.CurrentVolume));
+
+     ui->lab_AdrModbusCur->setText(QString::number(Table->Regs.AdrModbus));
+     ui->lab_IntAverageCur->setText(QString::number(Table->Regs.IntervalAverag));
+
+     ui->lab_TypeApproximationCur->setText(ui->comb_TypeApproximation->itemText(Table->Regs.TypeApproxim));
+     ui->lab_TypeAverageCur->setText(ui->comb_TypeAverage->itemText(Table->Regs.TypeAverag));
+
+     ui->lab_EndMeasureCur->setText(QString::number(static_cast<int>(Table->Regs.LenghtOfMeasure*1000)));
+     ui->lab_HWAASCur->setText(QString::number(Table->Regs.HWAAS));
+     ui->lab_ReceiverGainCur->setText(QString::number(Table->Regs.ReceiverGain));
+     ui->lab_RunningAverageCur->setText(QString::number(Table->Regs.RunningAverage));
+     ui->lab_StartMeasureCur->setText(QString::number(static_cast<int>(Table->Regs.StartOfMeasure*1000)));
+
+     ui->lab_AsynchMeasureCur->setText(ui->comb_AsynchMeasure->itemText(Table->Regs.AsynchMeasure));
+     ui->lab_DownSampFactorCur->setText(ui->comb_DownSampFactor->itemText(Table->Regs.DownSampFactor));
+     ui->lab_MaximizeSignalCur->setText(ui->comb_MaximizeSignal->itemText(Table->Regs.MaximizeSignal));
+     ui->lab_NoizeCur->setText(ui->comb_Noize->itemText(Table->Regs.NoiseLevel));
+     ui->lab_PowerSaveModeCur->setText(ui->comb_PowerSaveMode->itemText(Table->Regs.PowerSaveMode));
+     ui->lab_ProfileCur->setText(ui->comb_Profile->itemText(Table->Regs.Profile));
+     ui->lab_RepetitionModeCur->setText(ui->comb_RepetitionMode->itemText(Table->Regs.RepetitionMode));
+
+     ui->check_res_CANCur->setText(Table->Regs.Reslift & 0x0f00 ? "1":"0");
+     ui->check_res_RS485Cur->setText(Table->Regs.Reslift & 0x000f ? "1":"0");
+     ui->check_pow_CANCur->setText(Table->Regs.Reslift & 0xf000 ? "1":"0");
+     ui->check_pow_RS485Cur->setText(Table->Regs.Reslift & 0x00f0 ? "1":"0");
 }
 
 bool MWS::updateAllSettingsTable(union_tableRegsWrite *Table)
@@ -1257,12 +1318,11 @@ bool MWS::updateAllSettingsTable(union_tableRegsWrite *Table)
      Table->Regs.LenghtOfMeasure = static_cast<float>(ui->spin_EndMeasure->value())/1000;
      Table->Regs.HWAAS = ui->spin_HWAAS->value();
 
-     Table->Regs.SensorId = ui->spin_IdSensor->value();
+     Table->Regs.SensorId = 1;
      Table->Regs.IntervalAverag = ui->spin_IntAverage->value();
      Table->Regs.ReceiverGain = ui->spin_ReceiverGain->value();
      Table->Regs.RunningAverage = ui->spin_RunningAverage->value();
      Table->Regs.StartOfMeasure = static_cast<float>(ui->spin_StartMeasure->value())/1000;
-
 
      Table->Regs.TypeApproxim = ui->comb_TypeApproximation->currentIndex();
      Table->Regs.TypeAverag = ui->comb_TypeAverage->currentIndex();
@@ -1274,8 +1334,12 @@ bool MWS::updateAllSettingsTable(union_tableRegsWrite *Table)
      Table->Regs.PowerSaveMode = ui->comb_PowerSaveMode->currentIndex();
      Table->Regs.Profile = ui->comb_Profile->currentIndex();
      Table->Regs.RepetitionMode = ui->comb_RepetitionMode->currentIndex();
-     Table->Regs.TXDisable = ui->comb_TXDisable->currentIndex();
+     Table->Regs.TXDisable = 0;
 
+     ui->check_res_CAN->isChecked() ? Table->Regs.Reslift|= 0x0100 : Table->Regs.Reslift&= 0x1011;
+     ui->check_res_RS485->isChecked() ? Table->Regs.Reslift|= 0x0001 : Table->Regs.Reslift&= 0x1110;
+     ui->check_pow_CAN->isChecked() ? Table->Regs.Reslift|= 0x1000 : Table->Regs.Reslift&= 0x0111;
+     ui->check_pow_RS485->isChecked() ? Table->Regs.Reslift|= 0x0010 : Table->Regs.Reslift&= 0x1101;
 
      if( memcmp(&TableCheck.Adr[10],&(Table->Adr[10]),(COUNT_SENSOR_REGS+COUNT_DEV_REGS)*2))
      {
