@@ -273,7 +273,7 @@
                  <item row="2" column="4" colspan="2">
                   <widget class="QLabel" name="label_2">
                    <property name="text">
-                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;1-20 c&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;1-180 c&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                   </widget>
                  </item>
@@ -296,8 +296,11 @@
                  </item>
                  <item row="2" column="2" colspan="2">
                   <widget class="QSpinBox" name="spin_IntAverage">
+                   <property name="minimum">
+                    <number>1</number>
+                   </property>
                    <property name="maximum">
-                    <number>20</number>
+                    <number>180</number>
                    </property>
                   </widget>
                  </item>
@@ -469,7 +472,7 @@
                 <x>0</x>
                 <y>0</y>
                 <width>444</width>
-                <height>429</height>
+                <height>401</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_12">
@@ -840,6 +843,25 @@
                </item>
                <item row="1" column="0">
                 <layout class="QGridLayout" name="gridLayout_2">
+                 <item row="3" column="1">
+                  <widget class="QComboBox" name="comb_DownSampFactor"/>
+                 </item>
+                 <item row="6" column="1">
+                  <widget class="QComboBox" name="comb_AsynchMeasure"/>
+                 </item>
+                 <item row="5" column="1">
+                  <widget class="QComboBox" name="comb_PowerSaveMode"/>
+                 </item>
+                 <item row="2" column="2">
+                  <widget class="QLabel" name="lab_NoizeCur">
+                   <property name="frameShape">
+                    <enum>QFrame::NoFrame</enum>
+                   </property>
+                   <property name="text">
+                    <string>0</string>
+                   </property>
+                  </widget>
+                 </item>
                  <item row="0" column="0">
                   <widget class="QLabel" name="lab_Param2">
                    <property name="minimumSize">
@@ -859,28 +881,6 @@
                    </property>
                    <property name="text">
                     <string>Параметр</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="0" column="1">
-                  <widget class="QLabel" name="lab_NewParam2">
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>30</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>16777215</width>
-                     <height>30</height>
-                    </size>
-                   </property>
-                   <property name="frameShape">
-                    <enum>QFrame::Box</enum>
-                   </property>
-                   <property name="text">
-                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Новое значение&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                   </widget>
                  </item>
@@ -906,29 +906,63 @@
                    </property>
                   </widget>
                  </item>
-                 <item row="1" column="0">
-                  <widget class="QLabel" name="lab_Profile">
+                 <item row="5" column="2">
+                  <widget class="QLabel" name="lab_PowerSaveModeCur">
+                   <property name="frameShape">
+                    <enum>QFrame::NoFrame</enum>
+                   </property>
+                   <property name="text">
+                    <string>0</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="1">
+                  <widget class="QComboBox" name="comb_Noize"/>
+                 </item>
+                 <item row="5" column="0">
+                  <widget class="QLabel" name="lab_PowerSaveMode">
                    <property name="font">
                     <font>
                      <pointsize>7</pointsize>
                     </font>
                    </property>
+                   <property name="layoutDirection">
+                    <enum>Qt::LeftToRight</enum>
+                   </property>
                    <property name="frameShape">
                     <enum>QFrame::NoFrame</enum>
                    </property>
                    <property name="text">
-                    <string>Профиль:</string>
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Режим&lt;br/&gt;энергосбережения:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                    <property name="alignment">
                     <set>Qt::AlignCenter</set>
                    </property>
                   </widget>
                  </item>
-                 <item row="1" column="1">
-                  <widget class="QComboBox" name="comb_Profile"/>
+                 <item row="6" column="0">
+                  <widget class="QLabel" name="lab_AsynchMeasure">
+                   <property name="font">
+                    <font>
+                     <pointsize>7</pointsize>
+                    </font>
+                   </property>
+                   <property name="layoutDirection">
+                    <enum>Qt::LeftToRight</enum>
+                   </property>
+                   <property name="frameShape">
+                    <enum>QFrame::NoFrame</enum>
+                   </property>
+                   <property name="text">
+                    <string>Асинхр. измерение:</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignCenter</set>
+                   </property>
+                  </widget>
                  </item>
-                 <item row="1" column="2">
-                  <widget class="QLabel" name="lab_ProfileCur">
+                 <item row="3" column="2">
+                  <widget class="QLabel" name="lab_DownSampFactorCur">
                    <property name="frameShape">
                     <enum>QFrame::NoFrame</enum>
                    </property>
@@ -958,11 +992,8 @@
                    </property>
                   </widget>
                  </item>
-                 <item row="2" column="1">
-                  <widget class="QComboBox" name="comb_Noize"/>
-                 </item>
-                 <item row="2" column="2">
-                  <widget class="QLabel" name="lab_NoizeCur">
+                 <item row="6" column="2">
+                  <widget class="QLabel" name="lab_AsynchMeasureCur">
                    <property name="frameShape">
                     <enum>QFrame::NoFrame</enum>
                    </property>
@@ -970,6 +1001,41 @@
                     <string>0</string>
                    </property>
                   </widget>
+                 </item>
+                 <item row="1" column="2">
+                  <widget class="QLabel" name="lab_ProfileCur">
+                   <property name="frameShape">
+                    <enum>QFrame::NoFrame</enum>
+                   </property>
+                   <property name="text">
+                    <string>0</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="1">
+                  <widget class="QLabel" name="lab_NewParam2">
+                   <property name="minimumSize">
+                    <size>
+                     <width>0</width>
+                     <height>30</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>16777215</width>
+                     <height>30</height>
+                    </size>
+                   </property>
+                   <property name="frameShape">
+                    <enum>QFrame::Box</enum>
+                   </property>
+                   <property name="text">
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Новое значение&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="4" column="1">
+                  <widget class="QComboBox" name="comb_MaximizeSignal"/>
                  </item>
                  <item row="3" column="0">
                   <widget class="QLabel" name="lab_DownSampFactor">
@@ -992,11 +1058,8 @@
                    </property>
                   </widget>
                  </item>
-                 <item row="3" column="1">
-                  <widget class="QComboBox" name="comb_DownSampFactor"/>
-                 </item>
-                 <item row="3" column="2">
-                  <widget class="QLabel" name="lab_DownSampFactorCur">
+                 <item row="4" column="2">
+                  <widget class="QLabel" name="lab_MaximizeSignalCur">
                    <property name="frameShape">
                     <enum>QFrame::NoFrame</enum>
                    </property>
@@ -1004,6 +1067,27 @@
                     <string>0</string>
                    </property>
                   </widget>
+                 </item>
+                 <item row="1" column="0">
+                  <widget class="QLabel" name="lab_Profile">
+                   <property name="font">
+                    <font>
+                     <pointsize>7</pointsize>
+                    </font>
+                   </property>
+                   <property name="frameShape">
+                    <enum>QFrame::NoFrame</enum>
+                   </property>
+                   <property name="text">
+                    <string>Профиль:</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="1">
+                  <widget class="QComboBox" name="comb_Profile"/>
                  </item>
                  <item row="4" column="0">
                   <widget class="QLabel" name="lab_MaximizeSignal">
@@ -1023,121 +1107,6 @@
                    </property>
                    <property name="alignment">
                     <set>Qt::AlignCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="4" column="1">
-                  <widget class="QComboBox" name="comb_MaximizeSignal"/>
-                 </item>
-                 <item row="4" column="2">
-                  <widget class="QLabel" name="lab_MaximizeSignalCur">
-                   <property name="frameShape">
-                    <enum>QFrame::NoFrame</enum>
-                   </property>
-                   <property name="text">
-                    <string>0</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="5" column="0">
-                  <widget class="QLabel" name="lab_PowerSaveMode">
-                   <property name="font">
-                    <font>
-                     <pointsize>7</pointsize>
-                    </font>
-                   </property>
-                   <property name="layoutDirection">
-                    <enum>Qt::LeftToRight</enum>
-                   </property>
-                   <property name="frameShape">
-                    <enum>QFrame::NoFrame</enum>
-                   </property>
-                   <property name="text">
-                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Режим&lt;br/&gt;энергосбережения:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="5" column="1">
-                  <widget class="QComboBox" name="comb_PowerSaveMode"/>
-                 </item>
-                 <item row="5" column="2">
-                  <widget class="QLabel" name="lab_PowerSaveModeCur">
-                   <property name="frameShape">
-                    <enum>QFrame::NoFrame</enum>
-                   </property>
-                   <property name="text">
-                    <string>0</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="6" column="0">
-                  <widget class="QLabel" name="lab_AsynchMeasure">
-                   <property name="font">
-                    <font>
-                     <pointsize>7</pointsize>
-                    </font>
-                   </property>
-                   <property name="layoutDirection">
-                    <enum>Qt::LeftToRight</enum>
-                   </property>
-                   <property name="frameShape">
-                    <enum>QFrame::NoFrame</enum>
-                   </property>
-                   <property name="text">
-                    <string>Асинхр. измерение:</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="6" column="1">
-                  <widget class="QComboBox" name="comb_AsynchMeasure"/>
-                 </item>
-                 <item row="6" column="2">
-                  <widget class="QLabel" name="lab_AsynchMeasureCur">
-                   <property name="frameShape">
-                    <enum>QFrame::NoFrame</enum>
-                   </property>
-                   <property name="text">
-                    <string>0</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="7" column="0">
-                  <widget class="QLabel" name="lab_RepetitionMode">
-                   <property name="font">
-                    <font>
-                     <pointsize>7</pointsize>
-                    </font>
-                   </property>
-                   <property name="layoutDirection">
-                    <enum>Qt::LeftToRight</enum>
-                   </property>
-                   <property name="frameShape">
-                    <enum>QFrame::NoFrame</enum>
-                   </property>
-                   <property name="text">
-                    <string>Режим повторения:</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="7" column="1">
-                  <widget class="QComboBox" name="comb_RepetitionMode"/>
-                 </item>
-                 <item row="7" column="2">
-                  <widget class="QLabel" name="lab_RepetitionModeCur">
-                   <property name="frameShape">
-                    <enum>QFrame::NoFrame</enum>
-                   </property>
-                   <property name="text">
-                    <string>0</string>
                    </property>
                   </widget>
                  </item>

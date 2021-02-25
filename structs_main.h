@@ -2,7 +2,7 @@
 #define STRUCTS_MAIN_H
 
 #include <QString>
-
+;
 #pragma pack(push, 1)
 typedef struct struc_tableRegsRead
 {

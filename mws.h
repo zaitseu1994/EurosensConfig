@@ -32,6 +32,8 @@ public:
     void start(QModbusClient *modbusDev);
     void setToolTips();
     void setId(QString str);
+    void retranslate();
+
     QJsonObject getSetting();
     bool setSetting(QJsonObject json, QString idset,QString timeset);
 

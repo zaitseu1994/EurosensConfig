@@ -109,12 +109,12 @@ public:
    void writeSettings();
    void saveLanguage();
    void restoreLanguage();
-
 protected:
     void changeEvent(QEvent * event) override;
 private:
     QTranslator qtLanguageTranslator;
 private:
+    QMenu *menu_view = nullptr;
     QDockWidget *tree_dock = nullptr;
     QDockWidget *browser_dock = nullptr;
     QDockWidget *list_dock = nullptr;

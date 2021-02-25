@@ -104,25 +104,28 @@ MainWindow::MainWindow(QWidget *parent)
     });
 #endif
 
-    QMenu *menu_view = new QMenu(this);
+    menu_view = new QMenu(this);
     menu_view->setTitle(tr("Вид"));
 
-    tree_dock = new QDockWidget(tr("Устройства"), this);
+    tree_dock = new QDockWidget(this);
     tree_dock->setObjectName("tree");
+    tree_dock->setWindowTitle(tr("Устройства"));
     tree_dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea );
     tree_dock->setWidget(ui->treeWidget);
     addDockWidget(Qt::LeftDockWidgetArea, tree_dock);
     menu_view->addAction(tree_dock->toggleViewAction());
 
-    browser_dock = new QDockWidget(tr("Состояние"), this);
+    browser_dock = new QDockWidget(this);
     browser_dock->setObjectName("browser");
+    browser_dock->setWindowTitle(tr("Состояние"));
     browser_dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea );
     browser_dock->setWidget(ui->textBrowser);
     addDockWidget(Qt::BottomDockWidgetArea, browser_dock);
     menu_view->addAction(browser_dock->toggleViewAction());
 
-    list_dock = new QDockWidget(tr("Инфо"), this);
+    list_dock = new QDockWidget(this);
     list_dock->setObjectName("list");
+    list_dock->setWindowTitle(tr("Инфо"));
     list_dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea );
     list_dock->setWidget(ui->listInfo);
     addDockWidget(Qt::RightDockWidgetArea, list_dock);
@@ -212,7 +215,7 @@ MainWindow::MainWindow(QWidget *parent)
      });
      connect(login,&Login::clickLogin,this,[=](QString str)
      {
-         if( str.length()>0)
+         if( str.length()>0 )
          {
              setIduser(str);
              butlogin->setText(tr("Сменить пользователя")+ "( ID "+idUser+" )");
@@ -253,6 +256,37 @@ void MainWindow::changeEvent(QEvent *event)
 {
     if (event->type() == QEvent::LanguageChange) {
         ui->retranslateUi(this);    // переведём окно заново
+
+        QList<QMdiSubWindow *> list = ui->mdiArea->subWindowList(QMdiArea::CreationOrder);
+        if(list.count()!=0)
+        {
+            ui->mdiArea->closeAllSubWindows();
+            libs->CloseAll();
+        }
+        login->retranslate();
+
+        ui->textBrowser->clear();
+        ui->listInfo->clear();
+
+        tree_dock->setWindowTitle(tr("Устройства"));
+        browser_dock->setWindowTitle(tr("Состояние"));
+        list_dock->setWindowTitle(tr("Инфо"));
+        menu_view->setTitle(tr("Вид"));
+
+        statbar_NameD->setText(tr("Имя:"));
+        statbar_TypeD->setText(tr("Тип:"));
+        statbar_SerialD->setText(tr("Серийный:"));
+        statbar_AppD->setText(tr("Аппаратная версия:"));
+        statbar_LogD->setText(tr("Лог:"));
+        statbar_ProtcD->setText(tr("Протокол:"));
+        statbar_AdrD->setText(tr("Адрес:"));
+        statbar_PortD->setText(tr("Порт:"));
+
+        if( ui->actionSearh->isEnabled())
+        butlogin->setText(tr("Сменить пользователя")+ "( ID "+idUser+" )");
+        else
+        butlogin->setText(tr("Нажмите чтоб войти"));
+
     }
 }
 
@@ -1082,6 +1116,7 @@ void MainWindow::actionSaved()
           connect(webLoad,&QPushButton::clicked,this,[=]
           {
               webLoad->setEnabled(false);
+              namewebFile->setText(" ");
               const QUrl url(webserver);
               QNetworkRequest request(url);
               request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
@@ -1338,6 +1373,7 @@ void MainWindow::checkSettingWeb(int numDev)
     obj["Type"] = QString::number(tableDevices[numDev].table.Regs.TypeDevice);
     obj["VerAp"] = QString::number(tableDevices[numDev].table.Regs.VerApp);
     QDateTime actualTime = QDateTime::fromTime_t(tableDevices[numDev].table.Regs.timechange,Qt::UTC,0);
+    //QDateTime actualTime = QDateTime::currentDateTime();
     obj["Date"] = actualTime.toString(timeformat);
     obj["Id"] = idUser;
 
@@ -1369,7 +1405,7 @@ void MainWindow::checkSettingWeb(int numDev)
                    ui->textBrowser->append(QString::number(tableDevices[numDev].table.Regs.SerialNum)+": "+tr("Есть доступные настройки на сервере")+"!");
               }else
               {
-                   ui->textBrowser->append(QString::number(tableDevices[numDev].table.Regs.SerialNum)+": "+tr("бновление настроек не требуется"));
+                   ui->textBrowser->append(QString::number(tableDevices[numDev].table.Regs.SerialNum)+": "+tr("обновление настроек не требуется"));
               }
         }
         else

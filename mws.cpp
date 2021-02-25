@@ -16,7 +16,7 @@
 #include "structs_lib.h"
 #include "math.h"
 
-#define MODBUS_TIMEOUT_PACKET 150
+#define MODBUS_TIMEOUT_PACKET 300
 #define MODBUS_COUNT_REPAET   1
 
 #define MODBUS_COUNT_READ_ADR COUNT_REGSWRITE
@@ -315,6 +315,11 @@ MWS::MWS(QWidget *parent) :
    ui->graph_table->addGraph(); // текущее расстояние по X
 }
 
+void MWS::retranslate()
+{
+    ui->retranslateUi(this);
+}
+
 void MWS::setId(QString str)
 {
    idUser = str;
@@ -348,13 +353,12 @@ MWS::~MWS()
 void MWS::startView()
 {
     ui->comb_TypeApproximation->addItems(QStringList() << tr("Кусочно линейный") << tr("Полином Лангранжа"));
-    ui->comb_TypeAverage->addItems(QStringList() << tr("Экспоненциальный") << tr("Арифметический"));
+    ui->comb_TypeAverage->addItems(QStringList() << tr("Экспоненциальный") << tr("Арифметический") << tr("МНК первого порядка") << tr("МНК второго порядка"));
     ui->comb_Noize->addItems(QStringList() << tr("Да") << tr("Нет"));
     ui->comb_DownSampFactor->addItems(QStringList() << "1" << "2"<< "4");
     ui->comb_MaximizeSignal->addItems(QStringList() << tr("Да") << tr("Нет"));
     ui->comb_PowerSaveMode->addItems(QStringList() << tr("Выключен") << tr("Сон")<< tr("Готовность")<< tr("Активный")<< tr("Гибернация"));
     ui->comb_AsynchMeasure->addItems(QStringList() << tr("Да") << tr("Нет"));
-    ui->comb_RepetitionMode->addItems(QStringList() << tr("Внешнее управление") << tr("Управление сенсором"));
     ui->comb_Profile->addItems(QStringList() <<"1"<<"2"<<"3"<<"4"<<"5");
 }
 
@@ -385,6 +389,8 @@ bool MWS::setSetting(QJsonObject json,QString idset,QString timeset)
         LoclTableRecieve.Regs.TypeApproxim = json.value("TypeApproxim").toVariant().toUInt();
         LoclTableRecieve.Regs.TypeAverag = json.value("TypeAverag").toVariant().toUInt();
         LoclTableRecieve.Regs.IntervalAverag = json.value("IntervalAverag").toVariant().toUInt();
+
+        updateFirstSettingsView(&LoclTableRecieve);
 
         LoclTableRecieve.Regs.timechange = timeset.toULongLong();
         LoclTableRecieve.Regs.idset = idset.toUInt();
@@ -485,7 +491,6 @@ struct_listSavedDevices MWS::stringToTable(QString str)
      return table;
 }
 
-
 void MWS::setToolTips()
 {
    ui->lab_StartMeasure->setToolTip( tr("Расстояние от начала измерения. Рекомендуется ставить от 5 см для профиля 1, от 12 см для профилей 2-5 "));
@@ -499,9 +504,8 @@ void MWS::setToolTips()
    ui->lab_MaximizeSignal->setToolTip(tr("Настройка позволяет минимизировать насыщение приемника. Не рекомендуется использовать эту настройку при нормальной работе"));
    ui->lab_PowerSaveMode->setToolTip(tr("Конфигурация режима энергосбережения устанавливает, в каком состоянии датчик находится между измерениями. Режим потребления «АКТИВНЫЙ» дает самый быстрый отклик, а режим наименьшего потребления энергии «ВЫКЛ» дает самый медленный ответ. Режим «HIBERNATE» означает, что сенсор датчика все еще находится под напряжением, но внутренний генератор выключен"));
    ui->lab_AsynchMeasure->setToolTip(tr("Различие между режимами заключается в том, что в асинхронном режиме микроконтроллер датчика может работать, пока сенсор завершает работу. Поскольку датчик и хост могут работать параллельно, скорость обновления системы будет выше в асинхронном режиме. В асинхронном режиме данные полученые от сенсора являются данными предыдущей итерации"));
-   ui->lab_RepetitionMode->setToolTip(tr("Определяет условия считывания данных из сенсора: По запросу от микроконтроллера либо по готовности через установленный интервал от сенсора"));
    ui->lab_IntAverage->setToolTip(tr("Значение относится к типу усреднения, определяет за какой промежуток времени будут усреднятся данные"));
-   ui->lab_TypeAverage->setToolTip(tr("Определяет тип усреднения. Арифметическое усреднение работает на выбранном промежутке и следует из 2 измерений в секунду. Экспоненциальный работает с фильтром с адаптивным коэфициентом к скачам показаний сенсора"));
+   ui->lab_TypeAverage->setToolTip(tr("Определяет тип усреднения. Арифметическое усреднение работает на выбранном промежутке и следует из 2 измерений в секунду. Экспоненциальный работает с фильтром с адаптивным коэфициентом к скачам показаний сенсора. МНК - значения выбираются на апроксимирующей прямой линии в случае МНК первого порядка, в случае МНК второго порядка значения выбираются с кривой линии полинома второго пярядка A*x*x+B*x+C"));
    ui->lab_TypeApproximation->setToolTip(tr("Определяет каким образом будут расчитаны промежуточные значения между точками тарировочной таблицы"));
 
 
@@ -516,15 +520,12 @@ void MWS::setToolTips()
    MouseEvent->attach(ui->lab_MaximizeSignal);
    MouseEvent->attach(ui->lab_PowerSaveMode);
    MouseEvent->attach(ui->lab_AsynchMeasure);
-   MouseEvent->attach(ui->lab_RepetitionMode);
 
    MouseEvent->attach(ui->lab_IntAverage);
    MouseEvent->attach(ui->lab_TypeAverage);
    MouseEvent->attach(ui->lab_TypeApproximation);
 
 }
-
-
 
 void MWS::start(QModbusClient *modbusDev)
 {
@@ -592,7 +593,7 @@ void MWS::replyReceivedRead()
                    LoclTableRecieve.Adr[i+unit.startAddress()] = unit.value(i);
                 }
                 updateAllSettingsView(&LoclTableRecieve);
-                addPointMeasure(LoclTableRecieve.Regs.CurrentDistanse,LoclTableRecieve.Regs.CurrentVolume);
+                addPointMeasure(LoclTableRecieve.Regs.CurrentDistanse,static_cast<double>(LoclTableRecieve.Regs.CurrentVolume)/1000);
                 upperModbusCheck();
 
                 if (firstRequest)
@@ -1268,7 +1269,6 @@ ui->comb_TypeAverage->setCurrentIndex(Table->Regs.TypeAverag);
  ui->comb_Noize->setCurrentIndex(Table->Regs.NoiseLevel);
  ui->comb_PowerSaveMode->setCurrentIndex(Table->Regs.PowerSaveMode);
  ui->comb_Profile->setCurrentIndex(Table->Regs.Profile);
- ui->comb_RepetitionMode->setCurrentIndex(Table->Regs.RepetitionMode);
  ui->comb_TypeApproximation->setCurrentIndex(Table->Regs.TypeApproxim);
  ui->comb_TypeAverage->setCurrentIndex(Table->Regs.TypeAverag);
 
@@ -1282,7 +1282,7 @@ ui->comb_TypeAverage->setCurrentIndex(Table->Regs.TypeAverag);
 void MWS::updateAllSettingsView(union_tableRegsWrite* Table)
 {
      ui->lcd_Distance->setText(QString::number(Table->Regs.CurrentDistanse));
-     ui->lcd_Volume->setText(QString::number(Table->Regs.CurrentVolume));
+     ui->lcd_Volume->setText(QString::number(static_cast<double>(Table->Regs.CurrentVolume)/1000));
 
      ui->lab_AdrModbusCur->setText(QString::number(Table->Regs.AdrModbus));
      ui->lab_IntAverageCur->setText(QString::number(Table->Regs.IntervalAverag));
@@ -1302,7 +1302,6 @@ void MWS::updateAllSettingsView(union_tableRegsWrite* Table)
      ui->lab_NoizeCur->setText(ui->comb_Noize->itemText(Table->Regs.NoiseLevel));
      ui->lab_PowerSaveModeCur->setText(ui->comb_PowerSaveMode->itemText(Table->Regs.PowerSaveMode));
      ui->lab_ProfileCur->setText(ui->comb_Profile->itemText(Table->Regs.Profile));
-     ui->lab_RepetitionModeCur->setText(ui->comb_RepetitionMode->itemText(Table->Regs.RepetitionMode));
 
      ui->check_res_CANCur->setText(Table->Regs.Reslift & 0x0f00 ? "1":"0");
      ui->check_res_RS485Cur->setText(Table->Regs.Reslift & 0x000f ? "1":"0");
@@ -1333,7 +1332,6 @@ bool MWS::updateAllSettingsTable(union_tableRegsWrite *Table)
      Table->Regs.NoiseLevel = ui->comb_Noize->currentIndex();
      Table->Regs.PowerSaveMode = ui->comb_PowerSaveMode->currentIndex();
      Table->Regs.Profile = ui->comb_Profile->currentIndex();
-     Table->Regs.RepetitionMode = ui->comb_RepetitionMode->currentIndex();
      Table->Regs.TXDisable = 0;
 
      ui->check_res_CAN->isChecked() ? Table->Regs.Reslift|= 0x0100 : Table->Regs.Reslift&= 0x1011;

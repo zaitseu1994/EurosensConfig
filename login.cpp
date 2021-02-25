@@ -109,3 +109,8 @@ bool Login::checkPass(QString login,QString pass)
          stat =true;
  return stat;
 }
+
+void Login::retranslate()
+{
+    ui->retranslateUi(this);
+}

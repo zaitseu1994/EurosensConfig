@@ -17,6 +17,7 @@ public:
     ~Login();
     void checkLogin();
     bool checkPass(QString login,QString pass);
+    void retranslate();
 signals:
     void clickLogin(QString str);
     void closeLogin();

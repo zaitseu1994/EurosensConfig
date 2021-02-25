@@ -265,6 +265,17 @@ bool DeviceLibs::CloseDev(struct_listSavedDevices table)
     return stat;
 }
 
+void DeviceLibs::retranslateDev()
+{
+    for(int i =0;i<vectorDialogs.count();i++)
+    {
+         if( vectorDialogs[i].dialog!=nullptr )
+         {
+             vectorDialogs[i].dialog->retranslate();
+         }
+    }
+}
+
 bool DeviceLibs:: CloseAll()
 {
     for(int i =0;i<vectorDialogs.count();i++)
@@ -281,3 +292,4 @@ bool DeviceLibs:: CloseAll()
     vectorDialogs.clear();
     return true;
 }
+

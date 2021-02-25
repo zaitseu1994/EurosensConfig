@@ -62,6 +62,7 @@ public:
     state_dev devStatus(struct_listSavedDevices table);
 
     void devSettingsAccept(struct_listSavedDevices table,QJsonObject json);
+    void retranslateDev();
 
     bool CloseAll();
     bool CloseDev(struct_listSavedDevices table);

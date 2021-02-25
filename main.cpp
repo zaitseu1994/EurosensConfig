@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
         file.close();
         w.restoreGeometry(window);
         w.restoreState(state);
-    }    
+    }
    w.show();
    return a.exec();
 }
