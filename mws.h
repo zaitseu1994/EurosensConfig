@@ -14,8 +14,18 @@
 #include <QQueue>
 #include <QDateTime>
 
+#include "popup.h"
+
 #include <qcustomplot.h>
 
+#include "xlsxdocument.h"
+#include "xlsxchartsheet.h"
+#include "xlsxcellrange.h"
+#include "xlsxchart.h"
+#include "xlsxrichstring.h"
+#include "xlsxworkbook.h"
+
+using namespace QXlsx;
 
 namespace Ui {
 class MWS;
@@ -40,6 +50,16 @@ public:
 private:
     QString idUser = "0";
     QDateTime startTime;
+private:
+    QAction *LogXSLS;
+private:
+    void logInit();
+    void logSave();
+    QXlsx::Document LogFileXlsx;
+    uint32_t countLine = 1;
+    uint32_t countTimesave = 0;
+    bool LogEnable = false;
+    PopUp *poup;
 private:
     typedef enum Action
     {
@@ -165,6 +185,7 @@ private:
 private:
     Ui::MWS *ui;
     QTimer *ModbusRegsTimer = nullptr;
+    QTimer *LogFileTimer = nullptr;
     struct_listSavedDevices device;
     QModbusClient *modbusDevice = nullptr;
     bool firstRequest = true;

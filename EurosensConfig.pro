@@ -19,6 +19,8 @@ QT += network
 
 TRANSLATIONS += QtLanguage_en_US.ts
 
+include(QtXlsxWriter/src/xlsx/qtxlsx.pri)
+
 SOURCES += \
     devicelibs.cpp \
     login.cpp \
@@ -26,6 +28,7 @@ SOURCES += \
     mainwindow.cpp \
     mouseenter.cpp \
     mws.cpp \
+    popup.cpp \
     qcustomplot.cpp
 
 HEADERS += \
@@ -34,6 +37,7 @@ HEADERS += \
     mainwindow.h \
     mouseenter.h \
     mws.h \
+    popup.h \
     qcustomplot.h \
     structs_lib.h \
     structs_main.h \
@@ -44,6 +48,7 @@ FORMS += \
     login.ui \
     mainwindow.ui \
     mws.ui
+
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

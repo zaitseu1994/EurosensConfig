@@ -13,6 +13,7 @@
 
 #include <QPointF>
 
+
 #include "structs_lib.h"
 #include "math.h"
 
@@ -23,6 +24,9 @@
 
 #define MODBUS_INTERVAL_ALL 500
 #define MODBUS_INTERVAL_FAST 150
+
+#define LOGFILE_DATA_TIMER 5000 // 1000 мс
+#define LOGFILE_SAVE_TIMER (1800/5) // в секундах
 
 MWS::MWS(QWidget *parent) :
     QWidget(parent),
@@ -36,6 +40,13 @@ MWS::MWS(QWidget *parent) :
 
     MouseEvent = new Mouseenter();
     setToolTips();
+
+    LogXSLS = new QAction();
+    this->addAction(LogXSLS);
+    LogXSLS->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_P));
+    connect(LogXSLS,&QAction::triggered,this,&MWS::logInit);
+
+    poup = new PopUp();
 
     connect(MouseEvent,&Mouseenter::signalMouseHoverEnter,this,[=](QLabel* lab)
     {
@@ -75,6 +86,12 @@ MWS::MWS(QWidget *parent) :
     ModbusRegsTimer->setSingleShot(false);
     ModbusRegsTimer->setInterval(MODBUS_INTERVAL_ALL);
 
+    LogFileTimer = new QTimer();
+    LogFileTimer->stop();
+    LogFileTimer->setSingleShot(false);
+    LogFileTimer->setInterval(LOGFILE_DATA_TIMER);
+
+    connect(LogFileTimer,&QTimer::timeout,this,&MWS::logSave);
 
     if( !ui->check_AddParam->isChecked() )
     {
@@ -315,6 +332,56 @@ MWS::MWS(QWidget *parent) :
    ui->graph_table->addGraph(); // текущее расстояние по X
 }
 
+void MWS::logInit()
+{
+ if( !LogEnable )
+ {
+   LogEnable = true;
+
+   poup->setPopupText(tr("Запись лог файла для устройства\r\n")+tr("Cерийный номер: ")+QString::number(device.device.Regs.SerialNum)+"\r\n"+tr("Имя: ")+device.devicename+"\r\n"+tr("Включена"));
+   poup->show();
+
+   LogFileTimer->start();
+ }
+ else
+ {
+   LogEnable =false;
+   poup->setPopupText(tr("Запись лог файла для устройства\r\n")+tr("Cерийный номер: ")+QString::number(device.device.Regs.SerialNum)+"\r\n"+tr("Имя: ")+device.devicename+"\r\n"+tr("Выключена!"));
+   poup->show();
+
+   LogFileTimer->stop();
+   LogFileXlsx.saveAs("Log"+QString::number(device.device.Regs.SerialNum)+".xlsx");
+ }
+}
+
+void MWS::logSave()
+{
+    if(LogEnable )
+    {
+        if(countLine==1)
+        {
+            LogFileXlsx.write("A1", "Время");
+            LogFileXlsx.write("B1", "Серийный номер");
+            LogFileXlsx.write("C1", "Расстояние,мм");
+            LogFileXlsx.write("D1", "Обьем");
+
+        countLine = 2;
+        }
+
+    LogFileXlsx.write("A"+QString::number(countLine), QDateTime::currentDateTimeUtc());
+    LogFileXlsx.write("B"+QString::number(countLine), QString::number(device.device.Regs.SerialNum));
+    LogFileXlsx.write("C"+QString::number(countLine), LoclTableRecieve.Regs.CurrentDistanse);
+    LogFileXlsx.write("D"+QString::number(countLine), static_cast<float>(LoclTableRecieve.Regs.CurrentVolume)/1000);
+
+    countTimesave++;
+    countLine++;
+        if(countTimesave>=LOGFILE_SAVE_TIMER)
+        {
+            LogFileXlsx.saveAs("Log"+QString::number(device.device.Regs.SerialNum)+".xlsx");
+        }
+    }
+}
+
 void MWS::retranslate()
 {
     ui->retranslateUi(this);
@@ -345,7 +412,13 @@ MWS::~MWS()
         file.close();
     }
     barGraph->deleteLater();
+
+    LogFileTimer->stop();
+    LogFileXlsx.saveAs("Log"+QString::number(device.device.Regs.SerialNum)+".xlsx");
+
+    delete LogXSLS;
     delete MouseEvent;
+    delete LogFileTimer;
     delete ModbusRegsTimer;
     delete ui;
 }
@@ -549,6 +622,7 @@ void MWS::start(QModbusClient *modbusDev)
         queueAction.enqueue(SEND_DATA_CONNECT);
         queueAction.enqueue(READ_TABLE);
     }
+
     this->setEnabled(false);
     emit DevBusy(device);
 }

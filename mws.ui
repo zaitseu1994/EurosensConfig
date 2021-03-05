@@ -1289,14 +1289,7 @@
          </property>
          <layout class="QGridLayout" name="gridLayout_9">
           <item row="0" column="0">
-           <layout class="QGridLayout" name="gridLayout_5" rowstretch="1,1,1,1,5">
-            <item row="0" column="0">
-             <widget class="QLabel" name="lab_Distance">
-              <property name="text">
-               <string>Расстояние мм:</string>
-              </property>
-             </widget>
-            </item>
+           <layout class="QGridLayout" name="gridLayout_5" rowstretch="1,1,1,1,6">
             <item row="1" column="0">
              <widget class="QLabel" name="lcd_Distance">
               <property name="font">
@@ -1319,6 +1312,16 @@
               </property>
              </widget>
             </item>
+            <item row="4" column="0">
+             <widget class="QCustomPlot" name="graph_distanse" native="true"/>
+            </item>
+            <item row="0" column="0">
+             <widget class="QLabel" name="lab_Distance">
+              <property name="text">
+               <string>Расстояние мм:</string>
+              </property>
+             </widget>
+            </item>
             <item row="3" column="0">
              <widget class="QLabel" name="lcd_Volume">
               <property name="font">
@@ -1333,9 +1336,6 @@
                <string>100</string>
               </property>
              </widget>
-            </item>
-            <item row="4" column="0">
-             <widget class="QCustomPlot" name="graph_distanse" native="true"/>
             </item>
            </layout>
           </item>
