@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+
 #include <QDesktopWidget>
 
 #include "QDockWidget"
@@ -31,6 +32,7 @@
 
 #include "libtype4.h"
 #include "mws.h"
+#include "bootform.h"
 
 #define WEB_CONFIRM_GET "ANSWER_GET_CONFIRM"
 #define WEB_CONFIRM_SET "ANSWER_SET_CONFIRM"
@@ -205,7 +207,7 @@ MainWindow::MainWindow(QWidget *parent)
      ui->actionSearh->setEnabled(false);
      ui->actionCancel->setEnabled(false);
      ui->actionConfigure->setEnabled(false);
-     ui->actionUpdate->setEnabled(false);
+     //ui->actionUpdate->setEnabled(false);
 
      login->setWindowFlags(Qt::FramelessWindowHint | Qt::Dialog);
      connect(login,&Login::closeLogin,this,[=]
@@ -245,6 +247,7 @@ MainWindow::MainWindow(QWidget *parent)
      connect(ui->actionAditional,&QAction::triggered,this,&MainWindow::additionalChange);
      connect(ui->actionSaved,&QAction::triggered,this,&MainWindow::actionSaved);
      connect(ui->actionWebSettings,&QAction::triggered,this,&MainWindow::webSettingsChange);
+     connect(ui->actionUpdate,&QAction::triggered,this,&MainWindow::actionBootLoad);
 
      connect(ui->actionlangEN,&QAction::triggered,this,&MainWindow::SetLanguage);
      connect(ui->actionlangRU,&QAction::triggered,this,&MainWindow::SetLanguage);
@@ -894,6 +897,26 @@ void MainWindow::additionalChange()
 
     dialog->setBaseSize(dialog->width(),dialog->height()/2);
     dialog->show();
+}
+
+void MainWindow::actionBootLoad()
+{
+  QDialog *dialog = new QDialog(ui->mdiArea);
+  QVBoxLayout *mainLayout = new QVBoxLayout(dialog);
+  bootForm *bootf =new bootForm();
+  mainLayout->addWidget(bootf);
+
+  int select = selectedDevices.last();
+  dialog->setWindowTitle("Dev:"+tableDevices[select].devicename+"/"+QString::number(tableDevices[select].table.Regs.SerialNum)+"/"+tableDevices[select].com.nameCom);
+
+  struct_listSavedDevices tabl;
+  memcpy(&tabl.device,&tableDevices[select].table,sizeof(union_tableRegsRead));
+
+  bootf->setTable(tabl);
+  bootf->setModbus(tableDevices[select].com.modbusDev);
+
+  bootf->show();
+  dialog->show();
 }
 
 void MainWindow::actionSaved()

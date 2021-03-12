@@ -28,6 +28,8 @@
 #define LOGFILE_DATA_TIMER 5000 // 1000 мс
 #define LOGFILE_SAVE_TIMER (1800/5) // в секундах
 
+#define BOOT_TIMEOUT   1000
+
 MWS::MWS(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::MWS)
@@ -91,7 +93,13 @@ MWS::MWS(QWidget *parent) :
     LogFileTimer->setSingleShot(false);
     LogFileTimer->setInterval(LOGFILE_DATA_TIMER);
 
+    BootTimeout = new QTimer();
+    BootTimeout->stop();
+    BootTimeout->setSingleShot(true);
+    BootTimeout->setInterval(BOOT_TIMEOUT);
+
     connect(LogFileTimer,&QTimer::timeout,this,&MWS::logSave);
+    connect(BootTimeout,&QTimer::timeout,this,&MWS::bootloadTimeout);
 
     if( !ui->check_AddParam->isChecked() )
     {
@@ -125,6 +133,12 @@ MWS::MWS(QWidget *parent) :
                      ModbusRegsTimer->setInterval(MODBUS_INTERVAL_FAST);
                      ModbusRegsTimer->start();
                      fastread = true;
+                 }
+                 if(act ==TIMEOUT_ACCEPT_CONFIG)
+                 {
+                     ModbusRegsTimer->stop();
+                     ModbusRegsTimer->setInterval(MODBUS_INTERVAL_ALL);
+                     BootTimeout->start();
                  }
              }else
              {
@@ -288,19 +302,9 @@ MWS::MWS(QWidget *parent) :
       LoclTableRecieve.Regs.timechange = device.device.Regs.timechange;
       LoclTableRecieve.Regs.idchange = device.device.Regs.idchange;
 
-//      QString str =  QString::number(datechange.toTime_t())+" :: ";
-//      str+= QString::number(device.device.Regs.timechange);
-
-//      QString str = QDateTime::fromTime_t(device.device.Regs.timechange,Qt::UTC,0).toString("yyyy-MM-dd HH:mm:ss")+" :: ";
-//      str+= QString::number(device.device.Regs.timechange)+";";
-
-//      str+= datechange.toString("yyyy-MM-dd HH:mm:ss")+" :: ";
-//      str+=QString::number(datechange.toTime_t());
-
-//      ui->lin_addit->setText(str);
-
       queueAction.enqueue(UPDATE_ADDREGS);
       queueAction.enqueue(SEND_TO_SAVE_CONFIG);
+      queueAction.enqueue(TIMEOUT_ACCEPT_CONFIG);
       ui->button_Accept->setEnabled(false);
       ui->button_Update->setEnabled(false);
       ModbusRegsTimer->start();
@@ -352,6 +356,12 @@ void MWS::logInit()
    LogFileTimer->stop();
    LogFileXlsx.saveAs("Log"+QString::number(device.device.Regs.SerialNum)+".xlsx");
  }
+}
+
+void MWS::bootloadTimeout()
+{
+    BootTimeout->stop();
+    ModbusRegsTimer->start();
 }
 
 void MWS::logSave()

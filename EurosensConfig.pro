@@ -22,6 +22,7 @@ TRANSLATIONS += QtLanguage_en_US.ts
 include(QtXlsxWriter/src/xlsx/qtxlsx.pri)
 
 SOURCES += \
+    bootform.cpp \
     devicelibs.cpp \
     login.cpp \
     main.cpp \
@@ -32,6 +33,7 @@ SOURCES += \
     qcustomplot.cpp
 
 HEADERS += \
+    bootform.h \
     devicelibs.h \
     login.h \
     mainwindow.h \
@@ -45,6 +47,7 @@ HEADERS += \
     ui_mws.h
 
 FORMS += \
+    bootform.ui \
     login.ui \
     mainwindow.ui \
     mws.ui

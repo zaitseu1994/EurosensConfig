@@ -55,6 +55,7 @@ private:
 private:
     void logInit();
     void logSave();
+    void bootloadTimeout();
     QXlsx::Document LogFileXlsx;
     uint32_t countLine = 1;
     uint32_t countTimesave = 0;
@@ -71,7 +72,8 @@ private:
        READ_TABLE,
        UPDATE_ADDREGS,            // без записи команд в регистр
        SEND_TO_SAVE_FACTORY,
-       SEND_DATA_CONNECT
+       SEND_DATA_CONNECT,
+       TIMEOUT_ACCEPT_CONFIG      // команда для задержки для работы бутлодера при старте
     }Action;
 
     typedef enum cmd_command
@@ -185,6 +187,7 @@ private:
 private:
     Ui::MWS *ui;
     QTimer *ModbusRegsTimer = nullptr;
+    QTimer *BootTimeout = nullptr;
     QTimer *LogFileTimer = nullptr;
     struct_listSavedDevices device;
     QModbusClient *modbusDevice = nullptr;

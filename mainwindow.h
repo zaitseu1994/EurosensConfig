@@ -95,6 +95,8 @@ public:
     void additionalChange();
 
     void actionSaved();
+    void actionBootLoad();
+
 
     void treeItemPress(QTreeWidgetItem * item, int column);
 
@@ -160,7 +162,7 @@ private:
     int endcomModBusDevice;
     QVector<struct_listSavedDevices> tablListSavedDevices;
     QVector<struct_devices>  tableDevices;
-    QVector<int> selectedDevices;
+    QVector<int> selectedDevices; // хранит номера выделенных найденных устройств
     QList<QString> strListSavedDevices;
 };
 #endif // MAINWINDOW_H
