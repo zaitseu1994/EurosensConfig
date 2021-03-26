@@ -25,10 +25,10 @@
 #define MODBUS_INTERVAL_ALL 500
 #define MODBUS_INTERVAL_FAST 150
 
-#define LOGFILE_DATA_TIMER 5000 // 1000 мс
-#define LOGFILE_SAVE_TIMER (1800/5) // в секундах
+#define LOGFILE_DATA_TIMER 1000 // 1000 мс
+#define LOGFILE_SAVE_TIMER (1800) // в секундах
 
-#define BOOT_TIMEOUT   1000
+#define BOOT_TIMEOUT   5000
 
 MWS::MWS(QWidget *parent) :
     QWidget(parent),
@@ -133,12 +133,6 @@ MWS::MWS(QWidget *parent) :
                      ModbusRegsTimer->setInterval(MODBUS_INTERVAL_FAST);
                      ModbusRegsTimer->start();
                      fastread = true;
-                 }
-                 if(act ==TIMEOUT_ACCEPT_CONFIG)
-                 {
-                     ModbusRegsTimer->stop();
-                     ModbusRegsTimer->setInterval(MODBUS_INTERVAL_ALL);
-                     BootTimeout->start();
                  }
              }else
              {
@@ -304,7 +298,6 @@ MWS::MWS(QWidget *parent) :
 
       queueAction.enqueue(UPDATE_ADDREGS);
       queueAction.enqueue(SEND_TO_SAVE_CONFIG);
-      queueAction.enqueue(TIMEOUT_ACCEPT_CONFIG);
       ui->button_Accept->setEnabled(false);
       ui->button_Update->setEnabled(false);
       ModbusRegsTimer->start();
@@ -375,13 +368,30 @@ void MWS::logSave()
             LogFileXlsx.write("C1", "Расстояние,мм");
             LogFileXlsx.write("D1", "Обьем");
 
-        countLine = 2;
-        }
+            LogFileXlsx.write("E1", "Ошибка данных");
+            LogFileXlsx.write("F1", "Ошибка обмена");
+            LogFileXlsx.write("G1", "Ошибка насыщения");
+            LogFileXlsx.write("H1", "Ошибка температуре");
+            LogFileXlsx.write("I1", "Неизвестная ошибка");
 
+        countLine = 2;
+        } 
     LogFileXlsx.write("A"+QString::number(countLine), QDateTime::currentDateTimeUtc());
     LogFileXlsx.write("B"+QString::number(countLine), QString::number(device.device.Regs.SerialNum));
     LogFileXlsx.write("C"+QString::number(countLine), LoclTableRecieve.Regs.CurrentDistanse);
     LogFileXlsx.write("D"+QString::number(countLine), static_cast<float>(LoclTableRecieve.Regs.CurrentVolume)/1000);
+
+    int errMissData = LoclTableRecieve.Regs.RegError & 0b000000001 ? 1 :0;
+    int errSensCom = LoclTableRecieve.Regs.RegError & 0b000000010 ? 1 :0;
+    int errDataSatur = LoclTableRecieve.Regs.RegError & 0b000000100 ? 1 :0;
+    int errDataQuality = LoclTableRecieve.Regs.RegError & 0b000001000 ? 1 :0;
+    int errUnknown = LoclTableRecieve.Regs.RegError & 0b100000000 ? 1 :0;
+
+    LogFileXlsx.write("E"+QString::number(countLine), errMissData);
+    LogFileXlsx.write("F"+QString::number(countLine), errSensCom);
+    LogFileXlsx.write("G"+QString::number(countLine), errDataSatur);
+    LogFileXlsx.write("H"+QString::number(countLine), errDataQuality);
+    LogFileXlsx.write("I"+QString::number(countLine), errUnknown);
 
     countTimesave++;
     countLine++;
@@ -466,7 +476,7 @@ bool MWS::setSetting(QJsonObject json,QString idset,QString timeset)
         LoclTableRecieve.Regs.Profile = json.value("Profile").toVariant().toUInt();
         LoclTableRecieve.Regs.MaximizeSignal = json.value("MaximizeSignal").toVariant().toUInt();
         LoclTableRecieve.Regs.AsynchMeasure = json.value("AsynchMeasure").toVariant().toUInt();
-        LoclTableRecieve.Regs.DownSampFactor = json.value("AsynchMeasure").toInt();
+        LoclTableRecieve.Regs.DownSampFactor = json.value("DownSampFactor").toInt();
         LoclTableRecieve.Regs.RunningAverage = json.value("RunningAverage").toVariant().toFloat();
         LoclTableRecieve.Regs.NoiseLevel = json.value("NoiseLevel").toVariant().toUInt();
         LoclTableRecieve.Regs.TypeApproxim = json.value("TypeApproxim").toVariant().toUInt();
@@ -1367,6 +1377,30 @@ void MWS::updateAllSettingsView(union_tableRegsWrite* Table)
 {
      ui->lcd_Distance->setText(QString::number(Table->Regs.CurrentDistanse));
      ui->lcd_Volume->setText(QString::number(static_cast<double>(Table->Regs.CurrentVolume)/1000));
+
+     QString errstr;
+     QString errFlag;
+
+     QString errMissData = Table->Regs.RegError & 0b000000001 ? "присутствует" :"отсутствует";
+     QString errSensCom = Table->Regs.RegError & 0b000000010 ? "присутствует" :"отсутствует";
+     QString errDataSatur = Table->Regs.RegError & 0b000000100 ? "присутствует" :"отсутствует";
+     QString errDataQuality = Table->Regs.RegError & 0b000001000 ? "присутствует" :"отсутствует";
+     QString errUnknown = Table->Regs.RegError & 0b100000000 ? "присутствует" :"отсутствует";
+
+     errstr.append("Ошибка данных: \r\n");
+     errstr.append("Ошибка обмена: \r\n");
+     errstr.append("Ошибка насыщения: \r\n");
+     errstr.append("Ошибка по температуре: \r\n");
+     errstr.append("Неизвестная ошибка: \r\n");
+
+     errFlag.append(errMissData+"\r\n");
+     errFlag.append(errSensCom+"\r\n");
+     errFlag.append(errDataSatur+"\r\n");
+     errFlag.append(errDataQuality+"\r\n");
+     errFlag.append(errUnknown+"\r\n");
+
+     ui->lab_error->setText(errstr);
+     ui->lab_errFlag->setText(errFlag);
 
      ui->lab_AdrModbusCur->setText(QString::number(Table->Regs.AdrModbus));
      ui->lab_IntAverageCur->setText(QString::number(Table->Regs.IntervalAverag));

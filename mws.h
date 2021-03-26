@@ -72,8 +72,7 @@ private:
        READ_TABLE,
        UPDATE_ADDREGS,            // без записи команд в регистр
        SEND_TO_SAVE_FACTORY,
-       SEND_DATA_CONNECT,
-       TIMEOUT_ACCEPT_CONFIG      // команда для задержки для работы бутлодера при старте
+       SEND_DATA_CONNECT
     }Action;
 
     typedef enum cmd_command

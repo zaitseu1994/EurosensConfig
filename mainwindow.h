@@ -24,12 +24,14 @@
 #include "mws.h"
 
 #define LAST_MODBUS_ADRESS 30
-#define MODBUS_TIMEOUT_REPLY 120
+#define MODBUS_TIMEOUT_REPLY 130
 #define MODBUS_COUNT_REPEAT  1
 
 class QModbusClient;
 class QModbusReply;
 class DeviceLibs;
+
+
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -60,6 +62,12 @@ class MainWindow : public QMainWindow
         QDateTime actualTime;
     }struct_filejsonload;
 
+    typedef enum
+    {
+        ERR_NO,
+        ERR_FLASHREAD,
+        ERR_FIRMWARE
+    } LOGERROR;
 
 public:
     MainWindow(QWidget *parent = nullptr);

@@ -40,6 +40,7 @@
 //#define DEBUG_WEB
 #define DEBUG_MWS
 
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -795,7 +796,7 @@ void MainWindow::treeItemPress(QTreeWidgetItem * item, int column)
 void MainWindow::webSettingsChange()
 {
     QDialog *dialog = new QDialog(ui->mdiArea);
-
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
     QLabel *lab_WebLinkNameCurAdr = new QLabel(tr("Текущий адрес:"));
     QLabel *lab_WebLinkAdrCur = new QLabel(webserver);
 
@@ -829,7 +830,7 @@ void MainWindow::webSettingsChange()
 void MainWindow::additionalChange()
 {
     QDialog *dialog = new QDialog(ui->mdiArea);
-
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
     QComboBox *devcombo = new QComboBox();
 
     for(int i=0;i<selectedDevices.count();i++)
@@ -902,8 +903,11 @@ void MainWindow::additionalChange()
 void MainWindow::actionBootLoad()
 {
   QDialog *dialog = new QDialog(ui->mdiArea);
+  dialog->setAttribute(Qt::WA_DeleteOnClose);
   QVBoxLayout *mainLayout = new QVBoxLayout(dialog);
   bootForm *bootf =new bootForm();
+  bootf->setParent(dialog);
+
   mainLayout->addWidget(bootf);
 
   int select = selectedDevices.last();
@@ -911,9 +915,13 @@ void MainWindow::actionBootLoad()
 
   struct_listSavedDevices tabl;
   memcpy(&tabl.device,&tableDevices[select].table,sizeof(union_tableRegsRead));
+  tabl.devicename = tableDevices[select].devicename;
+  tabl.modbusadr = QString::number(tableDevices[select].com.currentAdr);
+  tabl.portname = tableDevices[select].com.nameCom;
 
   bootf->setTable(tabl);
-  bootf->setModbus(tableDevices[select].com.modbusDev);
+  bootf->setVector(vectorModbusDevice);
+  bootf->setFindDev(true);
 
   bootf->show();
   dialog->show();
@@ -922,7 +930,7 @@ void MainWindow::actionBootLoad()
 void MainWindow::actionSaved()
 {
       QDialog *dialog = new QDialog(ui->mdiArea);
-
+      dialog->setAttribute(Qt::WA_DeleteOnClose);
       QTableWidget *tableWidget = new QTableWidget(dialog);
 
       int rowCount = selectedDevices.count()*3;
@@ -1740,10 +1748,16 @@ void MainWindow::LoadLibDevice()
                   {
                       if ( !tableDevices[numDev].isOpen )
                       {
-                          libs->setIdUser( idUser );
-                          if ( libs->LibOpen(table,ui->mdiArea,tableDevices[numDev].com.modbusDev) )
+                          if( table.device.Regs.LogError & (1<<ERR_FIRMWARE) )
                           {
-                               tableDevices[numDev].isOpen = true;
+                              QMessageBox::information(this,table.devicename,tr("Датчик в режиме прошивки"));
+                          }else
+                          {
+                              libs->setIdUser( idUser );
+                              if ( libs->LibOpen(table,ui->mdiArea,tableDevices[numDev].com.modbusDev) )
+                              {
+                                   tableDevices[numDev].isOpen = true;
+                              }
                           }
                       }
                   }
@@ -1755,6 +1769,7 @@ void MainWindow::LoadLibDevice()
 void MainWindow::ViewSettingsDevice()
 {
      QDialog *dialog = new QDialog(ui->mdiArea);
+     dialog->setAttribute(Qt::WA_DeleteOnClose);
 
           QLabel *dateFrom = new QLabel(dialog);
           dateFrom->setText(tr("Период с")+":");
