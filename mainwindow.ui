@@ -161,6 +161,7 @@
     <addaction name="menuLangs"/>
     <addaction name="actionConfigure"/>
     <addaction name="actionWebSettings"/>
+    <addaction name="actionUpdateManual"/>
    </widget>
    <widget class="QMenu" name="help">
     <property name="title">
@@ -351,6 +352,15 @@
    </property>
    <property name="toolTip">
     <string>Текущий язык</string>
+   </property>
+  </action>
+  <action name="actionUpdateManual">
+   <property name="icon">
+    <iconset resource="res.qrc">
+     <normaloff>:/PNG/images/updateFiemware.png</normaloff>:/PNG/images/updateFiemware.png</iconset>
+   </property>
+   <property name="text">
+    <string>Обновить вручную</string>
    </property>
   </action>
  </widget>

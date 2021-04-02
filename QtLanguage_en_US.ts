@@ -11,27 +11,27 @@
     <message>
         <location filename="login.ui" line="112"/>
         <source>Логин</source>
-        <translation></translation>
+        <translation>Login</translation>
     </message>
     <message>
         <location filename="login.ui" line="140"/>
         <source>Пароль</source>
-        <translation></translation>
+        <translation>Password</translation>
     </message>
     <message>
         <location filename="login.ui" line="225"/>
         <source>Запомнить</source>
-        <translation></translation>
+        <translation>Remember</translation>
     </message>
     <message>
         <location filename="login.ui" line="259"/>
         <source>Войти</source>
-        <translation></translation>
+        <translation>Enter</translation>
     </message>
     <message>
         <location filename="login.ui" line="371"/>
         <source>Выйти из программы</source>
-        <translation></translation>
+        <translation>Exit</translation>
     </message>
 </context>
 <context>
@@ -44,17 +44,17 @@
     <message>
         <location filename="mws.ui" line="29"/>
         <source>Обновить</source>
-        <translation></translation>
+        <translation>Refresh</translation>
     </message>
     <message>
         <location filename="mws.ui" line="39"/>
         <source>Применить</source>
-        <translation></translation>
+        <translation>Apply</translation>
     </message>
     <message>
         <location filename="mws.ui" line="80"/>
         <source>Настройки датчика</source>
-        <translation></translation>
+        <translation>Device settings</translation>
     </message>
     <message>
         <location filename="mws.ui" line="133"/>
@@ -62,20 +62,20 @@
         <location filename="mws.ui" line="744"/>
         <location filename="mws.ui" line="883"/>
         <source>Параметр</source>
-        <translation></translation>
+        <translation>Parameter</translation>
     </message>
     <message>
         <location filename="mws.ui" line="155"/>
         <location filename="mws.ui" line="782"/>
         <location filename="mws.ui" line="1033"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Новое значение&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;New value&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="mws.ui" line="177"/>
         <location filename="mws.ui" line="529"/>
         <source>Диапазон</source>
-        <translation></translation>
+        <translation>Range</translation>
     </message>
     <message>
         <location filename="mws.ui" line="199"/>
@@ -83,7 +83,7 @@
         <location filename="mws.ui" line="581"/>
         <location filename="mws.ui" line="905"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Текущее значение&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Current value&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="mws.ui" line="206"/>
@@ -106,37 +106,37 @@
         <location filename="mws.ui" line="1011"/>
         <location filename="mws.ui" line="1067"/>
         <source>0</source>
-        <translation></translation>
+        <translation>0</translation>
     </message>
     <message>
         <location filename="mws.ui" line="234"/>
         <source>Ввод</source>
-        <translation></translation>
+        <translation>Input</translation>
     </message>
     <message>
         <location filename="mws.ui" line="241"/>
         <source>Пароль</source>
-        <translation></translation>
+        <translation>Password</translation>
     </message>
     <message>
         <location filename="mws.ui" line="248"/>
         <source>Тип аппроксимации</source>
-        <translation></translation>
+        <translation>Approximation type</translation>
     </message>
     <message>
         <location filename="mws.ui" line="255"/>
         <source>Тип усреднения </source>
-        <translation></translation>
+        <translation>Averaging type </translation>
     </message>
     <message>
         <location filename="mws.ui" line="262"/>
         <source>Время фильтра</source>
-        <translation></translation>
+        <translation>Filter time</translation>
     </message>
     <message>
         <location filename="mws.ui" line="269"/>
         <source>Адрес модбас</source>
-        <translation></translation>
+        <translation>Modbas address</translation>
     </message>
     <message>
         <location filename="mws.ui" line="276"/>
@@ -147,317 +147,346 @@
     <message>
         <location filename="mws.ui" line="283"/>
         <source>1-30</source>
-        <translation></translation>
+        <translation>1-30</translation>
     </message>
     <message>
         <location filename="mws.ui" line="321"/>
         <source>Доп. параметры</source>
-        <translation></translation>
+        <translation>Extra options</translation>
     </message>
     <message>
         <location filename="mws.ui" line="340"/>
         <source>резистор RS485</source>
-        <translation></translation>
+        <translation>resistor RS485</translation>
     </message>
     <message>
         <location filename="mws.ui" line="354"/>
         <source>резистор CAN</source>
-        <translation></translation>
+        <translation>resistor CAN</translation>
     </message>
     <message>
         <location filename="mws.ui" line="405"/>
         <source>подтяжка CAN</source>
-        <translation></translation>
+        <translation>pull-up CAN</translation>
     </message>
     <message>
         <location filename="mws.ui" line="412"/>
         <source>подтяжка RS485</source>
-        <translation></translation>
+        <translation>pull-up RS485</translation>
     </message>
     <message>
         <location filename="mws.ui" line="443"/>
         <source>Настройки сенсора</source>
-        <translation></translation>
+        <translation>Sensor settings</translation>
     </message>
     <message>
         <location filename="mws.ui" line="487"/>
         <source>60-5000 мм</source>
-        <translation></translation>
+        <translation>60-5000 mm</translation>
     </message>
     <message>
         <location filename="mws.ui" line="507"/>
         <source>60-2000 мм</source>
-        <translation></translation>
+        <translation>60-2000 mm</translation>
     </message>
     <message>
         <location filename="mws.ui" line="549"/>
         <source>1-63</source>
-        <translation></translation>
+        <translation>1-63</translation>
     </message>
     <message>
         <location filename="mws.ui" line="596"/>
         <source>Бегущее среднее:</source>
-        <translation></translation>
+        <translation>Running average:</translation>
     </message>
     <message>
         <location filename="mws.ui" line="643"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Диапазон измерений:&lt;br/&gt;(мм)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Measuring range:&lt;br/&gt;(mm)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="mws.ui" line="699"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Начало измерения:&lt;br/&gt;(мм)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Beginning of measurement:&lt;br/&gt;(mm)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="mws.ui" line="712"/>
         <location filename="mws.ui" line="838"/>
         <source>0.01-1.00</source>
-        <translation></translation>
+        <translation>0.01-1.00</translation>
     </message>
     <message>
         <location filename="mws.ui" line="797"/>
         <source>HWAAS:</source>
-        <translation></translation>
+        <translation>HWAAS:</translation>
     </message>
     <message>
         <location filename="mws.ui" line="815"/>
         <source>Усиление сигнала:</source>
-        <translation></translation>
+        <translation>Signal amplification:</translation>
     </message>
     <message>
         <location filename="mws.ui" line="1082"/>
         <source>Профиль:</source>
-        <translation></translation>
+        <translation>Profile:</translation>
     </message>
     <message>
         <location filename="mws.ui" line="988"/>
         <source>Шум:</source>
-        <translation></translation>
+        <translation>Noise:</translation>
     </message>
     <message>
         <location filename="mws.ui" line="1054"/>
         <source>Делитель:</source>
-        <translation></translation>
+        <translation>Divider:</translation>
     </message>
     <message>
         <location filename="mws.ui" line="1106"/>
         <source>Макс сигнал:</source>
-        <translation></translation>
+        <translation>Max signal:</translation>
     </message>
     <message>
         <location filename="mws.ui" line="936"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Режим&lt;br/&gt;энергосбережения:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt; Energy saving mode: &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="mws.ui" line="957"/>
         <source>Асинхр. измерение:</source>
-        <translation></translation>
+        <translation>Async. measurement:</translation>
     </message>
     <message>
         <location filename="mws.ui" line="1123"/>
         <source>Тарировочная таблица</source>
-        <translation></translation>
+        <translation>Calibration table</translation>
     </message>
     <message>
         <location filename="mws.ui" line="1131"/>
         <source>Количество точек</source>
-        <translation></translation>
+        <translation>Amount of points</translation>
     </message>
     <message>
         <location filename="mws.ui" line="1141"/>
         <source>Изменить</source>
-        <translation></translation>
+        <translation>Change</translation>
     </message>
     <message>
         <location filename="mws.ui" line="1168"/>
         <source>Отправить</source>
-        <translation></translation>
+        <translation>Send</translation>
     </message>
     <message>
         <location filename="mws.ui" line="1175"/>
         <source>Считать</source>
-        <translation></translation>
+        <translation>Read</translation>
     </message>
     <message>
         <location filename="mws.ui" line="1185"/>
-        <location filename="mws.cpp" line="190"/>
+        <location filename="mws.cpp" line="215"/>
         <source>Заводские</source>
-        <translation></translation>
+        <translation>Factory</translation>
     </message>
     <message>
         <location filename="mws.ui" line="1195"/>
         <source>Дата последней связи</source>
-        <translation></translation>
+        <translation>Last contact date</translation>
     </message>
     <message>
         <location filename="mws.ui" line="1202"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Id пользователя &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt; User ID &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="mws.ui" line="1209"/>
         <source>Тип устройства</source>
-        <translation></translation>
+        <translation>Device type</translation>
     </message>
     <message>
         <location filename="mws.ui" line="1216"/>
         <source>Серийный номер устройства</source>
-        <translation></translation>
+        <translation>Serial number of the device</translation>
     </message>
     <message>
         <location filename="mws.ui" line="1223"/>
         <source>аппаратная версия устроства</source>
-        <translation></translation>
+        <translation>hardware version of the device</translation>
     </message>
     <message>
         <location filename="mws.ui" line="1253"/>
         <source>Доп.поле 16 символов макс:</source>
-        <translation></translation>
+        <translation>Additional field 16 characters max:</translation>
     </message>
     <message>
         <location filename="mws.ui" line="1279"/>
         <source>Сохранить</source>
-        <translation></translation>
+        <translation>Save</translation>
     </message>
     <message>
         <location filename="mws.ui" line="1288"/>
         <source>Текущие парметры</source>
-        <translation></translation>
+        <translation>Current parameters</translation>
     </message>
     <message>
-        <location filename="mws.ui" line="1296"/>
+        <location filename="mws.ui" line="1294"/>
         <source>Расстояние мм:</source>
-        <translation></translation>
+        <translation>Distance mm:</translation>
     </message>
     <message>
-        <location filename="mws.ui" line="1311"/>
-        <location filename="mws.ui" line="1333"/>
+        <location filename="mws.ui" line="1309"/>
+        <location filename="mws.ui" line="1345"/>
         <source>100</source>
-        <translation></translation>
+        <translation>100</translation>
     </message>
     <message>
-        <location filename="mws.ui" line="1318"/>
+        <location filename="mws.ui" line="1330"/>
         <source>Обьем л:</source>
-        <translation></translation>
+        <translation>Volume :</translation>
     </message>
     <message>
-        <location filename="mws.ui" line="1352"/>
+        <location filename="mws.ui" line="1362"/>
         <source>Аппроксимация</source>
-        <translation></translation>
+        <translation>Approximation</translation>
     </message>
     <message>
-        <location filename="mws.ui" line="1358"/>
+        <location filename="mws.ui" line="1368"/>
         <source>кусочно-линейная</source>
-        <translation></translation>
+        <translation>piecewise linear</translation>
     </message>
     <message>
-        <location filename="mws.ui" line="1365"/>
+        <location filename="mws.ui" line="1375"/>
         <source>полин.Лагранжа</source>
-        <translation></translation>
+        <translation>Lagrange polynomial</translation>
     </message>
     <message>
-        <location filename="mws.cpp" line="48"/>
+        <location filename="mws.cpp" line="61"/>
         <source>Наведите курсор чтоб получить информацию...</source>
-        <translation></translation>
+        <translation>Hover over to get information ...</translation>
     </message>
     <message>
-        <location filename="mws.cpp" line="355"/>
+        <location filename="mws.cpp" line="338"/>
+        <location filename="mws.cpp" line="346"/>
+        <source>Запись лог файла для устройства<byte value="xd"/>
+</source>
+        <translation> Writing a log file for the device </translation>
+    </message>
+    <message>
+        <location filename="mws.cpp" line="338"/>
+        <location filename="mws.cpp" line="346"/>
+        <source>Cерийный номер: </source>
+        <translation>Serial number: </translation>
+    </message>
+    <message>
+        <location filename="mws.cpp" line="338"/>
+        <location filename="mws.cpp" line="346"/>
+        <source>Имя: </source>
+        <translation>Name: </translation>
+    </message>
+    <message>
+        <location filename="mws.cpp" line="338"/>
+        <source>Включена</source>
+        <translation>Enable</translation>
+    </message>
+    <message>
+        <location filename="mws.cpp" line="346"/>
+        <source>Выключена!</source>
+        <translation>Disable!</translation>
+    </message>
+    <message>
+        <location filename="mws.cpp" line="448"/>
         <source>Кусочно линейный</source>
-        <translation></translation>
+        <translation>Piecewise linear</translation>
     </message>
     <message>
-        <location filename="mws.cpp" line="355"/>
+        <location filename="mws.cpp" line="448"/>
         <source>Полином Лангранжа</source>
-        <translation></translation>
+        <translation>Langrange polynomial</translation>
     </message>
     <message>
-        <location filename="mws.cpp" line="356"/>
+        <location filename="mws.cpp" line="449"/>
         <source>Экспоненциальный</source>
-        <translation></translation>
+        <translation>Exponential</translation>
     </message>
     <message>
-        <location filename="mws.cpp" line="356"/>
+        <location filename="mws.cpp" line="449"/>
         <source>Арифметический</source>
-        <translation></translation>
+        <translation>Arithmetic</translation>
     </message>
     <message>
-        <location filename="mws.cpp" line="356"/>
+        <location filename="mws.cpp" line="449"/>
         <source>МНК первого порядка</source>
         <translation>First order least squares</translation>
     </message>
     <message>
-        <location filename="mws.cpp" line="356"/>
+        <location filename="mws.cpp" line="449"/>
         <source>МНК второго порядка</source>
         <translation>Second order least squares</translation>
     </message>
     <message>
-        <location filename="mws.cpp" line="357"/>
-        <location filename="mws.cpp" line="359"/>
-        <location filename="mws.cpp" line="361"/>
+        <location filename="mws.cpp" line="450"/>
+        <location filename="mws.cpp" line="452"/>
+        <location filename="mws.cpp" line="454"/>
         <source>Да</source>
-        <translation></translation>
+        <translation>Yes</translation>
     </message>
     <message>
-        <location filename="mws.cpp" line="357"/>
-        <location filename="mws.cpp" line="359"/>
-        <location filename="mws.cpp" line="361"/>
+        <location filename="mws.cpp" line="450"/>
+        <location filename="mws.cpp" line="452"/>
+        <location filename="mws.cpp" line="454"/>
         <source>Нет</source>
-        <translation></translation>
+        <translation>No</translation>
     </message>
     <message>
-        <location filename="mws.cpp" line="360"/>
+        <location filename="mws.cpp" line="453"/>
         <source>Выключен</source>
-        <translation></translation>
+        <translation>Switched off</translation>
     </message>
     <message>
-        <location filename="mws.cpp" line="360"/>
+        <location filename="mws.cpp" line="453"/>
         <source>Сон</source>
-        <translation></translation>
+        <translation>Sleep</translation>
     </message>
     <message>
-        <location filename="mws.cpp" line="360"/>
+        <location filename="mws.cpp" line="453"/>
         <source>Готовность</source>
-        <translation></translation>
+        <translation>Readiness</translation>
     </message>
     <message>
-        <location filename="mws.cpp" line="360"/>
+        <location filename="mws.cpp" line="453"/>
         <source>Активный</source>
-        <translation></translation>
+        <translation>Active</translation>
     </message>
     <message>
-        <location filename="mws.cpp" line="360"/>
+        <location filename="mws.cpp" line="453"/>
         <source>Гибернация</source>
-        <translation></translation>
+        <translation>Hibernation</translation>
     </message>
     <message>
-        <location filename="mws.cpp" line="497"/>
+        <location filename="mws.cpp" line="589"/>
         <source>Расстояние от начала измерения. Рекомендуется ставить от 5 см для профиля 1, от 12 см для профилей 2-5 </source>
-        <translation></translation>
+        <translation>Distance from the start of measurement.It is recommended to set from 5 cm for profile 1, from 12 cm for profiles 2-5 </translation>
     </message>
     <message>
-        <location filename="mws.cpp" line="498"/>
+        <location filename="mws.cpp" line="590"/>
         <source>Диапазон измерений.Датчик измеряет амплитуды отраженных сигналов сенсора и преобразуя их в расстояние в диапазоне от начала измерения до начала измерения + расстояние установленное этим параметром</source>
-        <translation></translation>
+        <translation>Measurement range The sensor measures the amplitudes of the reflected signals of the sensor and converts them into a distance in the range from the beginning of measurement to the beginning of measurement + the distance set by this parameter</translation>
     </message>
     <message>
-        <location filename="mws.cpp" line="499"/>
+        <location filename="mws.cpp" line="591"/>
         <source>Коэффициент усиления приемника, используемый в датчике. Если усиление слишком низкое, объекты могут быть не видны или это может привести к плохому качеству сигнала из-за ошибок квантования. Если усиление слишком велико, сильные отражения могут привести к искажению данных. Рекомендуется не устанавливать усиление выше, чем необходимо, из соображений качества сигнала</source>
-        <translation></translation>
+        <translation>The receiver gain used in the sensor. If the gain is too low, objects may not be visible or it may result in poor signal quality due to quantization errors. If the gain is too high, strong reflections can distort the data. It is recommended not to set the gain higher than necessary for signal quality reasons</translation>
     </message>
     <message>
-        <location filename="mws.cpp" line="500"/>
+        <location filename="mws.cpp" line="592"/>
         <source>Количество измерений на одну точку измерения амплитуды сигнала, по которому ведется усредненение уонечного результата. Время измерения пропорционально значению HWAAS. Не влияет на количество данных в развертке сигнала</source>
-        <translation></translation>
+        <translation>The number of measurements per one point of signal amplitude measurement, over which the final result is averaged. The measurement time is proportional to the HWAAS value. Does not affect the amount of data in the signal sweep</translation>
     </message>
     <message>
-        <location filename="mws.cpp" line="501"/>
+        <location filename="mws.cpp" line="593"/>
         <source>Чтобы стабилизировать сигнал и увеличить SNR, развертки в Envelope Service можно фильтровать по времени. Это можно настроить, установив коэффициент бегущего среднего от 0 до 1, где большое число указывает на усиление фильтрации. Фильтрация представляет собой стандартный фильтр экспоненциального сглаживания со значением по умолчанию 0,7.</source>
-        <translation></translation>
+        <translation>To stabilize the signal and increase SNR, the sweeps in the Envelope Service can be time-filtered. This can be adjusted by setting the coefficient of the running average from 0 to 1, where a large number indicates increased filtering. Filtering is a standard exponential smoothing filter with a default value of 0.7.</translation>
     </message>
     <message>
-        <location filename="mws.cpp" line="502"/>
+        <location filename="mws.cpp" line="594"/>
         <source>Основная конфигурация всех сервисов - это профили, пронумерованные от 1 до 5. Разница между профилями заключается в длине радиолокационного импульса и в способе дискретизации входящего импульса. Профили с низкими номерами используют короткие импульсы, в то время как более высокие профили используют более длинные импульсы <byte value="xd"/>
   Профиль 1 рекомендуется для: <byte value="xd"/>
  - измерение сильных отражений <byte value="xd"/>
@@ -466,86 +495,93 @@
  - работа на средних расстояниях (от 20 см до 1 м) <byte value="xd"/>
  Профиль 4 и 5 рекомендован для: <byte value="xd"/>
  - работа на больших расстояниях (&gt; 1 м) </source>
-        <translation></translation>
+        <translation>The basic configuration of all services is profiles numbered from 1 to 5. The differences between the profiles are in the length of the radar pulse and in the way the incoming pulse is sampled. Low-numbered profiles use short pulses, while higher profiles use longer pulses
+  Profile 1 is recommended for:
+ - measurement of strong reflections
+  - work at close range (&lt;20 cm)
+ Profile 2 and 3 are recommended for:
+ - work at medium distances (from 20 cm to 1 m)
+ Profile 4 and 5 are recommended for:
+ - work at long distances (&gt; 1 m) </translation>
     </message>
     <message>
-        <location filename="mws.cpp" line="503"/>
+        <location filename="mws.cpp" line="595"/>
         <source>Настройка влияет на какие амплитуды сигналов в развертке будут использоваться, абсолютные или нормализованные относительно усиления датчика и аппаратного усреднения</source>
-        <translation></translation>
+        <translation>The setting affects which signal amplitudes in the sweep will be used, absolute or normalized relative to the sensor gain and hardware averaging</translation>
     </message>
     <message>
-        <location filename="mws.cpp" line="504"/>
+        <location filename="mws.cpp" line="596"/>
         <source>Этот показатель влияет на частоту дискретизации сигнала, большее значение меньшее потребление энергии, памяти большая скорость работы, меньшее значение большая точность</source>
-        <translation></translation>
+        <translation>This indicator affects the sampling rate of the signal, the higher the value, the lower power consumption, the memory, the higher the speed, the lower the value, the greater the accuracy</translation>
     </message>
     <message>
-        <location filename="mws.cpp" line="505"/>
+        <location filename="mws.cpp" line="597"/>
         <source>Настройка позволяет минимизировать насыщение приемника. Не рекомендуется использовать эту настройку при нормальной работе</source>
-        <translation></translation>
+        <translation>This setting minimizes receiver saturation.It is not recommended to use this setting during normal operation</translation>
     </message>
     <message>
-        <location filename="mws.cpp" line="506"/>
+        <location filename="mws.cpp" line="598"/>
         <source>Конфигурация режима энергосбережения устанавливает, в каком состоянии датчик находится между измерениями. Режим потребления «АКТИВНЫЙ» дает самый быстрый отклик, а режим наименьшего потребления энергии «ВЫКЛ» дает самый медленный ответ. Режим «HIBERNATE» означает, что сенсор датчика все еще находится под напряжением, но внутренний генератор выключен</source>
-        <translation></translation>
+        <translation>The power save mode configuration sets what state the sensor is in between measurements. Consumption mode &quot;ACTIVE&quot; gives the fastest response, and mode of power consumption &quot;OFF&quot; gives the slowest response. HIBERNATE mode means the sensor is still energized, but the internal generator is off</translation>
     </message>
     <message>
-        <location filename="mws.cpp" line="507"/>
+        <location filename="mws.cpp" line="599"/>
         <source>Различие между режимами заключается в том, что в асинхронном режиме микроконтроллер датчика может работать, пока сенсор завершает работу. Поскольку датчик и хост могут работать параллельно, скорость обновления системы будет выше в асинхронном режиме. В асинхронном режиме данные полученые от сенсора являются данными предыдущей итерации</source>
-        <translation></translation>
+        <translation>The difference between the modes is that in asynchronous mode, the sensor microcontroller can run while the sensor is shutting down. Since the sensor and host can run in parallel, the system update rate will be faster in asynchronous mode. In asynchronous mode, the data received from the sensor is the data of the previous iteration</translation>
     </message>
     <message>
-        <location filename="mws.cpp" line="508"/>
+        <location filename="mws.cpp" line="600"/>
         <source>Значение относится к типу усреднения, определяет за какой промежуток времени будут усреднятся данные</source>
-        <translation></translation>
+        <translation>The value refers to the type of averaging, determines over what period of time the data will be averaged</translation>
     </message>
     <message>
-        <location filename="mws.cpp" line="509"/>
+        <location filename="mws.cpp" line="601"/>
         <source>Определяет тип усреднения. Арифметическое усреднение работает на выбранном промежутке и следует из 2 измерений в секунду. Экспоненциальный работает с фильтром с адаптивным коэфициентом к скачам показаний сенсора. МНК - значения выбираются на апроксимирующей прямой линии в случае МНК первого порядка, в случае МНК второго порядка значения выбираются с кривой линии полинома второго пярядка A*x*x+B*x+C</source>
         <translation>Defines the type of averaging. Arithmetic averaging works over the selected interval and follows from 2 measurements per second. Exponential works with a filter with an adaptive coefficient to the jumps in sensor readings. OLS - the values ​​are selected on the approximating straight line in the case of the first order OLS, in the case of the second order OLS, the values ​​are selected from the curved line of the second row polynomial A * x * x + B * x + C</translation>
     </message>
     <message>
-        <location filename="mws.cpp" line="510"/>
+        <location filename="mws.cpp" line="602"/>
         <source>Определяет каким образом будут расчитаны промежуточные значения между точками тарировочной таблицы</source>
-        <translation></translation>
+        <translation>Determines how the intermediate values ​​between the points of the calibration table will be calculated</translation>
     </message>
     <message>
-        <location filename="mws.cpp" line="581"/>
-        <location filename="mws.cpp" line="641"/>
+        <location filename="mws.cpp" line="672"/>
+        <location filename="mws.cpp" line="732"/>
         <source>Утеряно соединение с портом!</source>
-        <translation></translation>
+        <translation>Port connection lost!</translation>
     </message>
     <message>
-        <location filename="mws.cpp" line="609"/>
-        <location filename="mws.cpp" line="653"/>
+        <location filename="mws.cpp" line="700"/>
+        <location filename="mws.cpp" line="744"/>
         <source>Ошибка канала связи </source>
-        <translation></translation>
+        <translation>Communication channel error </translation>
     </message>
     <message>
-        <location filename="mws.cpp" line="976"/>
-        <location filename="mws.cpp" line="1025"/>
+        <location filename="mws.cpp" line="1067"/>
+        <location filename="mws.cpp" line="1116"/>
         <source>Расстояние, мм</source>
-        <translation></translation>
+        <translation>Distance, mm</translation>
     </message>
     <message>
-        <location filename="mws.cpp" line="977"/>
-        <location filename="mws.cpp" line="1026"/>
+        <location filename="mws.cpp" line="1068"/>
+        <location filename="mws.cpp" line="1117"/>
         <source>Обьем, л</source>
-        <translation></translation>
+        <translation>Volume</translation>
     </message>
     <message>
-        <location filename="mws.cpp" line="987"/>
+        <location filename="mws.cpp" line="1078"/>
         <source>Введите число..</source>
-        <translation></translation>
+        <translation>Insert the number.</translation>
     </message>
     <message>
-        <location filename="mws.cpp" line="1220"/>
+        <location filename="mws.cpp" line="1311"/>
         <source>Расстояние</source>
-        <translation></translation>
+        <translation>Distance</translation>
     </message>
     <message>
-        <location filename="mws.cpp" line="1221"/>
+        <location filename="mws.cpp" line="1312"/>
         <source>Обьем</source>
-        <translation></translation>
+        <translation>Volume</translation>
     </message>
 </context>
 <context>
@@ -558,525 +594,681 @@
     <message>
         <location filename="mainwindow.ui" line="143"/>
         <source>Устройство</source>
-        <translation></translation>
+        <translation>Device</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="152"/>
         <source>Настройки</source>
-        <translation></translation>
+        <translation>Settings</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="156"/>
         <source>Язык</source>
-        <translation></translation>
+        <translation>Language</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="167"/>
+        <location filename="mainwindow.ui" line="168"/>
         <source>Помощь</source>
-        <translation></translation>
+        <translation>Help</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="186"/>
+        <location filename="mainwindow.ui" line="187"/>
         <source>toolBar</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="205"/>
+        <location filename="mainwindow.ui" line="206"/>
         <source>Поиск устройств</source>
-        <translation></translation>
+        <translation>Search for devices</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="214"/>
+        <location filename="mainwindow.ui" line="215"/>
         <source>Сохранить/Загрузить файл</source>
-        <translation></translation>
+        <translation>Save / Load file</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="223"/>
+        <location filename="mainwindow.ui" line="224"/>
         <source>Остановить поиск</source>
-        <translation></translation>
+        <translation>Stop searching</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="232"/>
+        <location filename="mainwindow.ui" line="233"/>
         <source>Каналы связи</source>
-        <translation></translation>
+        <translation>Channels of connection</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="235"/>
+        <location filename="mainwindow.ui" line="236"/>
         <source>Configure serial port</source>
-        <translation></translation>
+        <translation>Configure serial port</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="238"/>
+        <location filename="mainwindow.ui" line="239"/>
         <source>Alt+C</source>
-        <translation></translation>
+        <translation>Alt+C</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="253"/>
+        <location filename="mainwindow.ui" line="254"/>
         <source>RU</source>
-        <translation></translation>
+        <translation>RU</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="256"/>
+        <location filename="mainwindow.ui" line="257"/>
         <source>Сменить язык</source>
-        <translation></translation>
+        <translation>Change language</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="336"/>
+        <location filename="mainwindow.ui" line="337"/>
         <source>EN</source>
-        <translation></translation>
+        <translation>EN</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="339"/>
+        <location filename="mainwindow.ui" line="340"/>
         <source>Change Language</source>
-        <translation></translation>
+        <translation>Change Language</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="350"/>
+        <location filename="mainwindow.ui" line="351"/>
         <source>?</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="353"/>
+        <location filename="mainwindow.ui" line="354"/>
         <source>Текущий язык</source>
-        <translation></translation>
+        <translation>Current language</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="265"/>
-        <location filename="mainwindow.cpp" line="1065"/>
+        <location filename="mainwindow.ui" line="363"/>
+        <source>Обновить вручную</source>
+        <translation>Manual boot</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.ui" line="266"/>
+        <location filename="mainwindow.cpp" line="1230"/>
         <source>Веб сервер</source>
-        <translation></translation>
+        <translation>Web server</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="274"/>
+        <location filename="mainwindow.ui" line="275"/>
         <source>Обновить прошивку</source>
-        <translation></translation>
+        <translation>Update firmware</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="283"/>
+        <location filename="mainwindow.ui" line="284"/>
         <source>История событий</source>
-        <translation></translation>
+        <translation>History of events</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="294"/>
+        <location filename="mainwindow.ui" line="295"/>
         <source>Русский</source>
-        <translation></translation>
+        <translation>Russian</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="302"/>
+        <location filename="mainwindow.ui" line="303"/>
         <source>English</source>
-        <translation></translation>
+        <translation>English</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="311"/>
+        <location filename="mainwindow.ui" line="312"/>
         <source>Дополнительно</source>
-        <translation></translation>
+        <translation>Additionally</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="316"/>
+        <location filename="mainwindow.ui" line="317"/>
         <source>Mechatronics сайт</source>
-        <translation></translation>
+        <translation>Mechatronics website</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="321"/>
+        <location filename="mainwindow.ui" line="322"/>
         <source>Напишите нам</source>
-        <translation></translation>
+        <translation>Write to us</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="74"/>
-        <location filename="mainwindow.cpp" line="481"/>
+        <location filename="mainwindow.cpp" line="83"/>
+        <location filename="mainwindow.cpp" line="493"/>
         <source>Проверьте соединение с портом</source>
-        <translation></translation>
+        <translation>Check port connection</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="108"/>
-        <location filename="mainwindow.cpp" line="274"/>
+        <location filename="mainwindow.cpp" line="117"/>
+        <location filename="mainwindow.cpp" line="285"/>
         <source>Вид</source>
-        <translation></translation>
+        <translation>View</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="112"/>
-        <location filename="mainwindow.cpp" line="271"/>
-        <source>Устройства</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="mainwindow.cpp" line="120"/>
-        <location filename="mainwindow.cpp" line="272"/>
-        <source>Состояние</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="mainwindow.cpp" line="128"/>
-        <location filename="mainwindow.cpp" line="273"/>
-        <source>Инфо</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="mainwindow.cpp" line="156"/>
-        <location filename="mainwindow.cpp" line="276"/>
-        <source>Имя:</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="mainwindow.cpp" line="157"/>
-        <location filename="mainwindow.cpp" line="277"/>
-        <source>Тип:</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="mainwindow.cpp" line="158"/>
-        <location filename="mainwindow.cpp" line="278"/>
-        <source>Серийный:</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="mainwindow.cpp" line="159"/>
-        <location filename="mainwindow.cpp" line="279"/>
-        <source>Аппаратная версия:</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="mainwindow.cpp" line="160"/>
-        <location filename="mainwindow.cpp" line="280"/>
-        <source>Лог:</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="mainwindow.cpp" line="161"/>
-        <location filename="mainwindow.cpp" line="281"/>
-        <source>Протокол:</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="mainwindow.cpp" line="162"/>
+        <location filename="mainwindow.cpp" line="121"/>
         <location filename="mainwindow.cpp" line="282"/>
-        <source>Адрес:</source>
-        <translation></translation>
+        <source>Устройства</source>
+        <translation>Devices</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="163"/>
+        <location filename="mainwindow.cpp" line="129"/>
         <location filename="mainwindow.cpp" line="283"/>
-        <source>Порт:</source>
-        <translation></translation>
+        <source>Состояние</source>
+        <translation>State</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="202"/>
+        <location filename="mainwindow.cpp" line="137"/>
+        <location filename="mainwindow.cpp" line="284"/>
+        <source>Инфо</source>
+        <translation>Info</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="165"/>
+        <location filename="mainwindow.cpp" line="287"/>
+        <source>Имя:</source>
+        <translation>Name:</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="166"/>
         <location filename="mainwindow.cpp" line="288"/>
-        <source>Нажмите чтоб войти</source>
-        <translation></translation>
+        <source>Тип:</source>
+        <translation>Type:</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="221"/>
-        <location filename="mainwindow.cpp" line="286"/>
-        <source>Сменить пользователя</source>
-        <translation></translation>
+        <location filename="mainwindow.cpp" line="167"/>
+        <location filename="mainwindow.cpp" line="289"/>
+        <source>Серийный:</source>
+        <translation>Serial number:</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="404"/>
-        <source>Идет поиск...</source>
-        <translation></translation>
+        <location filename="mainwindow.cpp" line="168"/>
+        <location filename="mainwindow.cpp" line="290"/>
+        <source>Аппаратная версия:</source>
+        <translation>Hardware version:</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="439"/>
-        <location filename="mainwindow.cpp" line="1619"/>
-        <source>Найденные устройства</source>
-        <translation></translation>
+        <location filename="mainwindow.cpp" line="169"/>
+        <location filename="mainwindow.cpp" line="291"/>
+        <source>Лог:</source>
+        <translation>Log:</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="442"/>
-        <source>Найденые порты</source>
-        <translation></translation>
+        <location filename="mainwindow.cpp" line="170"/>
+        <location filename="mainwindow.cpp" line="292"/>
+        <source>Протокол:</source>
+        <translation>Protocol:</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="446"/>
-        <source>Портов не найдено</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="mainwindow.cpp" line="481"/>
-        <location filename="mainwindow.cpp" line="500"/>
-        <source>Модбас</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="mainwindow.cpp" line="500"/>
-        <source>Проблема heap</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="mainwindow.cpp" line="520"/>
-        <location filename="mainwindow.cpp" line="529"/>
-        <source>Соединение с портом </source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="mainwindow.cpp" line="529"/>
-        <source> установленно...</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="mainwindow.cpp" line="538"/>
-        <source>Поиск завершен... </source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="mainwindow.cpp" line="560"/>
-        <source>: Адрес:</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="mainwindow.cpp" line="571"/>
-        <source>Ошибка чтения</source>
-        <translation></translation>
-    </message>
-    <message>
+        <location filename="mainwindow.cpp" line="171"/>
+        <location filename="mainwindow.cpp" line="293"/>
         <location filename="mainwindow.cpp" line="572"/>
+        <source>Адрес:</source>
+        <translation>Adress:</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="172"/>
+        <location filename="mainwindow.cpp" line="294"/>
+        <source>Порт:</source>
+        <translation>Port:</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="211"/>
+        <location filename="mainwindow.cpp" line="299"/>
+        <source>Нажмите чтоб войти</source>
+        <translation>Click to enter</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="230"/>
+        <location filename="mainwindow.cpp" line="297"/>
+        <source>Сменить пользователя</source>
+        <translation>Change user</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="416"/>
+        <source>Идет поиск...</source>
+        <translation>Searching ...</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="451"/>
+        <location filename="mainwindow.cpp" line="1784"/>
+        <source>Найденные устройства</source>
+        <translation>Found devices</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="454"/>
+        <source>Найденые порты</source>
+        <translation>Found ports</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="458"/>
+        <source>Портов не найдено</source>
+        <translation>No ports found</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="493"/>
+        <location filename="mainwindow.cpp" line="512"/>
+        <source>Модбас</source>
+        <translation>Modbus</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="512"/>
+        <source>Проблема heap</source>
+        <translation>Heap problem</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="532"/>
+        <location filename="mainwindow.cpp" line="541"/>
+        <source>Соединение с портом </source>
+        <translation>Port connection </translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="541"/>
+        <source> установленно...</source>
+        <translation> installed...</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="550"/>
+        <source>Поиск завершен... </source>
+        <translation>Search completed... </translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="583"/>
+        <source>Ошибка чтения</source>
+        <translation>Read error</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="584"/>
         <source>Проблема соединения</source>
-        <translation></translation>
+        <translation>Connection problem</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="600"/>
+        <location filename="mainwindow.cpp" line="612"/>
         <source>Найдено устройство</source>
-        <translation></translation>
+        <translation>Found device</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="600"/>
+        <location filename="mainwindow.cpp" line="612"/>
         <source>Протокол</source>
-        <translation></translation>
+        <translation>Protocol</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="600"/>
+        <location filename="mainwindow.cpp" line="612"/>
         <source>MODBUS-rtu</source>
-        <translation></translation>
+        <translation>MODBUS-rtu</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="600"/>
+        <location filename="mainwindow.cpp" line="612"/>
         <source>Адрес</source>
-        <translation></translation>
+        <translation>Adress</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="613"/>
+        <location filename="mainwindow.cpp" line="625"/>
         <source>Закончен опрос порта</source>
-        <translation></translation>
+        <translation>Port polling finished</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="639"/>
+        <location filename="mainwindow.cpp" line="651"/>
         <source>Поиск прерван пользователем</source>
-        <translation></translation>
+        <translation>Search interrupted by user</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="796"/>
+        <location filename="mainwindow.cpp" line="808"/>
         <source>Текущий адрес:</source>
-        <translation></translation>
+        <translation>Current address:</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="799"/>
+        <location filename="mainwindow.cpp" line="811"/>
         <source>Новый:</source>
-        <translation></translation>
+        <translation>New:</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="834"/>
-        <location filename="mainwindow.cpp" line="850"/>
+        <location filename="mainwindow.cpp" line="846"/>
+        <location filename="mainwindow.cpp" line="862"/>
         <source>Имя</source>
-        <translation></translation>
+        <translation>Name</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="838"/>
+        <location filename="mainwindow.cpp" line="850"/>
         <source>Изменить имя</source>
-        <translation></translation>
+        <translation>Change name</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="840"/>
+        <location filename="mainwindow.cpp" line="852"/>
         <source>Сменить</source>
-        <translation></translation>
+        <translation>Change</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="867"/>
+        <location filename="mainwindow.cpp" line="879"/>
         <source>Интерфейс</source>
+        <translation>Interface</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="919"/>
+        <source>Путь файла...</source>
+        <translation>file path...</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="920"/>
+        <source>Выбрать файл для шифрования</source>
+        <translation>Select file for encryption</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="922"/>
+        <source>Расшифровать</source>
+        <translation>Decrypt</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="950"/>
+        <source>file (*.cod)</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="910"/>
+        <location filename="mainwindow.cpp" line="990"/>
+        <source>file (*.hex)</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="1060"/>
+        <source>Нажмите поиск устройств для обнаружения портов</source>
+        <translation>Click search for devices to discover ports</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="1075"/>
         <source>Источник</source>
-        <translation></translation>
+        <translation>Source</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="911"/>
-        <location filename="mainwindow.cpp" line="1747"/>
+        <location filename="mainwindow.cpp" line="1076"/>
+        <location filename="mainwindow.cpp" line="1919"/>
         <source>Серийный</source>
-        <translation></translation>
+        <translation>Serial</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="912"/>
+        <location filename="mainwindow.cpp" line="1077"/>
         <source>Тип</source>
-        <translation></translation>
+        <translation>Type</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="913"/>
+        <location filename="mainwindow.cpp" line="1078"/>
         <source>Версия</source>
-        <translation></translation>
+        <translation>Version</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="914"/>
+        <location filename="mainwindow.cpp" line="1079"/>
         <source>Дата сохранения</source>
-        <translation></translation>
+        <translation>Save date</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="915"/>
-        <location filename="mainwindow.cpp" line="1749"/>
-        <location filename="mainwindow.cpp" line="1753"/>
+        <location filename="mainwindow.cpp" line="1080"/>
+        <location filename="mainwindow.cpp" line="1921"/>
+        <location filename="mainwindow.cpp" line="1925"/>
         <source>Id пользователя</source>
-        <translation></translation>
+        <translation>User ID</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="916"/>
+        <location filename="mainwindow.cpp" line="1081"/>
         <source>Файл</source>
-        <translation></translation>
+        <translation>File</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="917"/>
+        <location filename="mainwindow.cpp" line="1082"/>
         <source>Действие</source>
-        <translation></translation>
+        <translation>Act</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="941"/>
+        <location filename="mainwindow.cpp" line="1106"/>
         <source>Текущие настройки</source>
-        <translation></translation>
+        <translation>Current settings</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="955"/>
-        <location filename="mainwindow.cpp" line="1521"/>
+        <location filename="mainwindow.cpp" line="948"/>
+        <location filename="mainwindow.cpp" line="988"/>
+        <location filename="mainwindow.cpp" line="1120"/>
+        <location filename="mainwindow.cpp" line="1686"/>
         <source>Сохранить</source>
-        <translation></translation>
+        <translation>Save</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="965"/>
+        <location filename="mainwindow.cpp" line="1130"/>
         <source>Из файла</source>
-        <translation></translation>
+        <translation>From file</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="967"/>
+        <location filename="mainwindow.cpp" line="1132"/>
         <source>Загрузить файл</source>
-        <translation></translation>
+        <translation>Load file</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="968"/>
-        <location filename="mainwindow.cpp" line="1068"/>
+        <location filename="mainwindow.cpp" line="1133"/>
+        <location filename="mainwindow.cpp" line="1233"/>
         <source>Загрузить</source>
-        <translation></translation>
+        <translation>load</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="1030"/>
-        <location filename="mainwindow.cpp" line="1215"/>
+        <location filename="mainwindow.cpp" line="1195"/>
+        <location filename="mainwindow.cpp" line="1380"/>
         <source>Настройки применены</source>
-        <translation></translation>
+        <translation>Settings applied</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="1053"/>
-        <location filename="mainwindow.cpp" line="1238"/>
+        <location filename="mainwindow.cpp" line="1218"/>
+        <location filename="mainwindow.cpp" line="1403"/>
         <source>Ошибка с приминением настроек</source>
-        <translation></translation>
+        <translation>Error applying settings</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="1057"/>
-        <location filename="mainwindow.cpp" line="1242"/>
-        <location filename="mainwindow.cpp" line="1547"/>
+        <location filename="mainwindow.cpp" line="1222"/>
+        <location filename="mainwindow.cpp" line="1407"/>
+        <location filename="mainwindow.cpp" line="1712"/>
         <source>Программа считывает настройки</source>
-        <translation></translation>
+        <translation>The program reads the settings</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="1061"/>
+        <location filename="mainwindow.cpp" line="1226"/>
         <source>Необходимо открыть устройство</source>
-        <translation></translation>
+        <translation>You need to open the device</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="1067"/>
+        <location filename="mainwindow.cpp" line="1232"/>
         <source>Проверить</source>
-        <translation></translation>
+        <translation>Verify</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="1101"/>
-        <location filename="mainwindow.cpp" line="1162"/>
+        <location filename="mainwindow.cpp" line="1266"/>
+        <location filename="mainwindow.cpp" line="1327"/>
         <source>Доступно</source>
-        <translation></translation>
+        <translation>Available</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="1104"/>
-        <location filename="mainwindow.cpp" line="1165"/>
+        <location filename="mainwindow.cpp" line="1269"/>
+        <location filename="mainwindow.cpp" line="1330"/>
         <source>Не найдено</source>
-        <translation></translation>
+        <translation>Not found</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="1247"/>
-        <location filename="mainwindow.cpp" line="1551"/>
+        <location filename="mainwindow.cpp" line="1412"/>
+        <location filename="mainwindow.cpp" line="1716"/>
         <source>Необходимо открыть устройство, программа считает настройки автоматически</source>
-        <translation></translation>
+        <translation>You need to open the device, the program will read the settings automatically</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="1405"/>
+        <location filename="mainwindow.cpp" line="1570"/>
         <source>Есть доступные настройки на сервере</source>
-        <translation></translation>
+        <translation>There are available settings on the server</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="1459"/>
-        <location filename="mainwindow.cpp" line="1651"/>
+        <location filename="mainwindow.cpp" line="929"/>
+        <location filename="mainwindow.cpp" line="969"/>
+        <location filename="mainwindow.cpp" line="1624"/>
+        <location filename="mainwindow.cpp" line="1816"/>
         <source>Открыть</source>
-        <translation></translation>
+        <translation>Open</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="1523"/>
+        <location filename="mainwindow.cpp" line="1688"/>
         <source>JSON (*.json)</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="1498"/>
+        <location filename="mainwindow.cpp" line="1663"/>
         <source>Настройки не соответствуют датчику</source>
-        <translation></translation>
+        <translation>Settings do not match sensor</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="1408"/>
+        <location filename="mainwindow.cpp" line="1573"/>
         <source>обновление настроек не требуется</source>
         <translation>no update required</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="1655"/>
+        <location filename="mainwindow.cpp" line="1820"/>
         <source>Закрыть</source>
-        <translation></translation>
+        <translation>Close</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="1737"/>
+        <location filename="mainwindow.cpp" line="1887"/>
+        <source>Датчик в режиме прошивки</source>
+        <translation>Device in boot mode</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="1909"/>
         <source>Период с</source>
-        <translation></translation>
+        <translation>Period from</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="1739"/>
+        <location filename="mainwindow.cpp" line="1911"/>
         <source>Период по</source>
-        <translation></translation>
+        <translation>Period by</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="1748"/>
+        <location filename="mainwindow.cpp" line="1920"/>
         <source>Время соединения</source>
-        <translation></translation>
+        <translation>Connection time</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="1750"/>
+        <location filename="mainwindow.cpp" line="1922"/>
         <source>Время настройки</source>
-        <translation></translation>
+        <translation>Setup time</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="1751"/>
+        <location filename="mainwindow.cpp" line="1923"/>
         <source>Id пользов. настроек</source>
-        <translation></translation>
+        <translation>User ID settings</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="1752"/>
+        <location filename="mainwindow.cpp" line="1924"/>
         <source>Время основных настроек</source>
-        <translation></translation>
+        <translation>Time of basic settings</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="1754"/>
+        <location filename="mainwindow.cpp" line="1926"/>
         <source>Доп поле</source>
-        <translation></translation>
+        <translation>Additional field</translation>
+    </message>
+</context>
+<context>
+    <name>bootForm</name>
+    <message>
+        <location filename="bootform.ui" line="14"/>
+        <source>Form</source>
+        <translation>Form</translation>
+    </message>
+    <message>
+        <location filename="bootform.ui" line="37"/>
+        <location filename="bootform.cpp" line="53"/>
+        <source>Перевести в режим</source>
+        <translation>Switch to mode</translation>
+    </message>
+    <message>
+        <location filename="bootform.ui" line="47"/>
+        <source>Порт</source>
+        <translation>Port</translation>
+    </message>
+    <message>
+        <location filename="bootform.ui" line="54"/>
+        <source>Адрес</source>
+        <translation>Adress</translation>
+    </message>
+    <message>
+        <location filename="bootform.ui" line="68"/>
+        <source>Загрузить в устройство</source>
+        <translation>Boot to device</translation>
+    </message>
+    <message>
+        <location filename="bootform.ui" line="75"/>
+        <source>Прошить</source>
+        <translation>Boot</translation>
+    </message>
+    <message>
+        <location filename="bootform.ui" line="85"/>
+        <source>Режим boot</source>
+        <translation>Boot mode</translation>
+    </message>
+    <message>
+        <location filename="bootform.ui" line="92"/>
+        <source>Выбрать файл(.cod)</source>
+        <translation>Select a file</translation>
+    </message>
+    <message>
+        <location filename="bootform.ui" line="99"/>
+        <source>Выбрать</source>
+        <translation>Choose</translation>
+    </message>
+    <message>
+        <location filename="bootform.cpp" line="41"/>
+        <source>Отменить режим</source>
+        <translation>Cancel mode</translation>
+    </message>
+    <message>
+        <location filename="bootform.cpp" line="172"/>
+        <source>Открыть</source>
+        <translation>Open</translation>
+    </message>
+    <message>
+        <location filename="bootform.cpp" line="341"/>
+        <location filename="bootform.cpp" line="350"/>
+        <source>Старт загрузки</source>
+        <translation>Start boot</translation>
+    </message>
+    <message>
+        <location filename="bootform.cpp" line="353"/>
+        <source>Ошибка старта загрузки</source>
+        <translation>Error start boot</translation>
+    </message>
+    <message>
+        <location filename="bootform.cpp" line="365"/>
+        <location filename="bootform.cpp" line="374"/>
+        <source>Очистка памяти</source>
+        <translation>Clearing memory</translation>
+    </message>
+    <message>
+        <location filename="bootform.cpp" line="377"/>
+        <source>Ошибка очистки памяти</source>
+        <translation>Error clearing memory</translation>
+    </message>
+    <message>
+        <location filename="bootform.cpp" line="402"/>
+        <source>Загрузка строк</source>
+        <translation>loading lines</translation>
+    </message>
+    <message>
+        <location filename="bootform.cpp" line="403"/>
+        <source>Загрузка строки:</source>
+        <translation>loading line:</translation>
+    </message>
+    <message>
+        <location filename="bootform.cpp" line="421"/>
+        <source>Ошибка загрузки строки</source>
+        <translation>Error loading line</translation>
+    </message>
+    <message>
+        <location filename="bootform.cpp" line="431"/>
+        <source>Конец загрузки</source>
+        <translation>loading is finish</translation>
+    </message>
+    <message>
+        <location filename="bootform.cpp" line="439"/>
+        <source>Датчик прошит</source>
+        <translation>Sensor loaded</translation>
+    </message>
+    <message>
+        <location filename="bootform.cpp" line="445"/>
+        <source>Ошибка конца загрузки</source>
+        <translation>download completion error</translation>
+    </message>
+    <message>
+        <location filename="bootform.cpp" line="633"/>
+        <source>Ожидание ответа </source>
+        <translation>waiting the answer </translation>
     </message>
 </context>
 </TS>

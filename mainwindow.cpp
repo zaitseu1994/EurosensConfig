@@ -65,6 +65,12 @@ MainWindow::MainWindow(QWidget *parent)
     statbar_PortD= new QLabel(this);
     statbar_Port= new QLabel(this);
 
+    actionFileConvert = new QAction();
+    this->addAction(actionFileConvert);
+    actionFileConvert->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Q));
+    connect(actionFileConvert,&QAction::triggered,this,&MainWindow::actionConvertFile);
+
+
     httpNetwork = new QNetworkAccessManager(this);
 
     connect(ModbusTimer,&QTimer::timeout,this,[this]()
@@ -250,6 +256,7 @@ MainWindow::MainWindow(QWidget *parent)
      connect(ui->actionWebSettings,&QAction::triggered,this,&MainWindow::webSettingsChange);
      connect(ui->actionUpdate,&QAction::triggered,this,&MainWindow::actionBootLoad);
 
+     connect(ui->actionUpdateManual,&QAction::triggered,this,&MainWindow::actionManualBootLoad);
      connect(ui->actionlangEN,&QAction::triggered,this,&MainWindow::SetLanguage);
      connect(ui->actionlangRU,&QAction::triggered,this,&MainWindow::SetLanguage);
 
@@ -337,6 +344,7 @@ MainWindow::~MainWindow()
     tableDevices.clear();
     ui->mdiArea->closeAllSubWindows();
 
+    delete actionFileConvert;
     delete login;
     delete ui;
 }
@@ -561,7 +569,7 @@ void MainWindow::pollAdrModbus()
         cur.select(QTextCursor::LineUnderCursor);
         cur.removeSelectedText();
         cur.setPosition(textCursor);
-        cur.insertText(vectorModbusDevice[intcomModBusDevice].nameCom+tr(": Адрес:")+QString::number(vectorModbusDevice[intcomModBusDevice].currentAdr) +
+        cur.insertText(vectorModbusDevice[intcomModBusDevice].nameCom+":"+tr("Адрес:")+QString::number(vectorModbusDevice[intcomModBusDevice].currentAdr) +
                        " ..."+ QString::number(CurentRequestAdr*100/CountRequestAdr)+"%");
 
         if (auto *reply =  vectorModbusDevice[intcomModBusDevice].modbusDev->sendReadRequest(request,  vectorModbusDevice[intcomModBusDevice].currentAdr)) {
@@ -900,6 +908,107 @@ void MainWindow::additionalChange()
     dialog->show();
 }
 
+void MainWindow::actionConvertFile()
+{
+   QByteArray  keyarray(std::begin<char>({0x45, 0x0A, 0x0B, 0x0c, 0x02, 0x05, 0x35,0x45, 0x0A, 0x045, 0x1c, 0x32, 0x15, 0x25,0x45, 0x6A, 0x07, 0x1c, 0x32, 0x55, 0x35}), 21);
+
+   QDialog *dialog = new QDialog(ui->mdiArea);
+   dialog->setAttribute(Qt::WA_DeleteOnClose);
+   QVBoxLayout *mainLayout = new QVBoxLayout(dialog);
+
+   QLabel *labname = new QLabel(tr("Путь файла..."));
+   QPushButton *butname = new QPushButton(tr("Выбрать файл для шифрования"));
+
+   QPushButton *butname2 = new QPushButton(tr("Расшифровать"));
+
+   //butname2->setEnabled(false);
+   connect(butname,&QPushButton::clicked,this,[=]
+   {
+       QFile file;
+       QString loadFileName = QFileDialog::getOpenFileName(this,
+                                                        tr("Открыть"),
+                                                        QString(),
+                                                        "file (*.hex)");
+
+        file.setFileName(loadFileName);
+
+        if ((file.exists())&&(file.open(QIODevice::ReadOnly)))
+        {
+
+            QByteArray input = file.readAll();
+            const char* key = keyarray;
+            int keyLength = keyarray.length();
+            QByteArray output;
+            for (int i = 0; i < input.length() ; i++)
+            {
+                output.append(input[i] ^ key[i % keyLength + 1]);
+            }
+
+                    QString saveFileName = QFileDialog::getSaveFileName(this,
+                                                                      tr("Сохранить"),
+                                                                      QString(),
+                                                                      tr("file (*.cod)"));
+                    QFile FileCode(saveFileName);
+
+                    if (!FileCode.open(QIODevice::WriteOnly))
+                    {
+
+                    }else
+                    {
+                      FileCode.write(output,input.length());
+                      FileCode.close();
+                    }
+            file.close();
+        }
+   });
+
+   connect(butname2,&QPushButton::clicked,this,[=]
+   {
+       QFile file;
+       QString loadFileName = QFileDialog::getOpenFileName(this,
+                                                        tr("Открыть"),
+                                                        QString(),
+                                                        "file (*.cod)");
+
+        file.setFileName(loadFileName);
+
+        if ((file.exists())&&(file.open(QIODevice::ReadOnly)))
+        {
+
+            QByteArray input = file.readAll();
+            const char* key = keyarray;
+            int keyLength = keyarray.length();
+            QByteArray output;
+            for (int i = 0; i < input.length() ; i++)
+            {
+                output.append(input[i] ^ key[i % keyLength + 1]);
+            }
+
+                    QString saveFileName = QFileDialog::getSaveFileName(this,
+                                                                      tr("Сохранить"),
+                                                                      QString(),
+                                                                      tr("file (*.hex)"));
+                    QFile FileCode(saveFileName);
+
+                    if (!FileCode.open(QIODevice::WriteOnly))
+                    {
+
+                    }else
+                    {
+                      FileCode.write(output,input.length());
+                      FileCode.close();
+                    }
+            file.close();
+        }
+   });
+
+   mainLayout->addWidget(labname);
+   mainLayout->addWidget(butname);
+   mainLayout->addWidget(butname2);
+
+   dialog->show();
+}
+
 void MainWindow::actionBootLoad()
 {
   QDialog *dialog = new QDialog(ui->mdiArea);
@@ -925,6 +1034,31 @@ void MainWindow::actionBootLoad()
 
   bootf->show();
   dialog->show();
+}
+
+void MainWindow::actionManualBootLoad()
+{
+    if(vectorModbusDevice.count()>0)
+    {
+        QDialog *dialog = new QDialog(ui->mdiArea);
+        dialog->setAttribute(Qt::WA_DeleteOnClose);
+        QVBoxLayout *mainLayout = new QVBoxLayout(dialog);
+        bootForm *bootf =new bootForm();
+        bootf->setParent(dialog);
+
+        mainLayout->addWidget(bootf);
+
+        dialog->setWindowTitle("Dev: found.../");
+
+        bootf->setVector(vectorModbusDevice);
+        bootf->setFindDev(false);
+
+        bootf->show();
+        dialog->show();
+    }else
+    {
+      QMessageBox::information(this, "Dev: not found.../",tr("Нажмите поиск устройств для обнаружения портов"));
+    }
 }
 
 void MainWindow::actionSaved()

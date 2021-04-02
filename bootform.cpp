@@ -38,7 +38,7 @@ bootForm::bootForm(QWidget *parent) :
                 {
                     setModbus(vectorModbusDevice[i].modbusDev);
                     ModbusBootTimer->start();
-                    ui->button_toboot->setText("Отменить режим");
+                    ui->button_toboot->setText(tr("Отменить режим"));
                     ui->spin_adrmodbus->setEnabled(false);
                     ui->comboBox->setEnabled(false);
                     butstat = true;
@@ -50,7 +50,7 @@ bootForm::bootForm(QWidget *parent) :
             butstat = false;
             ui->spin_adrmodbus->setEnabled(true);
             ui->comboBox->setEnabled(true);
-            ui->button_toboot->setText("Перевести в режим");
+            ui->button_toboot->setText(tr("Перевести в режим"));
             ui->lab_info->setText("");
             ui->textBrowser->clear();
 
@@ -82,6 +82,8 @@ void bootForm::setTable(struct_listSavedDevices table)
     Bootdevice.modbusadr = table.modbusadr;
     Bootdevice.portname = table.portname;
 }
+
+
 void bootForm::setFindDev(bool flag)
 {
    deviceIsfind = flag;
@@ -160,55 +162,90 @@ void bootForm::setModbus(QModbusClient *modbusDev)
    BootmodbusDevice = modbusDev;
 }
 
+
+QByteArray bootForm::readFileFromCode(QString *str,bool *open)
+{
+    QByteArray  keyarray(std::begin<char>({0x45, 0x0A, 0x0B, 0x0c, 0x02, 0x05, 0x35,0x45, 0x0A, 0x045, 0x1c, 0x32, 0x15, 0x25,0x45, 0x6A, 0x07, 0x1c, 0x32, 0x55, 0x35}), 21);
+    QFile file;
+    QByteArray output;
+    *str = QFileDialog::getOpenFileName(this,
+                                                     tr("Открыть"),
+                                                     QString(),
+                                                     "JSON (*.cod)");
+    file.setFileName(*str);
+    if ((file.exists())&&(file.open(QIODevice::ReadOnly)))
+    {
+        QByteArray input = file.readAll();
+        const char* key = keyarray;
+        int keyLength = keyarray.length();
+
+        for ( int i = 0; i < input.length() ; i++ )
+        {
+            output.append(input[i] ^ key[i % keyLength + 1]);
+        }
+        file.close();
+        *open = true;
+    }else
+    {     *open = false;
+          ui->textBrowser->append("File not open");
+    }
+    return output;
+}
+
 void bootForm::ButtonOpenFile()
 {
  ui->button_boot->setEnabled(false);
  currentStepBoot = 0;
  currentNumStruct = 0;
- QFile file;
- QString loadFileName = QFileDialog::getOpenFileName(this,
-                                                  tr("Открыть"),
-                                                  QString(),
-                                                  "JSON (*.hex)");
+ QString loadFileName;
+ bool open;
+ QByteArray arrayHEX = readFileFromCode(&loadFileName,&open);
+ if ( open )
+ {
+     QList<QByteArray> lines = arrayHEX.split('\n');
+     fileInfo->setFile(loadFileName);
 
-  fileInfo->setFile(loadFileName);
-  file.setFileName(loadFileName);
-  QString hexstr;
-  hexFileString.clear();
-  hexFileStruct.clear();
+      QString hexstr;
+      hexFileString.clear();
+      hexFileStruct.clear();
 
-  if ((file.exists())&&(file.open(QIODevice::ReadOnly)))
-  {
       ui->lin_pathfile->setText(loadFileName);
 
       union_hex_str hex_struct;
       int num_str =1;
       bool hexcomplete = false;
       ui->progressBar->setValue(0);
-      while(!file.atEnd())
+
+      foreach ( const QByteArray &line, lines)
       {
-          hexstr=file.readLine();
+          hexstr=QString::fromLatin1(line);
           hexFileString << hexstr;
-          if( Ascii_To_HexStruct(&hex_struct,hexstr) )
+          hexstr.remove(":");
+          hexstr.remove("\r");
+          if(hexstr.toLatin1().length()>0 )
           {
-#ifdef BOOT_FILE_DEBUG
-            ui->textBrowser->append(QString::number(num_str)+": HEX Line::" +hexstr);
-            ui->textBrowser->append("CountByte:"+QString::number(hex_struct.Regs.countByte,16));
-            ui->textBrowser->append("adrFlash:"+QString::number(hex_struct.Regs.adrFlash,16));
-            ui->textBrowser->append("typeStr:"+QString::number(hex_struct.Regs.typeStr,16));
-            ui->textBrowser->append("================");
-#endif
-            hexFileStruct << hex_struct;
-            hexcomplete = true;
-          }else
-          {
-            hexcomplete = false;
-            hexFileString.clear();
-            hexFileStruct.clear();
-            ui->textBrowser->append(QString::number(num_str)+": HEX Line not readed");
-            break;
+                  if( Ascii_To_HexStruct(&hex_struct,hexstr.toLatin1()) )
+                  {
+    #ifdef BOOT_FILE_DEBUG
+                    ui->textBrowser->append(QString::number(num_str)+": HEX Line::" +hexstr);
+                    ui->textBrowser->append("CountByte:"+QString::number(hex_struct.Regs.countByte,16));
+                    ui->textBrowser->append("adrFlash:"+QString::number(hex_struct.Regs.adrFlash,16));
+                    ui->textBrowser->append("typeStr:"+QString::number(hex_struct.Regs.typeStr,16));
+                    ui->textBrowser->append("================");
+    #endif
+                    hexFileStruct << hex_struct;
+                    hexcomplete = true;
+                  }else
+                  {
+                    hexcomplete = false;
+                    hexFileString.clear();
+                    hexFileStruct.clear();
+                    ui->textBrowser->append(QString::number(num_str)+": HEX Line not readed");
+                    ui->textBrowser->append(hexstr);
+                    break;
+                  }
+                  num_str++;
           }
-          num_str++;
       }
       if( hexcomplete )
       {
@@ -224,63 +261,57 @@ void bootForm::ButtonOpenFile()
       {
           ui->textBrowser->append("File have problem");
       }
-      file.close();
-  }else
-  {
-    ui->textBrowser->append("File not open");
-  }
+ }
 }
 
-bool bootForm::Ascii_To_HexStruct(union_hex_str* str_hex, QString str)
+bool bootForm::Ascii_To_HexStruct(union_hex_str* str_hex, QByteArray buf)
 {
    bool stat = false;
-   str.remove(":");
-   str.remove("\r\n");
-   QByteArray buf = str.toLocal8Bit();
    uint8_t buf_len = buf.length();
-
    QByteArray bufH;
-
-    for(int i=0; i<buf_len;i++)
-    {
-        if(buf[i] <= '9' && buf[i] >= '0' )
+   if( buf_len > 0 )
+   {
+        for(int i=0; i<buf_len;i++)
         {
-            buf[i] = buf[i] - 0x30;
+            if(buf[i] <= '9' && buf[i] >= '0' )
+            {
+                buf[i] = buf[i] - 0x30;
+            }
+            else
+            {
+                buf[i] = buf[i] - 0x41 + 10;
+            }
         }
-        else
-        {
-            buf[i] = buf[i] - 0x41 + 10;
-        }
-    }
 
-   for(int i=0; i< buf_len/2;i++)
-   {
-      bufH.append((buf[i*2]<<4) + buf[i*2+1]);
-   }
+       for(int i=0; i< buf_len/2;i++)
+       {
+          bufH.append((buf[i*2]<<4) + buf[i*2+1]);
+       }
 
-   uint8_t crc = 0;
-   for(int i=0;i< (buf_len/2)-1;i++)
-   {
-       crc += bufH[i] ;
-   }
-   crc = ~crc+0x01;
+       uint8_t crc = 0;
+       for(int i=0;i< (buf_len/2)-1;i++)
+       {
+           crc += bufH[i] ;
+       }
+       crc = ~crc+0x01;
 
-   if( crc!= static_cast<uint8_t>(bufH[(buf_len/2)-1]) )
-   {
-       stat = false;
-   }else
-   {
-     str_hex->Regs.countByte = bufH[0];
-     str_hex->Regs.adrFlash[0] = bufH[1];
-     str_hex->Regs.adrFlash[1] = bufH[2];
-     str_hex->Regs.typeStr = bufH[3];
-     for(int i=0;i<str_hex->Regs.countByte;i++)
-     {
-         str_hex->Regs.str[i] = static_cast<uint8_t>(bufH[i+4]);
-     }
-     str_hex->Regs.crcStr = bufH[(buf_len/2)-1];
+       if( crc!= static_cast<uint8_t>(bufH[(buf_len/2)-1]) )
+       {
+           stat = false;
+       }else
+       {
+         str_hex->Regs.countByte = bufH[0];
+         str_hex->Regs.adrFlash[0] = bufH[1];
+         str_hex->Regs.adrFlash[1] = bufH[2];
+         str_hex->Regs.typeStr = bufH[3];
+         for(int i=0;i<str_hex->Regs.countByte;i++)
+         {
+             str_hex->Regs.str[i] = static_cast<uint8_t>(bufH[i+4]);
+         }
+         str_hex->Regs.crcStr = bufH[(buf_len/2)-1];
 
-     stat = true;
+         stat = true;
+       }
    }
    return stat;
 }
@@ -307,7 +338,7 @@ void bootForm::bootSteps(int numRepeat)
     case 0:
         LoclTableHex->Regs.RegComand = (uint16_t)CMD_READY_TO_BOOT;
         currentStepBoot++;
-        ui->lab_info->setText("Старт загрузки");
+        ui->lab_info->setText(tr("Старт загрузки"));
         break;
     case 1:
         if( LoclTableHex->Regs.RegStatus == (uint16_t)ANSW_READY_TO_BOOT)
@@ -316,10 +347,10 @@ void bootForm::bootSteps(int numRepeat)
              {
                 LoclTableHex->Regs.RegStatus = 0;
                 currentStepBoot++;
-                ui->textBrowser->append("Старт загрузки");
+                ui->textBrowser->append(tr("Старт загрузки"));
              }else
              {
-                ui->textBrowser->append("Ошибка старта загрузки");
+                ui->textBrowser->append(tr("Ошибка старта загрузки"));
                 ui->textBrowser->append("Error:"+ QString::number(LoclTableHex->Regs.RegErors));
                 flashStop = true;
              }
@@ -331,7 +362,7 @@ void bootForm::bootSteps(int numRepeat)
     case 2:
         LoclTableHex->Regs.RegComand = (uint16_t)CMD_START_BOOT;
         currentStepBoot++;
-        ui->lab_info->setText("Очистка памяти");
+        ui->lab_info->setText(tr("Очистка памяти"));
         break;
     case 3:
         if( LoclTableHex->Regs.RegStatus == (uint16_t)ANSW_START_BOOT )
@@ -340,10 +371,10 @@ void bootForm::bootSteps(int numRepeat)
             {
                 LoclTableHex->Regs.RegStatus = 0;
                 currentStepBoot++;
-                ui->textBrowser->append("Очистка памяти");
+                ui->textBrowser->append(tr("Очистка памяти"));
             }else
             {
-                ui->textBrowser->append("Ошибка очистки памяти");
+                ui->textBrowser->append(tr("Ошибка очистки памяти"));
                 ui->textBrowser->append("Error:"+ QString::number(LoclTableHex->Regs.RegErors));
                 flashStop = true;
             }
@@ -368,8 +399,8 @@ void bootForm::bootSteps(int numRepeat)
             LoclTableHex->Regs.RegStatus = 0;
             currentStepBoot++;
             if(currentNumStruct-1 ==0)
-            ui->textBrowser->append("Загрузка строк");
-            ui->lab_info->setText("Загрузка строки:" +QString::number(currentNumStruct-1));
+            ui->textBrowser->append(tr("Загрузка строк"));
+            ui->lab_info->setText(tr("Загрузка строки:") +QString::number(currentNumStruct-1));
         }
         break;
     case 5:
@@ -387,7 +418,7 @@ void bootForm::bootSteps(int numRepeat)
                  }
              }else
              {
-                 ui->textBrowser->append("Ошибка загрузки строки");
+                 ui->textBrowser->append(tr("Ошибка загрузки строки"));
                  ui->textBrowser->append("Error: "+ QString::number(LoclTableHex->Regs.RegErors));
                  ui->textBrowser->append("Error: line"+QString::number(currentNumStruct-1-COUNT_STR_BLOCK)+"-"+QString::number(currentNumStruct-1));
                  flashStop = true;
@@ -397,7 +428,7 @@ void bootForm::bootSteps(int numRepeat)
     case 6:
         LoclTableHex->Regs.RegComand = (uint16_t)CMD_END_BOOT;
         currentStepBoot++;
-        ui->lab_info->setText("Конец загрузки");
+        ui->lab_info->setText(tr("Конец загрузки"));
         break;
     case 7:
         if( LoclTableHex->Regs.RegStatus == (uint16_t)ANSW_END_BOOT )
@@ -405,13 +436,13 @@ void bootForm::bootSteps(int numRepeat)
             if( LoclTableHex->Regs.RegErors == ERR_NOT )
             {
                 //датчик прошит
-               ui->textBrowser->append("Датчик прошит");
+               ui->textBrowser->append(tr("Датчик прошит"));
                currentStepBoot=0;
                ModbusBootTimer->start();
                flashStop = true;
             }else
             {
-                ui->textBrowser->append("Ошибка конца загрузки");
+                ui->textBrowser->append(tr("Ошибка конца загрузки"));
                 ui->textBrowser->append("Error:"+ QString::number(LoclTableHex->Regs.RegErors));
                 flashStop = true;
             }

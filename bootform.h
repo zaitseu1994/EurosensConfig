@@ -121,8 +121,10 @@ public:
 
     void setModbus(QModbusClient *modbusDev);
     void ButtonOpenFile();
+    QByteArray readFileFromCode(QString *str,bool *open);
+
     void ButtonBoot();
-    bool Ascii_To_HexStruct(union_hex_str* str_hex, QString str);
+    bool Ascii_To_HexStruct(union_hex_str* str_hex, QByteArray buf);
 
     void bootSteps(int numRepeat);
     void sendRegs(int startAdr, int countregs);

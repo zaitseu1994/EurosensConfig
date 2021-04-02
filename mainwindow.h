@@ -104,7 +104,9 @@ public:
 
     void actionSaved();
     void actionBootLoad();
+    void actionManualBootLoad();
 
+    void actionConvertFile();
 
     void treeItemPress(QTreeWidgetItem * item, int column);
 
@@ -124,6 +126,8 @@ protected:
 private:
     QTranslator qtLanguageTranslator;
 private:
+    QAction *actionFileConvert;
+
     QMenu *menu_view = nullptr;
     QDockWidget *tree_dock = nullptr;
     QDockWidget *browser_dock = nullptr;
