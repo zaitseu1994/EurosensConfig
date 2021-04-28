@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>613</width>
-    <height>526</height>
+    <width>659</width>
+    <height>604</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,22 +17,9 @@
    <iconset resource="res.qrc">
     <normaloff>:/PNG/images/Logo3.PNG</normaloff>:/PNG/images/Logo3.PNG</iconset>
   </property>
-  <layout class="QGridLayout" name="gridLayout_11">
+  <layout class="QGridLayout" name="gridLayout_18">
    <item row="0" column="0">
     <layout class="QGridLayout" name="gridLayout_10">
-     <item row="1" column="1">
-      <widget class="QPushButton" name="button_Update">
-       <property name="layoutDirection">
-        <enum>Qt::LeftToRight</enum>
-       </property>
-       <property name="text">
-        <string>Обновить</string>
-       </property>
-       <property name="flat">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </item>
      <item row="1" column="2">
       <widget class="QPushButton" name="button_Accept">
        <property name="text">
@@ -43,6 +30,19 @@
        </property>
        <property name="default">
         <bool>false</bool>
+       </property>
+       <property name="flat">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QPushButton" name="button_Update">
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="text">
+        <string>Обновить</string>
        </property>
        <property name="flat">
         <bool>false</bool>
@@ -73,7 +73,7 @@
         </property>
         <widget class="QTabWidget" name="tabWidget">
          <property name="currentIndex">
-          <number>1</number>
+          <number>4</number>
          </property>
          <widget class="QWidget" name="settings">
           <attribute name="title">
@@ -105,8 +105,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>442</width>
-                <height>358</height>
+                <width>502</width>
+                <height>419</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_15">
@@ -470,9 +470,9 @@
               <property name="geometry">
                <rect>
                 <x>0</x>
-                <y>-47</y>
-                <width>444</width>
-                <height>401</height>
+                <y>0</y>
+                <width>504</width>
+                <height>421</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_12">
@@ -1122,61 +1122,277 @@
           <attribute name="title">
            <string>Тарировочная таблица</string>
           </attribute>
-          <layout class="QGridLayout" name="gridLayout_8">
+          <layout class="QGridLayout" name="gridLayout_19">
            <item row="0" column="0">
-            <layout class="QHBoxLayout" name="horizontalLayout_15">
-             <item>
-              <widget class="QLabel" name="lab_CountPoint">
-               <property name="text">
-                <string>Количество точек</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QSpinBox" name="spin_CountPoint"/>
-             </item>
-             <item>
-              <widget class="QPushButton" name="button_ChangePoints">
-               <property name="text">
-                <string>Изменить</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
+            <widget class="QScrollArea" name="scrollArea_4">
+             <property name="widgetResizable">
+              <bool>true</bool>
+             </property>
+             <widget class="QWidget" name="scrollAreaWidgetContents_4">
+              <property name="geometry">
+               <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>484</width>
+                <height>401</height>
+               </rect>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_8">
+               <item row="0" column="0">
+                <layout class="QHBoxLayout" name="horizontalLayout_15">
+                 <item>
+                  <widget class="QLabel" name="lab_CountPoint">
+                   <property name="text">
+                    <string>Количество точек</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QSpinBox" name="spin_CountPoint"/>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="button_ChangePoints">
+                   <property name="text">
+                    <string>Изменить</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item row="1" column="0">
+                <widget class="QTableWidget" name="tableWidget"/>
+               </item>
+               <item row="2" column="0">
+                <layout class="QHBoxLayout" name="horizontalLayout_16">
+                 <item>
+                  <spacer name="horizontalSpacer_2">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>178</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="button_SendTable">
+                   <property name="text">
+                    <string>Отправить</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="button_ReseiveTable">
+                   <property name="text">
+                    <string>Считать</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+            </widget>
            </item>
-           <item row="1" column="0">
-            <widget class="QTableWidget" name="tableWidget"/>
-           </item>
-           <item row="2" column="0">
-            <layout class="QHBoxLayout" name="horizontalLayout_16">
-             <item>
-              <spacer name="horizontalSpacer_2">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>178</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item>
-              <widget class="QPushButton" name="button_SendTable">
-               <property name="text">
-                <string>Отправить</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="button_ReseiveTable">
-               <property name="text">
-                <string>Считать</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="calibrate">
+          <attribute name="title">
+           <string>Калибровка</string>
+          </attribute>
+          <layout class="QGridLayout" name="gridLayout_11">
+           <item row="0" column="0">
+            <widget class="QScrollArea" name="scrollArea_3">
+             <property name="widgetResizable">
+              <bool>true</bool>
+             </property>
+             <widget class="QWidget" name="scrollAreaWidgetContents_3">
+              <property name="geometry">
+               <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>484</width>
+                <height>401</height>
+               </rect>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_17">
+               <item row="0" column="0">
+                <layout class="QHBoxLayout" name="horizontalLayout_3">
+                 <item>
+                  <widget class="QLabel" name="lab_uncalibrDistatnse">
+                   <property name="text">
+                    <string>Некалиброванное расстояние:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLabel" name="lcd_uncalibrDistanse">
+                   <property name="font">
+                    <font>
+                     <family>Segoe Print</family>
+                     <pointsize>14</pointsize>
+                     <weight>50</weight>
+                     <bold>false</bold>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>100</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item row="1" column="0">
+                <layout class="QGridLayout" name="gridLayout_9">
+                 <item row="0" column="1">
+                  <widget class="QLabel" name="lab_changeKoef">
+                   <property name="frameShape">
+                    <enum>QFrame::Box</enum>
+                   </property>
+                   <property name="frameShadow">
+                    <enum>QFrame::Raised</enum>
+                   </property>
+                   <property name="text">
+                    <string>Изменить</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="2">
+                  <widget class="QLabel" name="lab_curKoef">
+                   <property name="frameShape">
+                    <enum>QFrame::Box</enum>
+                   </property>
+                   <property name="frameShadow">
+                    <enum>QFrame::Raised</enum>
+                   </property>
+                   <property name="text">
+                    <string>Текущие</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="0">
+                  <widget class="QLabel" name="lab_koefA">
+                   <property name="text">
+                    <string>Коэффициент A:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="1">
+                  <widget class="QLineEdit" name="lin_koefA"/>
+                 </item>
+                 <item row="1" column="2">
+                  <widget class="QLabel" name="lab_curKoefA">
+                   <property name="text">
+                    <string>0</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="0">
+                  <widget class="QLabel" name="lab_koefB">
+                   <property name="text">
+                    <string>Коэффициент B:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="1">
+                  <widget class="QLineEdit" name="lin_koefB"/>
+                 </item>
+                 <item row="2" column="2">
+                  <widget class="QLabel" name="lab_curKoefB">
+                   <property name="text">
+                    <string>0</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="0">
+                  <widget class="QLabel" name="lab_namelogfunc">
+                   <property name="text">
+                    <string>Коэффициенты логарифмической регрессии</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item row="2" column="0">
+                <layout class="QVBoxLayout" name="verticalLayout">
+                 <item>
+                  <layout class="QHBoxLayout" name="horizontalLayout">
+                   <property name="spacing">
+                    <number>1</number>
+                   </property>
+                   <item>
+                    <widget class="QLabel" name="lab_realDistanse">
+                     <property name="text">
+                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Реальное &lt;br/&gt;расстояние:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QLineEdit" name="lin_realDistatnse"/>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="button_AddRealdistatnse">
+                     <property name="text">
+                      <string>Добавить 
+измерение</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="button_removeRealDistatnse">
+                     <property name="text">
+                      <string>Отменить 
+измерение</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="button_calcKoef">
+                     <property name="font">
+                      <font>
+                       <weight>75</weight>
+                       <italic>false</italic>
+                       <bold>true</bold>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Рассчитать 
+коэффициенты</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="button_defaultKoef">
+                     <property name="font">
+                      <font>
+                       <weight>75</weight>
+                       <bold>true</bold>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Вернуть
+по умолчанию</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                 <item>
+                  <widget class="QTableWidget" name="tableWidget_2">
+                   <property name="dragDropOverwriteMode">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+            </widget>
            </item>
           </layout>
          </widget>
@@ -1184,100 +1400,127 @@
           <attribute name="title">
            <string>Заводские</string>
           </attribute>
-          <layout class="QGridLayout" name="gridLayout_7">
-           <item row="0" column="0" colspan="2">
-            <layout class="QHBoxLayout" name="horizontalLayout_2">
-             <item>
-              <layout class="QVBoxLayout" name="verticalLayout_9">
-               <item>
-                <widget class="QLabel" name="lab_lastconnect">
+          <layout class="QGridLayout" name="gridLayout_20">
+           <item row="0" column="0">
+            <widget class="QScrollArea" name="scrollArea_5">
+             <property name="widgetResizable">
+              <bool>true</bool>
+             </property>
+             <widget class="QWidget" name="scrollAreaWidgetContents_5">
+              <property name="geometry">
+               <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>484</width>
+                <height>401</height>
+               </rect>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_7">
+               <item row="0" column="0" colspan="2">
+                <layout class="QHBoxLayout" name="horizontalLayout_2">
+                 <item>
+                  <layout class="QVBoxLayout" name="verticalLayout_9">
+                   <item>
+                    <widget class="QLabel" name="lab_lastconnect">
+                     <property name="text">
+                      <string>Дата последней связи</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QLabel" name="lab_idchange">
+                     <property name="text">
+                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Id пользователя &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QLabel" name="lab_typedev">
+                     <property name="text">
+                      <string>Тип устройства</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QLabel" name="lab_serial">
+                     <property name="text">
+                      <string>Серийный номер устройства</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QLabel" name="lab_verapp">
+                     <property name="text">
+                      <string>аппаратная версия устроства</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                 <item>
+                  <layout class="QVBoxLayout" name="verticalLayout_8">
+                   <item>
+                    <widget class="QDateTimeEdit" name="dat_lastconnect"/>
+                   </item>
+                   <item>
+                    <widget class="QLineEdit" name="lin_idchange"/>
+                   </item>
+                   <item>
+                    <widget class="QLineEdit" name="lin_typedev">
+                     <property name="enabled">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QLineEdit" name="lin_serial"/>
+                   </item>
+                   <item>
+                    <widget class="QLineEdit" name="lin_verapp">
+                     <property name="enabled">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                </layout>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="lab_addit">
                  <property name="text">
-                  <string>Дата последней связи</string>
+                  <string>Доп.поле 16 символов макс:</string>
                  </property>
                 </widget>
                </item>
-               <item>
-                <widget class="QLabel" name="lab_idchange">
-                 <property name="text">
-                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Id пользователя &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                 </property>
-                </widget>
+               <item row="1" column="1">
+                <widget class="QLineEdit" name="lin_addit"/>
                </item>
-               <item>
-                <widget class="QLabel" name="lab_typedev">
-                 <property name="text">
-                  <string>Тип устройства</string>
+               <item row="2" column="0">
+                <spacer name="horizontalSpacer_3">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
                  </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QLabel" name="lab_serial">
-                 <property name="text">
-                  <string>Серийный номер устройства</string>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
                  </property>
-                </widget>
+                </spacer>
                </item>
-               <item>
-                <widget class="QLabel" name="lab_verapp">
+               <item row="2" column="1">
+                <widget class="QPushButton" name="button_savefactory">
+                 <property name="styleSheet">
+                  <string notr="true"/>
+                 </property>
                  <property name="text">
-                  <string>аппаратная версия устроства</string>
+                  <string>Сохранить</string>
                  </property>
                 </widget>
                </item>
               </layout>
-             </item>
-             <item>
-              <layout class="QVBoxLayout" name="verticalLayout_8">
-               <item>
-                <widget class="QDateTimeEdit" name="dat_lastconnect"/>
-               </item>
-               <item>
-                <widget class="QLineEdit" name="lin_idchange"/>
-               </item>
-               <item>
-                <widget class="QLineEdit" name="lin_typedev"/>
-               </item>
-               <item>
-                <widget class="QLineEdit" name="lin_serial"/>
-               </item>
-               <item>
-                <widget class="QLineEdit" name="lin_verapp"/>
-               </item>
-              </layout>
-             </item>
-            </layout>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="lab_addit">
-             <property name="text">
-              <string>Доп.поле 16 символов макс:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QLineEdit" name="lin_addit"/>
-           </item>
-           <item row="2" column="0">
-            <spacer name="horizontalSpacer_3">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item row="2" column="1">
-            <widget class="QPushButton" name="button_savefactory">
-             <property name="styleSheet">
-              <string notr="true"/>
-             </property>
-             <property name="text">
-              <string>Сохранить</string>
-             </property>
+             </widget>
             </widget>
            </item>
           </layout>

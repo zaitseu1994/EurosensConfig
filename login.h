@@ -11,7 +11,8 @@ class Login;
 class Login : public QWidget
 {
     Q_OBJECT
-
+private:
+    uint32_t maPrime2dHash (QByteArray array);
 public:
     explicit Login(QWidget *parent = nullptr);
     ~Login();

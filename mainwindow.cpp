@@ -40,7 +40,6 @@
 //#define DEBUG_WEB
 #define DEBUG_MWS
 
-
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -69,7 +68,6 @@ MainWindow::MainWindow(QWidget *parent)
     this->addAction(actionFileConvert);
     actionFileConvert->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Q));
     connect(actionFileConvert,&QAction::triggered,this,&MainWindow::actionConvertFile);
-
 
     httpNetwork = new QNetworkAccessManager(this);
 
@@ -609,7 +607,6 @@ void MainWindow::pollReplyModbus()
             const QModbusDataUnit unit = replyModbus->result();
             if ( int(unit.valueCount()) == sizeof(struct_tableRegsRead)/2 )
             {
-                ui->textBrowser->append(tr("Найдено устройство")+"; "+tr("Протокол")+": "+tr("MODBUS-rtu")+"; "+tr("Адрес")+":"+ QString::number(replyModbus->serverAddress()));
                 union_tableRegsRead LoclTable;
                 for(int i = unit.startAddress(), total  = int(unit.valueCount()); i < total ;i++) // переписываем ответ в локальную таблицу регистров
                 {
@@ -618,6 +615,7 @@ void MainWindow::pollReplyModbus()
                 QString findname = findNameDevice(LoclTable);
                 getDeviceModbus(LoclTable,vectorModbusDevice[intcomModBusDevice],findname);
                 vectorModbusDevice[intcomModBusDevice].isFind = true;
+                ui->textBrowser->append(tr("Найдено устройство")+"; "+tr("Протокол")+": "+tr("MODBUS-rtu")+"; "+tr("Адрес")+":"+ QString::number(replyModbus->serverAddress()));
             }
         } else {
             if ( replyModbus->serverAddress() == LAST_MODBUS_ADRESS )

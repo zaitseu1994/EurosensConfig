@@ -38,7 +38,7 @@ MWS::MWS(QWidget *parent) :
 
     ui->dat_lastconnect->setEnabled(false);
     ui->lin_idchange->setEnabled(false);
-    ui->tabWidget->removeTab(3);
+    ui->tabWidget->removeTab(4);
 
     MouseEvent = new Mouseenter();
     setToolTips();
@@ -60,6 +60,92 @@ MWS::MWS(QWidget *parent) :
     {
         QString str = tr("Наведите курсор чтоб получить информацию...");
         emit MWSMouseEvent(str);
+    });
+
+
+    connect(ui->button_defaultKoef,&QPushButton::clicked,this,[=]
+    {
+        ui->lin_koefA->setText("0.7294");
+        ui->lin_koefB->setText("0.0503");
+    });
+
+    connect(ui->button_AddRealdistatnse,&QPushButton::clicked,this,[=]
+    {
+        QTableWidget *tableWidget = ui->tableWidget_2;
+        tableWidget->setColumnCount(2);
+        QTableWidgetItem *itemHead1 = new QTableWidgetItem(tr("Измеренное расстояние, мм"));
+        QTableWidgetItem *itemHead2 = new QTableWidgetItem(tr("Реальное расстояние, мм"));
+        itemHead1->setTextAlignment(Qt::AlignLeft);
+        itemHead2->setTextAlignment(Qt::AlignLeft);
+
+        tableWidget->setHorizontalHeaderItem(0,itemHead1);
+        tableWidget->setHorizontalHeaderItem(1,itemHead2);
+        int rowCount = tableWidget->rowCount();
+
+        if( rowCount < 50)
+        {
+            tableWidget->insertRow(rowCount);
+
+            QTableWidgetItem *newItemMeasure = new QTableWidgetItem();
+            newItemMeasure->setText(ui->lcd_uncalibrDistanse->text());
+            newItemMeasure->setTextAlignment(Qt::AlignLeft);
+            tableWidget->setItem(tableWidget->rowCount()-1, 0, newItemMeasure);
+
+            QTableWidgetItem *newItemReal = new QTableWidgetItem("sdf");
+            newItemReal->setText(ui->lin_realDistatnse->text());
+            newItemReal->setTextAlignment(Qt::AlignLeft);
+            tableWidget->setItem(tableWidget->rowCount()-1, 1, newItemReal);
+
+            tableWidget->resizeColumnsToContents();
+            ui->lin_realDistatnse->clear();
+        }
+    });
+
+    connect(ui->button_removeRealDistatnse,&QPushButton::clicked,this,[=]
+    {
+        QTableWidget *tableWidget = ui->tableWidget_2;
+        tableWidget->removeRow(tableWidget->rowCount()-1);
+    });
+
+    connect(ui->button_calcKoef,&QPushButton::clicked,this,[=]
+    {
+       float arrayY[50];
+       float arrayX[50];
+
+       float koefA =0;
+       float koefB =0;
+
+       QTableWidget *tableWidget = ui->tableWidget_2;
+       int countNum = tableWidget->rowCount();
+
+       for(int i=0;i<tableWidget->rowCount();i++)
+       {
+          arrayX[i] = tableWidget->item(i,0)->text().toFloat();
+          arrayY[i] = tableWidget->item(i,1)->text().toFloat()/arrayX[i];
+          if(  arrayY[i]<0.8 || arrayY[i] > 1.2 )
+          {
+               QMessageBox::warning(this, tr("Калибровка"),tr("Проверьте правильность данных"));
+               break;
+          }
+       }
+       float sum_YlnX = 0;
+       float sum_lnX =0;
+       float sum_Y=0;
+       float sum_ln2X=0;
+
+       for(int i =0;i<countNum;i++)
+       {
+           sum_YlnX+= arrayY[i]*log(arrayX[i]);
+           sum_lnX+=log(arrayX[i]);
+           sum_Y+=arrayY[i];
+           sum_ln2X+=log(arrayX[i])*log(arrayX[i]);
+       }
+
+       koefB =  (countNum*sum_YlnX-sum_lnX*sum_Y)/(countNum*sum_ln2X-sum_lnX*sum_lnX);
+       koefA = (sum_Y/countNum);
+       koefA = koefA - (koefB/countNum)*sum_lnX;
+       ui->lin_koefA->setText(QString::number(koefA));
+       ui->lin_koefB->setText(QString::number(koefB));
     });
 
     memset(&LoclTableRecieve,0,sizeof(LoclTableRecieve));
@@ -212,13 +298,17 @@ MWS::MWS(QWidget *parent) :
         if ( str == "1111" )
         {
             QWidget* tab = ui->tabWidget->findChild<QWidget*>("addit",Qt::FindChildrenRecursively);
-            ui->tabWidget->insertTab(3,tab,tr("Заводские"));
+            ui->tabWidget->insertTab(4,tab,tr("Заводские"));
+        }else
+        {
+
+
         }
     });
 
     connect(ui->button_savefactory,&QPushButton::clicked,this,[=]
     {
-            ui->tabWidget->removeTab(3);
+            ui->tabWidget->removeTab(4);
 
             QDateTime datefactory = QDateTime::currentDateTime();
 
@@ -328,6 +418,9 @@ MWS::MWS(QWidget *parent) :
    ui->graph_table->addGraph(); // текущий обьем по Y
    ui->graph_table->addGraph(); // текущее расстояние по X
 }
+
+
+
 
 void MWS::logInit()
 {
@@ -1366,6 +1459,9 @@ ui->comb_TypeAverage->setCurrentIndex(Table->Regs.TypeAverag);
  ui->comb_TypeApproximation->setCurrentIndex(Table->Regs.TypeApproxim);
  ui->comb_TypeAverage->setCurrentIndex(Table->Regs.TypeAverag);
 
+ ui->lin_koefA->setText(QString::number(Table->Regs.logA));
+ ui->lin_koefB->setText(QString::number(Table->Regs.logB));
+
  ui->check_res_CAN->setChecked(Table->Regs.Reslift & 0x0f00 ? true :false);
  ui->check_res_RS485->setChecked(Table->Regs.Reslift & 0x000f ? true :false);
  ui->check_pow_CAN->setChecked(Table->Regs.Reslift & 0xf000 ? true :false);
@@ -1377,6 +1473,9 @@ void MWS::updateAllSettingsView(union_tableRegsWrite* Table)
 {
      ui->lcd_Distance->setText(QString::number(Table->Regs.CurrentDistanse));
      ui->lcd_Volume->setText(QString::number(static_cast<double>(Table->Regs.CurrentVolume)/1000));
+
+     float koef = ui->lab_curKoefA->text().toFloat() + (ui->lab_curKoefB->text().toFloat())*log(Table->Regs.CurrentDistanse);
+     ui->lcd_uncalibrDistanse->setText(QString::number(static_cast<uint16_t>(Table->Regs.CurrentDistanse/koef)));
 
      QString errstr;
      QString errFlag;
@@ -1421,6 +1520,9 @@ void MWS::updateAllSettingsView(union_tableRegsWrite* Table)
      ui->lab_PowerSaveModeCur->setText(ui->comb_PowerSaveMode->itemText(Table->Regs.PowerSaveMode));
      ui->lab_ProfileCur->setText(ui->comb_Profile->itemText(Table->Regs.Profile));
 
+     ui->lab_curKoefA->setText(QString::number(Table->Regs.logA));
+     ui->lab_curKoefB->setText(QString::number(Table->Regs.logB));
+
      ui->check_res_CANCur->setText(Table->Regs.Reslift & 0x0f00 ? "1":"0");
      ui->check_res_RS485Cur->setText(Table->Regs.Reslift & 0x000f ? "1":"0");
      ui->check_pow_CANCur->setText(Table->Regs.Reslift & 0xf000 ? "1":"0");
@@ -1451,6 +1553,9 @@ bool MWS::updateAllSettingsTable(union_tableRegsWrite *Table)
      Table->Regs.PowerSaveMode = ui->comb_PowerSaveMode->currentIndex();
      Table->Regs.Profile = ui->comb_Profile->currentIndex();
      Table->Regs.TXDisable = 0;
+
+     Table->Regs.logA = ui->lin_koefA->text().toFloat();
+     Table->Regs.logB = ui->lin_koefB->text().toFloat();
 
      ui->check_res_CAN->isChecked() ? Table->Regs.Reslift|= 0x0100 : Table->Regs.Reslift&= 0x1011;
      ui->check_res_RS485->isChecked() ? Table->Regs.Reslift|= 0x0001 : Table->Regs.Reslift&= 0x1110;
@@ -1510,3 +1615,4 @@ qreal MWS::Lagranj (double X)
     }
     return L;
 }
+

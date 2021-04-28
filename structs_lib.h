@@ -46,8 +46,8 @@ typedef struct struct_tableRegsWrite
     int       DownSampFactor;    // 1,2,4 (“делитель волны”)       // 4b
     float     RunningAverage;    // 0.0 - 1.0                      // 4b
     uint16_t  NoiseLevel;        // bool                           // 2b
-    int       res4;                                                // 4b
-    int       res5;                                                // 4b <-33
+    float     logA;                                                // 4b
+    float     logB;                                                // 4b <-33
 
     uint16_t  AdrModbus;        // Адрес модбас                    // 2b <-35
     uint16_t  TypeApproxim;     // Тип аппроксимации               // 2b

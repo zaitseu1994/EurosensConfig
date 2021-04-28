@@ -25,5 +25,6 @@
         <file>images/Web.png</file>
         <file>images/langEN.png</file>
         <file>images/langRU.png</file>
+        <file>images/lnm.png</file>
     </qresource>
 </RCC>

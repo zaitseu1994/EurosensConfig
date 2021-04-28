@@ -7,7 +7,7 @@
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
+   QApplication a(argc, argv);
 
 //    QTranslator qtLanguageTranslator;
 //    qtLanguageTranslator.load(QString("QtLanguage_") + QString("en_US"));
