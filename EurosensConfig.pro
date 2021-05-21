@@ -23,7 +23,9 @@ include(QtXlsxWriter/src/xlsx/qtxlsx.pri)
 
 SOURCES += \
     bootform.cpp \
+    dev_base.cpp \
     devicelibs.cpp \
+    differenseanglvolt.cpp \
     login.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -34,13 +36,16 @@ SOURCES += \
 
 HEADERS += \
     bootform.h \
+    dev_base.h \
     devicelibs.h \
+    differenseanglvolt.h \
     login.h \
     mainwindow.h \
     mouseenter.h \
     mws.h \
     popup.h \
     qcustomplot.h \
+    struct_lib_dif.h \
     structs_lib.h \
     structs_main.h \
     structs_ui.h \
@@ -48,6 +53,7 @@ HEADERS += \
 
 FORMS += \
     bootform.ui \
+    differenseanglvolt.ui \
     login.ui \
     mainwindow.ui \
     mws.ui

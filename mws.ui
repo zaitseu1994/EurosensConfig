@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>659</width>
-    <height>604</height>
+    <width>640</width>
+    <height>595</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,6 +20,19 @@
   <layout class="QGridLayout" name="gridLayout_18">
    <item row="0" column="0">
     <layout class="QGridLayout" name="gridLayout_10">
+     <item row="1" column="1">
+      <widget class="QPushButton" name="button_Update">
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="text">
+        <string>Обновить</string>
+       </property>
+       <property name="flat">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
      <item row="1" column="2">
       <widget class="QPushButton" name="button_Accept">
        <property name="text">
@@ -30,19 +43,6 @@
        </property>
        <property name="default">
         <bool>false</bool>
-       </property>
-       <property name="flat">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QPushButton" name="button_Update">
-       <property name="layoutDirection">
-        <enum>Qt::LeftToRight</enum>
-       </property>
-       <property name="text">
-        <string>Обновить</string>
        </property>
        <property name="flat">
         <bool>false</bool>
@@ -73,7 +73,7 @@
         </property>
         <widget class="QTabWidget" name="tabWidget">
          <property name="currentIndex">
-          <number>4</number>
+          <number>1</number>
          </property>
          <widget class="QWidget" name="settings">
           <attribute name="title">
@@ -105,8 +105,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>502</width>
-                <height>419</height>
+                <width>483</width>
+                <height>412</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_15">
@@ -471,8 +471,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>504</width>
-                <height>421</height>
+                <width>485</width>
+                <height>414</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_12">
@@ -1133,8 +1133,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>484</width>
-                <height>401</height>
+                <width>465</width>
+                <height>394</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_8">
@@ -1214,8 +1214,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>484</width>
-                <height>401</height>
+                <width>471</width>
+                <height>380</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_17">
@@ -1411,8 +1411,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>484</width>
-                <height>401</height>
+                <width>465</width>
+                <height>394</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_7">

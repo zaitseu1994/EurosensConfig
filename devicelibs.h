@@ -63,7 +63,8 @@ public:
 
     void devSettingsAccept(struct_listSavedDevices table,QJsonObject json);
     void retranslateDev();
-
+    dev_base* createDev(struct_listSavedDevices table);
+    const char* getGeometryFile(struct_listSavedDevices table);
     bool CloseAll();
     bool CloseDev(struct_listSavedDevices table);
     QJsonObject getSetting(struct_listSavedDevices table);
@@ -85,7 +86,7 @@ private:
         state_dev StateConnect = DEV_DISCONNECT;
         QModbusClient *modbus;
         QMdiArea      *mdiArea;
-        MWS           *dialog;
+        dev_base      *dialog;
         MyQMdiSubWindow *subWin;
     }struct_DialofInfo;
     QVector<struct_DialofInfo> vectorDialogs;

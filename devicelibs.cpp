@@ -3,6 +3,8 @@
 #include <QAction>
 #include "libtype4.h"
 #include "mws.h"
+#include "differenseanglvolt.h"
+#include "dev_base.h"
 
 #include <QJsonObject>
 #include <QJsonArray>
@@ -149,24 +151,26 @@ void DeviceLibs::devSettingsAccept(struct_listSavedDevices table,QJsonObject jso
 
 bool DeviceLibs:: LibOpen(struct_listSavedDevices table,QMdiArea *mdiArea,QModbusClient *modbus)
 {
-    bool stat =false;
-    MWS *m_settings = new MWS();
+    bool stat =false; 
 
-    connect(m_settings,&MWS::DevDisconnect,this,&DeviceLibs::devDisconnect);
-    connect(m_settings,&MWS::DevReady,this,&DeviceLibs::devReady);
-    connect(m_settings,&MWS::DevBusy,this,&DeviceLibs::devBusy);
-    connect(m_settings,&MWS::DevSettingAccept,this,&DeviceLibs::devSettingsAccept);
+    table.device.Regs.guitype =102;
+    dev_base *m_settings = createDev(table);
+    const char* const FILE_NAME = getGeometryFile(table);
 
-    connect(m_settings,&MWS::MWSMouseEvent,this,[=](QString str)
+    connect(m_settings,&dev_base::DevDisconnect,this,&DeviceLibs::devDisconnect);
+    connect(m_settings,&dev_base::DevReady,this,&DeviceLibs::devReady);
+    connect(m_settings,&dev_base::DevBusy,this,&DeviceLibs::devBusy);
+    connect(m_settings,&dev_base::DevSettingAccept,this,&DeviceLibs::devSettingsAccept);
+
+    connect(m_settings,&dev_base::DEVMouseEvent,this,[=](QString str)
     {
         emit DeviceToolTip(str);
     });
 
-    connect(m_settings,&MWS::MWSErrorString,this,[=](QString str)
+    connect(m_settings,&dev_base::DEVErrorString,this,[=](QString str)
     {
         emit DeviceErrorString(str);
     });
-
 
     MyQMdiSubWindow *mysub = new MyQMdiSubWindow();
 
@@ -175,7 +179,7 @@ bool DeviceLibs:: LibOpen(struct_listSavedDevices table,QMdiArea *mdiArea,QModbu
     mdiArea->addSubWindow(mysub);
     connect(mysub,&MyQMdiSubWindow::closed,this,[=](struct_listSavedDevices tableStr)
     {
-            static const char* const FILE_NAME = "mws.bin";
+//            static const char* const FILE_NAME = "mws.bin";
             QFile file( FILE_NAME );
             QDataStream stream( &file );
             QByteArray window = mysub->saveGeometry();
@@ -207,7 +211,7 @@ bool DeviceLibs:: LibOpen(struct_listSavedDevices table,QMdiArea *mdiArea,QModbu
             }
     });
 
-    static const char* const FILE_NAME = "mws.bin";
+//    static const char* const FILE_NAME = "mws.bin";
     QFile file( FILE_NAME );
     QDataStream stream( &file );
     QByteArray window;
@@ -236,6 +240,42 @@ bool DeviceLibs:: LibOpen(struct_listSavedDevices table,QMdiArea *mdiArea,QModbu
 
     stat =true;
     return  stat;
+}
+
+dev_base* DeviceLibs::createDev(struct_listSavedDevices table)
+{
+    dev_base *m_settings = nullptr;
+    switch (table.device.Regs.guitype )
+    {
+       case 102:
+           m_settings = new DifferenseAnglVolt();
+        break;
+       case 103:
+          m_settings = new MWS();
+        break;
+       default:
+          m_settings = new MWS();
+       break;
+    }
+    return m_settings;
+}
+
+const char* DeviceLibs::getGeometryFile(struct_listSavedDevices table)
+{
+    const char* FILE_NAME = nullptr;
+    switch (table.device.Regs.guitype )
+    {
+       case 102:
+           FILE_NAME = "dif.bin";
+        break;
+       case 103:
+          FILE_NAME = "mws.bin";
+        break;
+       default:
+          FILE_NAME = "mws.bin";
+       break;
+    }
+    return FILE_NAME;
 }
 
 bool DeviceLibs::CloseDev(struct_listSavedDevices table)

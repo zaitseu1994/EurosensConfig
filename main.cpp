@@ -9,6 +9,8 @@ int main(int argc, char *argv[])
 {
    QApplication a(argc, argv);
 
+//если кто то увидит этот *овнокод не ругайтесь впустую, ругайтесь на zaitseu1994@gmail.com
+
 //    QTranslator qtLanguageTranslator;
 //    qtLanguageTranslator.load(QString("QtLanguage_") + QString("en_US"));
 //    qApp->installTranslator(&qtLanguageTranslator);

@@ -25,28 +25,29 @@
 #include "xlsxrichstring.h"
 #include "xlsxworkbook.h"
 
+#include "dev_base.h"
+
 using namespace QXlsx;
 
 namespace Ui {
 class MWS;
 }
 
-class MWS : public QWidget
+class MWS : public dev_base
 {
     Q_OBJECT
 public:
-    explicit MWS(QWidget *parent = nullptr);
+    explicit MWS(dev_base *parent = nullptr);
     ~MWS();
 public:
-    void getTable(struct_listSavedDevices table);
-    void start(QModbusClient *modbusDev);
+    void getTable(struct_listSavedDevices table) override;
+    void start(QModbusClient *modbusDev) override;
+    void setId(QString str) override;
+    void retranslate() override;
+    QJsonObject getSetting() override;
+    bool setSetting(QJsonObject json, QString idset,QString timeset) override;
+private:
     void setToolTips();
-    void setId(QString str);
-    void retranslate();
-
-    QJsonObject getSetting();
-    bool setSetting(QJsonObject json, QString idset,QString timeset);
-
 private:
     QString idUser = "0";
     QDateTime startTime;
@@ -130,8 +131,6 @@ signals:
     void DevReady(struct_listSavedDevices device);
     void DevBusy(struct_listSavedDevices device);
     void DevSettingAccept(struct_listSavedDevices device,QJsonObject json);
-    void MWSMouseEvent(QString str);
-    void MWSErrorString(QString str);
 private:
     Action CurrentAction = NO_ACTION;
     QQueue <Action> queueAction;
@@ -183,15 +182,16 @@ private:
     QVector<double> graph_amplitudeY{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
     QCPBars *barGraph;
+protected:
+    struct_listSavedDevices device;
 private:
     Ui::MWS *ui;
     QTimer *ModbusRegsTimer = nullptr;
     QTimer *BootTimeout = nullptr;
     QTimer *LogFileTimer = nullptr;
-    struct_listSavedDevices device;
     QModbusClient *modbusDevice = nullptr;
     bool firstRequest = true;
-    Mouseenter *MouseEvent =nullptr;
+//    Mouseenter *MouseEvent =nullptr;
 };
 
 #endif // MWS_H

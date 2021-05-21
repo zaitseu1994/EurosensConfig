@@ -30,8 +30,8 @@
 
 #define BOOT_TIMEOUT   5000
 
-MWS::MWS(QWidget *parent) :
-    QWidget(parent),
+MWS::MWS(dev_base *parent) :
+    dev_base(parent),
     ui(new Ui::MWS)
 {
     ui->setupUi(this);
@@ -40,7 +40,7 @@ MWS::MWS(QWidget *parent) :
     ui->lin_idchange->setEnabled(false);
     ui->tabWidget->removeTab(4);
 
-    MouseEvent = new Mouseenter();
+//    MouseEvent = new Mouseenter(this);
     setToolTips();
 
     LogXSLS = new QAction();
@@ -50,17 +50,17 @@ MWS::MWS(QWidget *parent) :
 
     poup = new PopUp();
 
-    connect(MouseEvent,&Mouseenter::signalMouseHoverEnter,this,[=](QLabel* lab)
-    {
-        QString str =  lab->toolTip();
-        emit MWSMouseEvent(str);
-    });
+//    connect(MouseEvent,&Mouseenter::signalMouseHoverEnter,this,[=](QLabel* lab)
+//    {
+//        QString str =  lab->toolTip();
+//        emit MWSMouseEvent(str);
+//    });
 
-    connect(MouseEvent,&Mouseenter::signalMouseHoverLeave,this,[=]()
-    {
-        QString str = tr("Наведите курсор чтоб получить информацию...");
-        emit MWSMouseEvent(str);
-    });
+//    connect(MouseEvent,&Mouseenter::signalMouseHoverLeave,this,[=]()
+//    {
+//        QString str = tr("Наведите курсор чтоб получить информацию...");
+//        emit MWSMouseEvent(str);
+//    });
 
 
     connect(ui->button_defaultKoef,&QPushButton::clicked,this,[=]
@@ -502,7 +502,7 @@ void MWS::retranslate()
 
 void MWS::setId(QString str)
 {
-   idUser = str;
+    idUser = str;
 }
 
 MWS::~MWS()
@@ -530,7 +530,6 @@ MWS::~MWS()
     LogFileXlsx.saveAs("Log"+QString::number(device.device.Regs.SerialNum)+".xlsx");
 
     delete LogXSLS;
-    delete MouseEvent;
     delete LogFileTimer;
     delete ModbusRegsTimer;
     delete ui;
@@ -762,7 +761,7 @@ void MWS::updateRegs(int startAdr, int countregs)
     } else
     {
        ModbusRegsTimer->stop();
-       emit MWSErrorString(tr("Утеряно соединение с портом!"));
+       emit DEVErrorString(tr("Утеряно соединение с портом!"));
        emit DevDisconnect(device);
     }
 }
@@ -790,7 +789,7 @@ void MWS::replyReceivedRead()
                 }
 
         } else {
-            emit MWSErrorString(tr("Ошибка канала связи ")+"replyReceivedRead "+replyModbus->errorString());
+            emit DEVErrorString(tr("Ошибка канала связи ")+"replyReceivedRead "+replyModbus->errorString());
             emit DevDisconnect(device);
             ModbusRegsTimer->stop();
         }
@@ -822,7 +821,7 @@ void MWS::sendRegs(int startAdr, int countregs)
     } else
     {
        ModbusRegsTimer->stop();
-       emit MWSErrorString(tr("Утеряно соединение с портом!"));
+       emit DEVErrorString(tr("Утеряно соединение с портом!"));
        emit DevDisconnect(device);
     }
 }
@@ -834,7 +833,7 @@ void MWS::replyReceivedWrite()
     return;
         if (replyModbus->error() == QModbusDevice::NoError) {
         } else {
-            emit MWSErrorString(tr("Ошибка канала связи ")+ "replyReceivedWrite "+ replyModbus->errorString());
+            emit DEVErrorString(tr("Ошибка канала связи ")+ "replyReceivedWrite "+ replyModbus->errorString());
         }
         replyModbus->deleteLater();
 }

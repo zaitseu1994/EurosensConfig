@@ -16,7 +16,8 @@ typedef struct struc_tableRegsRead
    uint32_t  SerialNum;        // серийный номер устройства       // 4b
    uint32_t  VerApp;           // аппаратная версия устройства    // 4b
    uint32_t  idset;            // id пользователя создавший настройки //4b
-   uint16_t  mas[8];           // доп резерв                      // 20b
+   uint16_t  guitype;          // тип gui библиотеки заимодействия //2b
+   uint16_t  mas[7];           // доп резерв                      // 18b
 }struct_tableRegsRead;
 #pragma pack(pop)
 
