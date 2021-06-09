@@ -6,14 +6,18 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>744</width>
-    <height>591</height>
+    <width>722</width>
+    <height>610</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_4" rowstretch="3,1">
+  <property name="windowIcon">
+   <iconset resource="res.qrc">
+    <normaloff>:/PNG/images/Logo3.PNG</normaloff>:/PNG/images/Logo3.PNG</iconset>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_4" rowstretch="4,1">
    <item row="0" column="0">
     <widget class="QScrollArea" name="scrollArea">
      <property name="widgetResizable">
@@ -24,8 +28,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>724</width>
-        <height>423</height>
+        <width>702</width>
+        <height>467</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_3">
@@ -49,7 +53,7 @@
          <property name="title">
           <string>Графики</string>
          </property>
-         <layout class="QGridLayout" name="gridLayout_7" rowstretch="2,1">
+         <layout class="QGridLayout" name="gridLayout_7" rowstretch="5,4">
           <property name="leftMargin">
            <number>0</number>
           </property>
@@ -65,12 +69,12 @@
           <property name="spacing">
            <number>0</number>
           </property>
-          <item row="1" column="0">
-           <widget class="QGroupBox" name="groupBox_angls">
+          <item row="0" column="0">
+           <widget class="QGroupBox" name="groupBox_volts">
             <property name="title">
-             <string>Углы</string>
+             <string>Напряжения</string>
             </property>
-            <layout class="QGridLayout" name="gridLayout_6">
+            <layout class="QGridLayout" name="gridLayout_5">
              <property name="leftMargin">
               <number>0</number>
              </property>
@@ -87,19 +91,7 @@
               <number>0</number>
              </property>
              <item row="0" column="0">
-              <widget class="QCustomPlot" name="graph_angls" native="true"/>
-             </item>
-            </layout>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QGroupBox" name="groupBox_volts">
-            <property name="title">
-             <string>Напряжения</string>
-            </property>
-            <layout class="QGridLayout" name="gridLayout_5">
-             <item row="0" column="0">
-              <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="10,1">
+              <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="13,3">
                <item>
                 <widget class="QCustomPlot" name="graph_volts" native="true"/>
                </item>
@@ -134,16 +126,123 @@
                   </widget>
                  </item>
                  <item>
-                  <widget class="QLCDNumber" name="lcd_ch1"/>
+                  <widget class="QLCDNumber" name="lcd_ch1">
+                   <property name="digitCount">
+                    <number>6</number>
+                   </property>
+                   <property name="mode">
+                    <enum>QLCDNumber::Dec</enum>
+                   </property>
+                   <property name="segmentStyle">
+                    <enum>QLCDNumber::Flat</enum>
+                   </property>
+                  </widget>
                  </item>
                  <item>
-                  <widget class="QLCDNumber" name="lcd_ch2"/>
+                  <widget class="QLCDNumber" name="lcd_ch2">
+                   <property name="digitCount">
+                    <number>6</number>
+                   </property>
+                   <property name="segmentStyle">
+                    <enum>QLCDNumber::Flat</enum>
+                   </property>
+                  </widget>
                  </item>
                  <item>
-                  <widget class="QLCDNumber" name="lcd_ch3"/>
+                  <widget class="QLCDNumber" name="lcd_ch3">
+                   <property name="digitCount">
+                    <number>6</number>
+                   </property>
+                   <property name="segmentStyle">
+                    <enum>QLCDNumber::Flat</enum>
+                   </property>
+                  </widget>
                  </item>
                  <item>
-                  <widget class="QLCDNumber" name="lcd_ch4"/>
+                  <widget class="QLCDNumber" name="lcd_ch4">
+                   <property name="digitCount">
+                    <number>6</number>
+                   </property>
+                   <property name="segmentStyle">
+                    <enum>QLCDNumber::Flat</enum>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QGroupBox" name="groupBox_angls">
+            <property name="title">
+             <string>Углы</string>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_6">
+             <item row="0" column="0">
+              <layout class="QHBoxLayout" name="horizontalLayout_6" stretch="9,2">
+               <item>
+                <widget class="QCustomPlot" name="graph_angls" native="true"/>
+               </item>
+               <item>
+                <layout class="QVBoxLayout" name="verticalLayout_3">
+                 <item>
+                  <widget class="QCheckBox" name="check_refers">
+                   <property name="text">
+                    <string>Относительные</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QCheckBox" name="check_above">
+                   <property name="text">
+                    <string>Оба датчика</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <layout class="QHBoxLayout" name="horizontalLayout_3">
+                   <item>
+                    <widget class="QCheckBox" name="check_X">
+                     <property name="text">
+                      <string>X</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QLCDNumber" name="lcd_X"/>
+                   </item>
+                  </layout>
+                 </item>
+                 <item>
+                  <layout class="QHBoxLayout" name="horizontalLayout_4">
+                   <item>
+                    <widget class="QCheckBox" name="check_Y">
+                     <property name="text">
+                      <string>Y</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QLCDNumber" name="lcd_Y"/>
+                   </item>
+                  </layout>
+                 </item>
+                 <item>
+                  <layout class="QHBoxLayout" name="horizontalLayout_5">
+                   <item>
+                    <widget class="QCheckBox" name="check_Z">
+                     <property name="text">
+                      <string>Z</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QLCDNumber" name="lcd_Z"/>
+                   </item>
+                  </layout>
                  </item>
                 </layout>
                </item>
@@ -171,8 +270,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>178</width>
-          <height>138</height>
+          <width>158</width>
+          <height>133</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout">
@@ -224,16 +323,237 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>536</width>
-          <height>138</height>
+          <width>506</width>
+          <height>232</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_2">
          <item row="0" column="0">
-          <widget class="QGroupBox" name="groupBox_3">
+          <widget class="QGroupBox" name="group_setting_calibration">
            <property name="title">
             <string>Настройки</string>
            </property>
+           <layout class="QGridLayout" name="gridLayout_9">
+            <item row="0" column="0">
+             <layout class="QHBoxLayout" name="horizontalLayout_7">
+              <item>
+               <widget class="QLabel" name="label">
+                <property name="text">
+                 <string>Vref Ch1,mV = </string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="lab_ch1_vref">
+                <property name="text">
+                 <string>10000</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_5">
+                <property name="text">
+                 <string>V Ch1 = </string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="lab_ch1_v">
+                <property name="text">
+                 <string>10000</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="lin_vref_ch1"/>
+              </item>
+             </layout>
+            </item>
+            <item row="0" column="1" rowspan="2">
+             <widget class="QPushButton" name="but_readCalibration">
+              <property name="text">
+               <string>Считать</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <layout class="QHBoxLayout" name="horizontalLayout_8">
+              <item>
+               <widget class="QLabel" name="label_2">
+                <property name="text">
+                 <string>Vref Ch2,mV = </string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="lab_ch2_vref">
+                <property name="text">
+                 <string>10000</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_6">
+                <property name="text">
+                 <string>V Ch2 = </string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="lab_ch2_v">
+                <property name="text">
+                 <string>10000</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="lin_vref_ch2"/>
+              </item>
+             </layout>
+            </item>
+            <item row="2" column="0">
+             <layout class="QHBoxLayout" name="horizontalLayout_9">
+              <item>
+               <widget class="QLabel" name="label_3">
+                <property name="text">
+                 <string>Vref Ch3,mV = </string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="lab_ch3_vref">
+                <property name="text">
+                 <string>10000</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_7">
+                <property name="text">
+                 <string>V Ch3 = </string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="lab_ch3_v">
+                <property name="text">
+                 <string>10000</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="lin_vref_ch3"/>
+              </item>
+             </layout>
+            </item>
+            <item row="2" column="1" rowspan="2">
+             <widget class="QPushButton" name="but_sendCalibration">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>Калибровать
+и установить
+адреса</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <layout class="QHBoxLayout" name="horizontalLayout_10">
+              <item>
+               <widget class="QLabel" name="label_4">
+                <property name="text">
+                 <string>Vref Ch4,mV = </string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="lab_ch4_vref">
+                <property name="text">
+                 <string>10000</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_8">
+                <property name="text">
+                 <string>V Ch4 = </string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="lab_ch4_v">
+                <property name="text">
+                 <string>10000</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="lin_vref_ch4"/>
+              </item>
+             </layout>
+            </item>
+            <item row="4" column="0">
+             <layout class="QHBoxLayout" name="horizontalLayout_11">
+              <item>
+               <widget class="QLabel" name="label_9">
+                <property name="text">
+                 <string>Address degree sensor 1</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="lab_adr_angl1">
+                <property name="text">
+                 <string>1</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="lin_adr_angl1"/>
+              </item>
+             </layout>
+            </item>
+            <item row="5" column="0">
+             <layout class="QHBoxLayout" name="horizontalLayout_12">
+              <item>
+               <widget class="QLabel" name="label_10">
+                <property name="text">
+                 <string>Address degree sensor 2</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="lab_adr_angl2">
+                <property name="text">
+                 <string>2</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="lin_adr_angl2"/>
+              </item>
+             </layout>
+            </item>
+            <item row="5" column="1">
+             <widget class="QPushButton" name="but_save">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="font">
+               <font>
+                <family>Arial</family>
+                <weight>75</weight>
+                <italic>true</italic>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>Сохранить</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </widget>
          </item>
         </layout>
@@ -252,6 +572,8 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="res.qrc"/>
+ </resources>
  <connections/>
 </ui>

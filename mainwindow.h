@@ -27,11 +27,13 @@
 #define MODBUS_TIMEOUT_REPLY 130
 #define MODBUS_COUNT_REPEAT  1
 
+#define NUM_VERSION_  1
+#define NUM_BUILD_    0
+#define NUM_REVISION_ 1
+
 class QModbusClient;
 class QModbusReply;
 class DeviceLibs;
-
-
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -114,6 +116,7 @@ public:
 
     void LoadLibDevice();
     void ViewSettingsDevice();
+    QString getAddfield(union_tableRegsRead table);
 
     void SetLanguage();
 

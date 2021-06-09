@@ -6,7 +6,10 @@
 #pragma pack(push, 1)
 typedef struct struc_tableRegsRead
 {
-   uint32_t  LogError;         // лог ошибок
+   uint8_t  LogError;         // лог ошибок
+   uint8_t  NUM_VERSION;      // номер версии
+   uint8_t  NUM_BUILD;        // номер сборки
+   uint8_t  NUM_REVISION;     // номер ревизии
    uint64_t  timeconnect;      // Дата последней связи            // 8b
    uint64_t  timechange;       // Дата изменения настроек         // 8b
    uint32_t  idchange;         // id пользователя внес изменения  // 4b

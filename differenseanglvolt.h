@@ -12,14 +12,18 @@
 #include "xlsxrichstring.h"
 #include "xlsxworkbook.h"
 
+#include "struct_lib_dif.h"
+
 #include "dev_base.h"
 
-#define DEEP_GRAPHS_VOLTS_POINTS 100
+#define DEEP_GRAPHS_VOLTS_POINTS 50
 #define MODBUS_TIMEOUT_PACKET 150
 #define MODBUS_COUNT_REPAET 1
 
 #define TIMER_100ms   100
 #define TIMER_1000ms  1000
+
+#define CMD_SAVE     (0x43)
 
 namespace Ui {
 class DifferenseAnglVolt;
@@ -54,8 +58,14 @@ public:
 private:
     void WritePointsGraphs();
     void InitGraphsVoltsChanel();
+    void sendRegs(int startAdr, int countregs);
+    void replyReceivedWrite();
     void updateRegs(int startAdr, int countregs);
     void replyReceivedRead();
+    void DataToQueue();
+    void DataToView();
+    void sendCalibration();
+    void logSave();
 private:
     QTimer *Tim10PerSecond = nullptr;
     QTimer *Tim1PerSecond = nullptr;
@@ -69,7 +79,18 @@ private: // вектора для каналов c ацп
     QVector<double> graph_amplitudeCH2;
     QVector<double> graph_amplitudeCH3;
     QVector<double> graph_amplitudeCH4;
+
+    QVector<double> graph_amplitudeANGLX;
+    QVector<double> graph_amplitudeANGLY;
+    QVector<double> graph_amplitudeANGLZ;
+
 protected:
+    bool flgSave = false;
+    QXlsx::Document *LogFileXlsx = NULL;
+    int XSLXcountLine =1;
+    QTime startLogTime;
+    QTime endLogTime;
+    uinon_tableRegsWriteDIF  Wtable;
     struct_listSavedDevices device;
     QModbusClient *modbusDevice = nullptr;
     QString idUser = "0";

@@ -153,7 +153,6 @@ bool DeviceLibs:: LibOpen(struct_listSavedDevices table,QMdiArea *mdiArea,QModbu
 {
     bool stat =false; 
 
-    table.device.Regs.guitype =102;
     dev_base *m_settings = createDev(table);
     const char* const FILE_NAME = getGeometryFile(table);
 

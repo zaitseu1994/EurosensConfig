@@ -21,7 +21,7 @@ typedef struct struct_settings {
 #pragma pack(pop)
 
 #pragma pack(push, 1)
-typedef struct struct_tableRegsWrite
+typedef struct struct_tableRegsWriteDIF
 {
     struct_settings settings; //20 байтов (10 регистров модбас)
     uint16_t  adc_chanal1[COUNT_POINT];// 2байта*COUNT_POINT
@@ -30,13 +30,13 @@ typedef struct struct_tableRegsWrite
     uint16_t  adc_chanal4[COUNT_POINT];// 2байта*COUNT_POINT
     struct_angls  angls1[COUNT_POINT];// 6байта*COUNT_POINT
     struct_angls  angls2[COUNT_POINT];// 6байта*COUNT_POINT
-}struct_tableRegsWrite;
+}struct_tableRegsWriteDIF;
 #pragma pack(pop)
 
-typedef union uinon_tableRegsWrite {
-              struct_tableRegsWrite Regs;
-              uint16_t              Adr[sizeof(struct_tableRegsWrite)/2];
-}uinon_tableRegsWrite;
+typedef union uinon_tableRegsWriteDIF {
+              struct_tableRegsWriteDIF Regs;
+              uint16_t              Adr[sizeof(struct_tableRegsWriteDIF)/2];
+}uinon_tableRegsWriteDIF;
 
 
 #endif // STRUCT_LIB_DIF_H

@@ -65,7 +65,8 @@ typedef struct struct_tableRegsWrite
     uint32_t  SerialNum;        // серийный номер устройства       // 4b
     uint32_t  VerApp;           // аппаратная версия устройства    // 4b
     uint32_t  idset;            // id пользователя создавший настройки //4b
-    uint16_t  mas[8];           // доп резерв                      // 16b 144b <- 62 adr
+    uint16_t  guitype;          // тип gui библиотеки заимодействия //2b
+    uint16_t  mas[7];           // доп резерв                      // 16b 144b <- 62 adr
 }struct_tableRegsWrite;
 #pragma pack(pop)
 

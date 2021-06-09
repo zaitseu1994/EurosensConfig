@@ -1478,18 +1478,20 @@ void MWS::updateAllSettingsView(union_tableRegsWrite* Table)
 
      QString errstr;
      QString errFlag;
+     QString errTrue  = tr("присутствует");
+     QString errFalse = tr("отсутствует");
 
-     QString errMissData = Table->Regs.RegError & 0b000000001 ? "присутствует" :"отсутствует";
-     QString errSensCom = Table->Regs.RegError & 0b000000010 ? "присутствует" :"отсутствует";
-     QString errDataSatur = Table->Regs.RegError & 0b000000100 ? "присутствует" :"отсутствует";
-     QString errDataQuality = Table->Regs.RegError & 0b000001000 ? "присутствует" :"отсутствует";
-     QString errUnknown = Table->Regs.RegError & 0b100000000 ? "присутствует" :"отсутствует";
+     QString errMissData = Table->Regs.RegError & 0b000000001 ? errTrue : errFalse;
+     QString errSensCom = Table->Regs.RegError & 0b000000010 ? errTrue : errFalse;
+     QString errDataSatur = Table->Regs.RegError & 0b000000100 ? errTrue : errFalse;
+     QString errDataQuality = Table->Regs.RegError & 0b000001000 ? errTrue : errFalse;
+     QString errUnknown = Table->Regs.RegError & 0b100000000 ? errTrue : errFalse;
 
-     errstr.append("Ошибка данных: \r\n");
-     errstr.append("Ошибка обмена: \r\n");
-     errstr.append("Ошибка насыщения: \r\n");
-     errstr.append("Ошибка по температуре: \r\n");
-     errstr.append("Неизвестная ошибка: \r\n");
+     errstr.append(tr("Ошибка данных: ")+ "\r\n");
+     errstr.append(tr("Ошибка обмена: ")+"\r\n");
+     errstr.append(tr("Ошибка насыщения: ")+"\r\n");
+     errstr.append(tr("Ошибка по температуре: ")+"\r\n");
+     errstr.append(tr("Неизвестная ошибка: ")+"\r\n");
 
      errFlag.append(errMissData+"\r\n");
      errFlag.append(errSensCom+"\r\n");

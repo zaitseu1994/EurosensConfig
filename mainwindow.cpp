@@ -145,7 +145,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->actionMechatronics_help,&QAction::triggered,this,[=]
     {
-        QString link="https://ru.eurosenstelematics.com";
+        QString link="https://eurosenstelematics.com/";
         QDesktopServices::openUrl(QUrl(link));
     });
 
@@ -258,6 +258,8 @@ MainWindow::MainWindow(QWidget *parent)
      connect(ui->actionlangEN,&QAction::triggered,this,&MainWindow::SetLanguage);
      connect(ui->actionlangRU,&QAction::triggered,this,&MainWindow::SetLanguage);
 
+     const QString title = "EUROSENS CONFIG "+QString::number(NUM_VERSION_)+"."+QString::number(NUM_BUILD_)+"."+QString::number(NUM_REVISION_);
+     this->setWindowTitle(title);
      restoreLanguage();
 }
 
@@ -296,6 +298,8 @@ void MainWindow::changeEvent(QEvent *event)
         else
         butlogin->setText(tr("Нажмите чтоб войти"));
 
+        const QString title = "EUROSENS CONFIG "+QString::number(NUM_VERSION_)+"."+QString::number(NUM_BUILD_)+"."+QString::number(NUM_REVISION_);
+        this->setWindowTitle(title);
     }
 }
 
@@ -718,10 +722,10 @@ void MainWindow::getDeviceModbus(union_tableRegsRead table, struct_ComModbus com
 {
    disconnect(ui->treeWidget,&QTreeWidget::itemPressed,this,&MainWindow::treeItemPress);
 
-   QString str = QString::number(numDevice+1)+") №: "+ QString::number(table.Regs.SerialNum)+" ; "+ nameconnect;
+   QString strDefine = getAddfield(table);
+   QString str = QString::number(numDevice+1)+") №: "+ QString::number(table.Regs.SerialNum)+"; "+strDefine+"; " + nameconnect;
 
    QTreeWidgetItem *toplevel = new QTreeWidgetItem(ui->treeWidget);
-
    toplevel->setText(0,str);
 
    if( table.Regs.idset == MAXWORD )
@@ -788,7 +792,10 @@ void MainWindow::treeItemPress(QTreeWidgetItem * item, int column)
                  statbar_Type->setText(QString::number(tableDevices[numDev].table.Regs.TypeDevice));
                  statbar_Serial->setText(QString::number(tableDevices[numDev].table.Regs.SerialNum));
                  statbar_App->setText(QString::number(tableDevices[numDev].table.Regs.VerApp));
-                 statbar_Log->setText(QString::number(tableDevices[numDev].table.Regs.LogError));
+                 QString verFirmaware = ":("+QString::number(tableDevices[numDev].table.Regs.NUM_VERSION)+"."
+                                           +QString::number(tableDevices[numDev].table.Regs.NUM_BUILD)+"."
+                                           +QString::number(tableDevices[numDev].table.Regs.NUM_REVISION)+")";
+                 statbar_Log->setText(QString::number(tableDevices[numDev].table.Regs.LogError)+verFirmaware);
                  statbar_Protc->setText("MODBUS");
                  statbar_Adr->setText(QString::number(tableDevices[numDev].com.currentAdr));
                  statbar_Port->setText(tableDevices[numDev].com.nameCom);
@@ -856,7 +863,6 @@ void MainWindow::additionalChange()
            int devnum = strli[0].toInt()-1;
            tableDevices[devnum].devicename = linname->text();
            setNameDevice(linname->text(),devnum);
-
            devcombo->setItemText(devcombo->currentIndex(),QString::number(devnum+1)+") Serial: "+QString::number(tableDevices[devnum].table.Regs.SerialNum)+"; "+tr("Имя")+": "+tableDevices[devnum].devicename);
            linname->clear();
 
@@ -1962,21 +1968,24 @@ void MainWindow::ViewSettingsDevice()
                   if(tableDevices[row].table.Regs.iddefault<UINT32_MAX)
                   newItem[6]->setText(QString::number(tableDevices[row].table.Regs.iddefault));
 
-                  QString str;
-                  QByteArray aray;
-                  for (int i = 0; i < static_cast<int>(sizeof(tableDevices[row].table.Regs.mas)); ++i)
-                  {
-                        aray.append((const char*)(tableDevices[row].table.Regs.mas + i), sizeof(uint16_t));
-                  }
-                  for ( int i=0;i<static_cast<int>(sizeof(tableDevices[row].table.Regs.mas));i++ )
-                  {
-                        if(aray[i].operator!=(0xFF))
-                        {
-                            str = QString::fromLocal8Bit(aray);
-                            newItem[7]->setText(str);
-                            break;
-                        }
-                  }
+                  QString str = getAddfield(tableDevices[row].table);
+                  newItem[7]->setText(str);
+//                  QByteArray aray;
+//                  for (int i = 0; i < static_cast<int>(sizeof(tableDevices[row].table.Regs.mas)); ++i)
+//                  {
+//                        aray.append((const char*)(tableDevices[row].table.Regs.mas + i), sizeof(uint16_t));
+//                  }
+//                  for ( int i=0;i<static_cast<int>(sizeof(tableDevices[row].table.Regs.mas));i++ )
+//                  {
+//                        if(aray[i].operator!=(0xFF))
+//                        {
+//                            str = QString::fromLocal8Bit(aray);
+//                            newItem[7]->setText(str);
+//                            break;
+//                        }
+//                  }
+
+
 
                   for( int i=0;i<columnCount;i++ )
                   {
@@ -2005,4 +2014,23 @@ void MainWindow::ViewSettingsDevice()
           dialog->move(poz);
 
      dialog->show();
+}
+
+QString MainWindow::getAddfield(union_tableRegsRead table)
+{
+    QString str;
+    QByteArray aray;
+    for (int i = 0; i < static_cast<int>(sizeof(table.Regs.mas)); ++i)
+    {
+          aray.append((const char*)(table.Regs.mas + i), sizeof(uint16_t));
+    }
+    for ( int i=0;i<static_cast<int>(sizeof(table.Regs.mas));i++ )
+    {
+          if(aray[i].operator!=(0xFF))
+          {
+              str = QString::fromLocal8Bit(aray);
+              break;
+          }
+    }
+    return str;
 }
