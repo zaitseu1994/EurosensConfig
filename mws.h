@@ -126,11 +126,11 @@ private:
         WRITE,
         READ
     }stat_readwrite;
-signals:
-    void DevDisconnect(struct_listSavedDevices device);
-    void DevReady(struct_listSavedDevices device);
-    void DevBusy(struct_listSavedDevices device);
-    void DevSettingAccept(struct_listSavedDevices device,QJsonObject json);
+//signals:
+//    void DevDisconnect(struct_listSavedDevices device);
+//    void DevReady(struct_listSavedDevices device);
+//    void DevBusy(struct_listSavedDevices device);
+//    void DevSettingAccept(struct_listSavedDevices device,QJsonObject json);
 private:
     Action CurrentAction = NO_ACTION;
     QQueue <Action> queueAction;

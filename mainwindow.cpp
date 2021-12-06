@@ -37,7 +37,7 @@
 #define WEB_CONFIRM_GET "ANSWER_GET_CONFIRM"
 #define WEB_CONFIRM_SET "ANSWER_SET_CONFIRM"
 
-//#define DEBUG_WEB
+#define DEBUG_WEB
 #define DEBUG_MWS
 
 MainWindow::MainWindow(QWidget *parent)

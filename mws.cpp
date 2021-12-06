@@ -1484,7 +1484,7 @@ void MWS::updateAllSettingsView(union_tableRegsWrite* Table)
      QString errMissData = Table->Regs.RegError & 0b000000001 ? errTrue : errFalse;
      QString errSensCom = Table->Regs.RegError & 0b000000010 ? errTrue : errFalse;
      QString errDataSatur = Table->Regs.RegError & 0b000000100 ? errTrue : errFalse;
-     QString errDataQuality = Table->Regs.RegError & 0b000001000 ? errTrue : errFalse;
+     QString errDataQuality = Table->Regs.RegError & 0b000001000 ? errFalse : errFalse;
      QString errUnknown = Table->Regs.RegError & 0b100000000 ? errTrue : errFalse;
 
      errstr.append(tr("Ошибка данных: ")+ "\r\n");

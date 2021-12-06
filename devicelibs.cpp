@@ -161,6 +161,7 @@ bool DeviceLibs:: LibOpen(struct_listSavedDevices table,QMdiArea *mdiArea,QModbu
     connect(m_settings,&dev_base::DevBusy,this,&DeviceLibs::devBusy);
     connect(m_settings,&dev_base::DevSettingAccept,this,&DeviceLibs::devSettingsAccept);
 
+
     connect(m_settings,&dev_base::DEVMouseEvent,this,[=](QString str)
     {
         emit DeviceToolTip(str);

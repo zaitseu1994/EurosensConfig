@@ -29,7 +29,7 @@
 
 #define NUM_VERSION_  1
 #define NUM_BUILD_    0
-#define NUM_REVISION_ 1
+#define NUM_REVISION_ 2
 
 class QModbusClient;
 class QModbusReply;
